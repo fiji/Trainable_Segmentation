@@ -5,21 +5,19 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
 
+import weka.core.ContingencyTables;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class GiniFunction extends SplitFunction 
-{
-	
-	/**
-	 * 
-	 */
+public class InformationGainFunction extends SplitFunction
+{	
+	/** generated serial version id */
 	private static final long serialVersionUID = 1L;
-	int index;
-	double threshold;
-	boolean allSame;
+	/** number of random features to use */
 	int numOfFeatures;
+	/** random number generator */
 	final Random random;
+	/** initial random seed */
 	final int seed;
 	
 	// Attribute-class pair comparator (by attribute value)
@@ -41,18 +39,27 @@ public class GiniFunction extends SplitFunction
 	};
 	
 	/**
+	 * Construct an information gain split function (it needs 
+	 * to be initialize with the corresponding data and indices)
 	 * 
-	 * @param numOfFeatures
+	 * @param numOfFeatures number of random features to use
+	 * @param seed random seed for the number generator
 	 */
-	public GiniFunction(int numOfFeatures, final int seed)
+	public InformationGainFunction(
+			int numOfFeatures, 
+			final int seed)
 	{
 		this.numOfFeatures = numOfFeatures;
 		this.seed = seed;
 		this.random = new Random(seed);
 	}
 	
+	
 	/**
-	 * Create split function based on Gini coefficient
+	 * Initialize the function given a specific data set
+	 * 
+	 * @param data link to the original data
+	 * @param indices indices of the samples to use
 	 */	 
 	public void init(Instances data, ArrayList<Integer> indices) 
 	{
@@ -85,9 +92,17 @@ public class GiniFunction extends SplitFunction
 		
 		
 		final int numElements = indices.size();		
-		double minimumGini = Double.MAX_VALUE;
+		double bestGain = Double.MIN_VALUE;
+		
+		// Calculate probabilities for right list
+		double[] initialProb = new double[data.numClasses()];
+		for(int n = 0; n < numElements; n++)
+			initialProb[(int)data.get(n).classValue()] ++;
+		final double initialEntropy = ContingencyTables.entropy(initialProb);
+		
+		initialProb = null;
 				
-		// Get the smallest Gini coefficient
+		// Get the maximum information gain
 		for(int i=0; i < featureToUse.length; i++)
 		{
 			//System.out.println("Feature to use: " + featureToUse[i]);			
@@ -124,49 +139,46 @@ public class GiniFunction extends SplitFunction
 				for(int n = 0; n < splitPoint; n++)
 					probLeft[list.get(n).classValue] ++;
 				
-				// Calculate Gini coefficient
-				double giniLeft = 0;
+				// Calculate entropy
 				for(int nClass = 0; nClass < data.numClasses(); nClass++)
 				{	
 					// Divide by the number of elements to get probabilities
 					if(splitPoint != 0)
 						probLeft[nClass] /= (double) splitPoint;
-					giniLeft += probLeft[nClass] * probLeft[nClass]; 					
 				}
-				giniLeft = 1.0 - giniLeft;
+				final double entropyLeft = ContingencyTables.entropy(probLeft);
 												
 				// Calculate probabilities for right list
 				double[] probRight = new double[data.numClasses()];
 				for(int n = splitPoint; n < list.size(); n++)
 					probRight[list.get(n).classValue] ++;
 				
-				// Calculate Gini coefficient
-				double giniRight = 0;
+				// Calculate entropy;
 				final int rightNumElements = numElements - splitPoint;
 				for(int nClass = 0; nClass < data.numClasses(); nClass++)
 				{	
 					// Divide by the number of elements to get probabilities
 					if(rightNumElements != 0)
 						probRight[nClass] /= (double) rightNumElements;
-					giniRight += probRight[nClass] * probRight[nClass]; 					
 				}
-				giniRight = 1.0 - giniRight;
+				final double entropyRight = ContingencyTables.entropy(probRight);
+				// Total entropy value
+				final double totalEntropy =	entropyLeft * splitPoint / (double) numElements + 
+								entropyRight * rightNumElements / (double) numElements;
 				
-				// Total Gini value
-				double gini =	giniLeft * splitPoint / (double) numElements + 
-								giniRight * rightNumElements / (double) numElements;
+				final double currInfGain = initialEntropy - totalEntropy;
 				
-				// Save values of minimum Gini coefficient
-				if( gini < minimumGini)
+				// Save values of maximum information gain
+				if( currInfGain > bestGain )
 				{
-					minimumGini = gini;
+					bestGain = currInfGain;
 					this.index = featureToUse[i];
 					this.threshold = list.get(splitPoint).attributeValue;
 				}
 				
 			}
 			list.clear();
-			//System.out.println("Minimum gini values: index= " + this.index + " threshold= " + this.threshold);
+			//System.out.println("Maximum information gain values: index= " + this.index + " threshold= " + this.threshold);
 			
 		}
 		
@@ -190,8 +202,9 @@ public class GiniFunction extends SplitFunction
 
 	@Override
 	public SplitFunction newInstance() 
-	{
-		return new GiniFunction(this.numOfFeatures, this.seed);
+	{		
+		return new InformationGainFunction(this.numOfFeatures, this.seed);
 	}
-
+	
+	
 }
