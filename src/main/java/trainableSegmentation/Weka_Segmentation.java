@@ -11,11 +11,9 @@ import javax.swing.SwingUtilities;
 
 import fiji.util.gui.GenericDialogPlus;
 import fiji.util.gui.OverlayedImageCanvas;
-
 import ij.IJ;
 import ij.plugin.PlugIn;
 import ij.plugin.frame.Recorder;
-
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import ij.process.LUT;
@@ -25,6 +23,7 @@ import ij.gui.Roi;
 import ij.gui.StackWindow;
 import ij.io.OpenDialog;
 import ij.io.SaveDialog;
+import ij.ImageJ;
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.WindowManager;
@@ -76,21 +75,17 @@ import java.lang.reflect.Field;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
-
 import weka.classifiers.evaluation.EvaluationUtils;
 import weka.classifiers.evaluation.ThresholdCurve;
-
 import weka.core.FastVector;
 import weka.core.Instances;
 import weka.core.OptionHandler;
 import weka.core.SerializationHelper;
 import weka.core.Utils;
-
 import weka.gui.GUIChooser;
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyDialog;
 import weka.gui.PropertyPanel;
-
 import weka.gui.visualize.PlotData2D;
 import weka.gui.visualize.ThresholdVisualizePanel;
 
@@ -3056,6 +3051,16 @@ public class Weka_Segmentation implements PlugIn
 			AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,  win.overlayOpacity  / 100f);			
 			win.resultOverlay.setComposite(alpha);
 		}
+	}
+	
+	/**
+	 * Main method
+	 * @param args
+	 */
+	public static void main( final String[] args )
+	{
+		ImageJ.main( args );
+		new Weka_Segmentation().run( null );		
 	}
 	
 }// end of Weka_Segmentation class
