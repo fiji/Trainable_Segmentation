@@ -3053,15 +3053,5 @@ public class Weka_Segmentation implements PlugIn
 		}
 	}
 	
-	/**
-	 * Main method
-	 * @param args
-	 */
-	public static void main( final String[] args )
-	{
-		ImageJ.main( args );
-		new Weka_Segmentation().run( null );		
-	}
-	
 }// end of Weka_Segmentation class
 
