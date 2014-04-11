@@ -110,7 +110,7 @@ import weka.gui.explorer.ClassifierPanel;
 public class WekaSegmentation {
 
 	/** maximum number of classes (labels) allowed */
-	public static final int MAX_NUM_CLASSES = 5;
+	public static final int MAX_NUM_CLASSES = 10;
 
 	/** array of lists of Rois for each slice (vector index) 
 	 * and each class (arraylist index) of the training image */

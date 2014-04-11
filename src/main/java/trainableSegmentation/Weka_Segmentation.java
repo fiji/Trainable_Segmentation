@@ -248,32 +248,27 @@ public class Weka_Segmentation implements PlugIn
 		final byte[] blue = new byte[256];
 		final int shift = 255 / WekaSegmentation.MAX_NUM_CLASSES;
 		
-		// assign random colors if # of classes > 5		
-		if( WekaSegmentation.MAX_NUM_CLASSES > 5 )
-		{
-			colors = new Color[ WekaSegmentation.MAX_NUM_CLASSES ];
-			Random random = new Random();
-			
-			// hue for assigning new color ([0.0-1.0])
-		    float hue = 0f;
-		    // saturation for assigning new color ([0.5-1.0]) 
-		    float saturation = 0.5f;
-			
-			for(int i=0; i<WekaSegmentation.MAX_NUM_CLASSES; i++)
-			{
-				colors[ i ] = Color.getHSBColor(hue, saturation, 1);
-				
-				hue += 0.38197f; // golden angle
-		        if (hue > 1) 
-		            hue -= 1;
-		        saturation += 0.38197f; // golden angle
-		        if (saturation > 1)
-		            saturation -= 1;
-		        saturation = 0.5f * saturation + 0.5f;							
-			}
-		}
-			
+		// assign random colors to classes				
+		colors = new Color[ WekaSegmentation.MAX_NUM_CLASSES ];
 		
+		// hue for assigning new color ([0.0-1.0])
+		float hue = 0f;
+		// saturation for assigning new color ([0.5-1.0]) 
+		float saturation = 0.5f;
+
+		for(int i=0; i<WekaSegmentation.MAX_NUM_CLASSES; i++)
+		{
+			colors[ i ] = Color.getHSBColor(hue, saturation, 1);
+
+			hue += 0.38197f; // golden angle
+			if (hue > 1) 
+				hue -= 1;
+			saturation += 0.38197f; // golden angle
+			if (saturation > 1)
+				saturation -= 1;
+			saturation = 0.5f * saturation + 0.5f;							
+		}
+							
 		for(int i = 0 ; i < 256; i++)
 		{
 			final int colorIndex = i / (shift+1);
