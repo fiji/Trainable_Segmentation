@@ -550,12 +550,15 @@ public class Weka_Segmentation implements PlugIn
 		JPanel labelsJPanel = new JPanel();
 		/** Panel with class radio buttons and lists */
 		JPanel annotationsPanel = new JPanel();
-
+		
+		/** buttons panel (left side of the GUI) */
 		JPanel buttonsPanel = new JPanel();
-
+		/** training panel (included in the left side of the GUI) */
 		JPanel trainingJPanel = new JPanel();
+		/** options panel (included in the left side of the GUI) */
 		JPanel optionsJPanel = new JPanel();
-
+		/** main GUI panel (containing the buttons panel on the left,
+		 *  the image in the center and the annotations panel on the right */
 		Panel all = new Panel();
 		
 		/** 50% alpha composite */
