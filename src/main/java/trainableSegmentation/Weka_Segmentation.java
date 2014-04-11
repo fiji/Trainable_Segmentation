@@ -598,6 +598,7 @@ public class Weka_Segmentation implements PlugIn
 
 			// Annotations panel
 			annotationsConstraints.anchor = GridBagConstraints.NORTHWEST;
+			annotationsConstraints.fill = GridBagConstraints.HORIZONTAL;
 			annotationsConstraints.gridwidth = 1;
 			annotationsConstraints.gridheight = 1;
 			annotationsConstraints.gridx = 0;
@@ -612,18 +613,15 @@ public class Weka_Segmentation implements PlugIn
 				exampleList[i].addItemListener(itemListener);
 				addExampleButton[i] = new JButton("Add to " + wekaSegmentation.getClassLabel(i));
 				addExampleButton[i].setToolTipText("Add markings of label '" + wekaSegmentation.getClassLabel(i) + "'");
-
-				annotationsConstraints.fill = GridBagConstraints.HORIZONTAL;
+				
 				annotationsConstraints.insets = new Insets(5, 5, 6, 6);
 
-				boxAnnotation.setConstraints(addExampleButton[i], annotationsConstraints);
-				annotationsPanel.add(addExampleButton[i]);
+				annotationsPanel.add( addExampleButton[i], annotationsConstraints );
 				annotationsConstraints.gridy++;
 
 				annotationsConstraints.insets = new Insets(0,0,0,0);
 
-				boxAnnotation.setConstraints(exampleList[i], annotationsConstraints);
-				annotationsPanel.add(exampleList[i]);
+				annotationsPanel.add( exampleList[i], annotationsConstraints );
 				annotationsConstraints.gridy++;
 			}
 
