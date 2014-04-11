@@ -870,6 +870,10 @@ public class Weka_Segmentation implements PlugIn
 			winc.weighty = 1;
 			setLayout(wingb);
 			add(all, winc);
+			
+			// Fix minimum size to the preferred size at this point
+			pack();
+			setMinimumSize( getPreferredSize() );
 
 
 			// Propagate all listeners
