@@ -246,7 +246,7 @@ public class Weka_Segmentation implements PlugIn
 		final byte[] blue = new byte[256];
 		final int shift = 255 / WekaSegmentation.MAX_NUM_CLASSES;
 		
-		// assign random colors to classes				
+		// assign colors to classes				
 		colors = new Color[ WekaSegmentation.MAX_NUM_CLASSES ];
 		
 		// hue for assigning new color ([0.0-1.0])
