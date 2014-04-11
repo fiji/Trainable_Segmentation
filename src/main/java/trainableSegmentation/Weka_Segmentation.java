@@ -543,6 +543,9 @@ public class Weka_Segmentation implements PlugIn
 		GridBagLayout boxAnnotation = new GridBagLayout();
 		/** constraints for annotation panel */
 		GridBagConstraints annotationsConstraints = new GridBagConstraints();
+		
+		/** panel containing the annotations panel (right side of the GUI) */
+		JPanel labelsJPanel = new JPanel();
 		/** Panel with class radio buttons and lists */
 		JPanel annotationsPanel = new JPanel();
 
@@ -742,6 +745,18 @@ public class Weka_Segmentation implements PlugIn
 			
 			}
 			
+			// Labels panel (includes annotations panel)
+			GridBagLayout labelsLayout = new GridBagLayout();
+			GridBagConstraints labelsConstraints = new GridBagConstraints();
+			labelsJPanel.setLayout( labelsLayout );
+			labelsConstraints.anchor = GridBagConstraints.NORTHWEST;
+			labelsConstraints.fill = GridBagConstraints.HORIZONTAL;
+			labelsConstraints.gridwidth = 1;
+			labelsConstraints.gridheight = 1;
+			labelsConstraints.gridx = 0;
+			labelsConstraints.gridy = 0;
+			labelsJPanel.add( annotationsPanel, labelsConstraints );
+			
 			// Training panel (left side of the GUI)
 			trainingJPanel.setBorder(BorderFactory.createTitledBorder("Training"));
 			GridBagLayout trainingLayout = new GridBagLayout();
@@ -847,7 +862,7 @@ public class Weka_Segmentation implements PlugIn
 			allConstraints.weightx = 0;
 			allConstraints.weighty = 0;
 			allConstraints.gridheight = 1;
-			all.add(annotationsPanel, allConstraints);
+			all.add( labelsJPanel, allConstraints );
 
 			GridBagLayout wingb = new GridBagLayout();
 			GridBagConstraints winc = new GridBagConstraints();
