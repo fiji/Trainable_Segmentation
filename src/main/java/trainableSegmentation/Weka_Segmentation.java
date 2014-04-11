@@ -7,6 +7,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import fiji.util.gui.GenericDialogPlus;
@@ -542,6 +543,9 @@ public class Weka_Segmentation implements PlugIn
 		/** constraints for annotation panel */
 		GridBagConstraints annotationsConstraints = new GridBagConstraints();
 		
+		/** scroll panel for the label/annotation panel */
+		JScrollPane scrollPanel = null;
+		
 		/** panel containing the annotations panel (right side of the GUI) */
 		JPanel labelsJPanel = new JPanel();
 		/** Panel with class radio buttons and lists */
@@ -743,7 +747,7 @@ public class Weka_Segmentation implements PlugIn
 			
 			}
 			
-			// Labels panel (includes annotations panel)
+			// Labels panel (includes annotations panel)			
 			GridBagLayout labelsLayout = new GridBagLayout();
 			GridBagConstraints labelsConstraints = new GridBagConstraints();
 			labelsJPanel.setLayout( labelsLayout );
@@ -754,6 +758,12 @@ public class Weka_Segmentation implements PlugIn
 			labelsConstraints.gridx = 0;
 			labelsConstraints.gridy = 0;
 			labelsJPanel.add( annotationsPanel, labelsConstraints );
+			
+			// Scroll panel for the label panel
+			scrollPanel = new JScrollPane( labelsJPanel );
+			scrollPanel.setHorizontalScrollBarPolicy( JScrollPane.HORIZONTAL_SCROLLBAR_NEVER );
+			scrollPanel.setMinimumSize( labelsJPanel.getPreferredSize() );
+			
 			
 			// Training panel (left side of the GUI)
 			trainingJPanel.setBorder(BorderFactory.createTitledBorder("Training"));
@@ -860,7 +870,7 @@ public class Weka_Segmentation implements PlugIn
 			allConstraints.weightx = 0;
 			allConstraints.weighty = 0;
 			allConstraints.gridheight = 1;
-			all.add( labelsJPanel, allConstraints );
+			all.add( scrollPanel, allConstraints );
 
 			GridBagLayout wingb = new GridBagLayout();
 			GridBagConstraints winc = new GridBagConstraints();
