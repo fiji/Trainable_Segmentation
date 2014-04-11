@@ -804,7 +804,7 @@ public class Weka_Segmentation implements PlugIn
 			buttonsPanel.setLayout(buttonsLayout);
 			buttonsConstraints.anchor = GridBagConstraints.NORTHWEST;
 			buttonsConstraints.fill = GridBagConstraints.HORIZONTAL;
-			buttonsConstraints.gridwidth = 1;super.imp = imp;
+			buttonsConstraints.gridwidth = 1;
 			buttonsConstraints.gridheight = 1;
 			buttonsConstraints.gridx = 0;
 			buttonsConstraints.gridy = 0;
