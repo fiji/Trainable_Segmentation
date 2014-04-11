@@ -821,10 +821,9 @@ public class Weka_Segmentation implements PlugIn
 			allConstraints.anchor = GridBagConstraints.NORTHWEST;
 			allConstraints.fill = GridBagConstraints.BOTH;
 			allConstraints.gridwidth = 1;
-			allConstraints.gridheight = 1;
+			allConstraints.gridheight = 2;
 			allConstraints.gridx = 0;
 			allConstraints.gridy = 0;
-			allConstraints.gridheight = 2;
 			allConstraints.weightx = 0;
 			allConstraints.weighty = 0;
 
@@ -847,7 +846,7 @@ public class Weka_Segmentation implements PlugIn
 			allConstraints.anchor = GridBagConstraints.NORTHEAST;
 			allConstraints.weightx = 0;
 			allConstraints.weighty = 0;
-			allConstraints.gridheight = 2;
+			allConstraints.gridheight = 1;
 			all.add(annotationsPanel, allConstraints);
 
 			GridBagLayout wingb = new GridBagLayout();
