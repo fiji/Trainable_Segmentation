@@ -115,6 +115,11 @@ import weka.gui.visualize.ThresholdVisualizePanel;
  */
 public class Weka_Segmentation implements PlugIn
 {
+	/** plugin's name */
+	public static final String PLUGIN_NAME = "Trainable Weka Segmentation";
+	/** plugin's current version */
+	public static final String PLUGIN_VERSION = "v2.1.0-SNAPSHOT";
+	
 	/** reference to the segmentation backend */
 	final WekaSegmentation wekaSegmentation;
 	
@@ -590,7 +595,7 @@ public class Weka_Segmentation implements PlugIn
 			// Remove the canvas from the window, to add it later
 			removeAll();
 
-			setTitle("Trainable Weka Segmentation");
+			setTitle( Weka_Segmentation.PLUGIN_NAME + " " + Weka_Segmentation.PLUGIN_VERSION );
 
 			// Annotations panel
 			annotationsConstraints.anchor = GridBagConstraints.NORTHWEST;
@@ -1214,7 +1219,7 @@ public class Weka_Segmentation implements PlugIn
 		
 		// The display image is a copy of the training image (single image or stack)
 		displayImage = trainingImage.duplicate();
-		displayImage.setTitle("Trainable Weka Segmentation");
+		displayImage.setTitle( Weka_Segmentation.PLUGIN_NAME + " " + Weka_Segmentation.PLUGIN_VERSION );
 
 		ij.gui.Toolbar.getInstance().setTool(ij.gui.Toolbar.FREELINE);
 
@@ -1902,7 +1907,9 @@ public class Weka_Segmentation implements PlugIn
 
 		// Updating image
 		displayImage = new ImagePlus();
-		displayImage.setProcessor("Trainable Weka Segmentation", trainingImage.getProcessor().duplicate());
+		displayImage.setProcessor( Weka_Segmentation.PLUGIN_NAME + " " 
+									+ Weka_Segmentation.PLUGIN_VERSION, 
+									trainingImage.getProcessor().duplicate());
 
 		// Remove current classification result image
 		win.resultOverlay.setImage(null);
