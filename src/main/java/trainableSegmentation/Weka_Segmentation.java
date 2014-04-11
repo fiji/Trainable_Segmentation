@@ -145,8 +145,6 @@ public class Weka_Segmentation implements PlugIn
 	JButton probabilityButton;
 	/** plot result button */
 	JButton plotButton;
-	/** new image button */
-	//JButton newImageButton;
 	/** apply classifier button */
 	JButton applyButton;
 	/** load classifier button */
@@ -300,10 +298,7 @@ public class Weka_Segmentation implements PlugIn
 		plotButton = new JButton("Plot result");
 		plotButton.setToolTipText("Plot result based on different metrics");
 		plotButton.setEnabled(false);
-
-		//newImageButton = new JButton("New image");
-		//newImageButton.setToolTipText("Load a new image to segment");
-
+		
 		applyButton = new JButton ("Apply classifier");
 		applyButton.setToolTipText("Apply current classifier to a single image or stack");
 		applyButton.setEnabled(false);
@@ -1214,16 +1209,7 @@ public class Weka_Segmentation implements PlugIn
 					"is larger than 1024 pixels.\n" +
 					"Feature stack creation and classifier training " +
 					"might take some time depending on your computer.\n");
-
-
-		//trainingImage.setProcessor("Trainable Weka Segmentation", trainingImage.getProcessor().duplicate().convertToByte(true));
-		//wekaSegmentation.loadNewImage(trainingImage);
-		/*
-		if(trainingImage.getImageStackSize() > 1)
-			(new StackConverter(trainingImage)).convertToGray8();
-		else
-			(new ImageConverter(trainingImage)).convertToGray8();
-		*/
+		
 		wekaSegmentation.setTrainingImage(trainingImage);
 		
 		// The display image is a copy of the training image (single image or stack)
@@ -1240,8 +1226,6 @@ public class Weka_Segmentation implements PlugIn
 						win.pack();
 					}
 				});
-
-		//trainingImage.getWindow().setVisible(false);
 	}
 
 	/**
