@@ -18,11 +18,11 @@
 
 	<dependencies>
 		<dependency>
-        	<groupId>sc.fiji</groupId>
-            <artifactId>fiji-lib</artifactId>
-            <version>${fiji.version}</version>
-            <scope>test</scope>
-        </dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>fiji-lib</artifactId>
+			<version>${fiji.version}</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>${jama.groupId}</groupId>
 			<artifactId>jama</artifactId>
