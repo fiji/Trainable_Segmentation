@@ -644,7 +644,6 @@ public class Weka_Segmentation implements PlugIn
 			resultButton.addActionListener(listener);
 			probabilityButton.addActionListener(listener);
 			plotButton.addActionListener(listener);
-			//newImageButton.addActionListener(listener);
 			applyButton.addActionListener(listener);
 			loadClassifierButton.addActionListener(listener);
 			saveClassifierButton.addActionListener(listener);
