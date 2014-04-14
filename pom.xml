@@ -109,6 +109,11 @@
 		</dependency>
 	</dependencies>
 
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://jenkins.imagej.net/job/Trainable_Segmentation/</url>
+	</ciManagement>
+
 	<scm>
 		<connection>scm:git:git://github.com/fiji/Trainable_Segmentation</connection>
 		<developerConnection>scm:git:git@github.com:fiji/Trainable_Segmentation</developerConnection>
