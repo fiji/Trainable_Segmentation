@@ -65,6 +65,8 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.image.ColorModel;
+import java.awt.image.IndexColorModel;
 import java.beans.PropertyEditor;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -245,10 +247,9 @@ public class Weka_Segmentation implements PlugIn
 		wekaSegmentation = new WekaSegmentation();
 
 		// Create overlay LUT
-		final byte[] red = new byte[256];
-		final byte[] green = new byte[256];
-		final byte[] blue = new byte[256];
-		final int shift = 255 / WekaSegmentation.MAX_NUM_CLASSES;
+		final byte[] red = new byte[ 256 ];
+		final byte[] green = new byte[ 256 ];
+		final byte[] blue = new byte[ 256 ];
 		
 		// assign colors to classes				
 		colors = new Color[ WekaSegmentation.MAX_NUM_CLASSES ];
@@ -271,13 +272,12 @@ public class Weka_Segmentation implements PlugIn
 			saturation = 0.5f * saturation + 0.5f;							
 		}
 							
-		for(int i = 0 ; i < 256; i++)
+		for(int i = 0 ; i < WekaSegmentation.MAX_NUM_CLASSES; i++)
 		{
-			final int colorIndex = i / (shift+1);
 			//IJ.log("i = " + i + " color index = " + colorIndex);
-			red[i] = (byte) colors[colorIndex].getRed();
-			green[i] = (byte) colors[colorIndex].getGreen();
-			blue[i] = (byte) colors[colorIndex].getBlue();
+			red[i] = (byte) colors[ i ].getRed();
+			green[i] = (byte) colors[ i ].getGreen();
+			blue[i] = (byte) colors[ i ].getBlue();
 		}
 		overlayLUT = new LUT(red, green, blue);
 
@@ -1300,9 +1300,7 @@ public class Weka_Segmentation implements PlugIn
 		ImageProcessor overlay = classifiedImage.getImageStack().getProcessor(displayImage.getCurrentSlice()).duplicate();
 
 		//IJ.log("updating overlay with result from slice " + displayImage.getCurrentSlice());
-		
-		double shift = 255.0 / WekaSegmentation.MAX_NUM_CLASSES;
-		overlay.multiply(shift+1);
+				
 		overlay = overlay.convertToByte(false);
 		overlay.setColorModel(overlayLUT);
 
@@ -1490,14 +1488,25 @@ public class Weka_Segmentation implements PlugIn
 		
 		resultImage.setTitle("Classified image");
 		
-		if(resultImage.getImageStackSize() > 1)
+		boolean aux = ImageConverter.getDoScaling();
+		
+		ImageConverter.setDoScaling( false );
+		
+		if(resultImage.getImageStackSize() > 1)			
 			(new StackConverter(resultImage)).convertToGray8();
 		else
 			(new ImageConverter(resultImage)).convertToGray8();
 		
+		ImageConverter.setDoScaling( aux );
+					
+		resultImage.getProcessor().setColorModel( overlayLUT );
+		resultImage.getImageStack().setColorModel( overlayLUT );
+		resultImage.updateAndDraw();
+		
 		resultImage.show();
 	}
 
+	
 	/**
 	 * Display the current probability maps
 	 */
