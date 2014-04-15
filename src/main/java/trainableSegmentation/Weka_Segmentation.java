@@ -1054,6 +1054,9 @@ public class Weka_Segmentation implements PlugIn
 			addExampleButton[classNum].addActionListener(listener);
 
 			numOfClasses++;
+			
+			// recalculate minimum size of scroll panel
+			scrollPanel.setMinimumSize( labelsJPanel.getPreferredSize() );
 
 			repaintAll();
 		}
