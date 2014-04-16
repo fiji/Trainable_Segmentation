@@ -257,7 +257,9 @@ public class Weka_Segmentation implements PlugIn
 		// hue for assigning new color ([0.0-1.0])
 		float hue = 0f;
 		// saturation for assigning new color ([0.5-1.0]) 
-		float saturation = 0.5f;
+		float saturation = 1f; 
+		
+		// first color is red: HSB( 0, 1, 1 )
 
 		for(int i=0; i<WekaSegmentation.MAX_NUM_CLASSES; i++)
 		{
