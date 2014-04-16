@@ -1276,6 +1276,8 @@ public class FeatureStack
 
 		ImagePlus[] results = new ImagePlus[ channels.length ];
 
+		final Convolver c = new Convolver();
+		
 		for(int ch=0; ch < channels.length; ch++)
 		{
         
@@ -1285,9 +1287,7 @@ public class FeatureStack
 			for (int i=0; i<nAngles; i++)
 			{
 				rotatedPatch = membranePatch.duplicate();
-				rotatedPatch.rotate(i*rotationAngle);
-
-				Convolver c = new Convolver();
+				rotatedPatch.rotate(i*rotationAngle);				
 
 				float[] kernel = (float[]) rotatedPatch.getPixels();
 				ImageProcessor ip = channels[ ch ].getProcessor().duplicate();
@@ -1360,6 +1360,8 @@ public class FeatureStack
 
  				ImagePlus[] results = new ImagePlus[ channels.length ];
 
+ 				final Convolver c = new Convolver();
+ 				
  				for(int ch=0; ch < channels.length; ch++)
  				{
                  
@@ -1369,9 +1371,7 @@ public class FeatureStack
  					for (int i=0; i<nAngles; i++)
  					{
  						rotatedPatch = membranePatch.duplicate();
- 						rotatedPatch.rotate(i*rotationAngle);
-
- 						Convolver c = new Convolver();
+ 						rotatedPatch.rotate(i*rotationAngle); 						
 
  						float[] kernel = (float[]) rotatedPatch.getPixels();
  						ImageProcessor ip = channels[ ch ].getProcessor().duplicate();
