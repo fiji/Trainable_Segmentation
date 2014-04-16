@@ -3426,8 +3426,14 @@ public class FeatureStack
 		}
 		else
 		{
-			for (int z=1; z<=getSize(); z++, n++)		
-				values[ z-1 ] = getProcessor( z ).getPixelValue( x, y );
+			for (int z=0; z < getSize(); z++, n++)		
+			{
+				int c  = (int) wholeStack.getVoxel( x, y, z );
+				int r = (c&0xff0000)>>16;
+				int g = (c&0xff00)>>8;
+				int b = c&0xff;
+				values[ z ] = (r + g + b) / 3.0;
+			}
 		}
 		
 		
@@ -3479,8 +3485,15 @@ public class FeatureStack
 		}
 		else
 		{
-			for (int z=1; z<=getSize(); z++, n++)		
-				ins.setValue( z-1, getProcessor( z ).getPixelValue( x, y ) );
+			for (int z=0; z<getSize(); z++, n++)
+			{
+				int c  = (int) wholeStack.getVoxel( x, y, z );
+				int r = (c&0xff0000)>>16;
+				int g = (c&0xff00)>>8;
+				int b = c&0xff;
+				ins.setValue( z, (r + g + b) / 3.0 );
+			}
+				
 		}
 		
 		
