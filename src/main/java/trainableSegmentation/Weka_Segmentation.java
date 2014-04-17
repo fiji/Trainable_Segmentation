@@ -395,9 +395,6 @@ public class Weka_Segmentation implements PlugIn
 						record(PLOT_RESULT, arg);
 						plotResult();
 					}
-					//else if(e.getSource() == newImageButton){
-					//	loadNewImage();
-					//}
 					else if(e.getSource() == applyButton){
 						applyClassifierToTestData();
 					}
