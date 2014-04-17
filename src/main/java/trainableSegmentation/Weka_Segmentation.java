@@ -948,6 +948,15 @@ public class Weka_Segmentation implements PlugIn
 		}
 		
 		/**
+		 * Get current label lookup table (used to color the results)
+		 * @return current overlay LUT
+		 */
+		public LUT getOverlayLUT()
+		{
+			return overlayLUT;
+		}
+		
+		/**
 		 * Draw the painted traces on the display image
 		 */
 		protected void drawExamples()
@@ -1487,16 +1496,7 @@ public class Weka_Segmentation implements PlugIn
 		
 		resultImage.setTitle("Classified image");
 		
-		boolean aux = ImageConverter.getDoScaling();
-		
-		ImageConverter.setDoScaling( false );
-		
-		if(resultImage.getImageStackSize() > 1)			
-			(new StackConverter(resultImage)).convertToGray8();
-		else
-			(new ImageConverter(resultImage)).convertToGray8();
-		
-		ImageConverter.setDoScaling( aux );
+		convertTo8bitNoScaling( resultImage );
 					
 		resultImage.getProcessor().setColorModel( overlayLUT );
 		resultImage.getImageStack().setColorModel( overlayLUT );
@@ -1505,6 +1505,24 @@ public class Weka_Segmentation implements PlugIn
 		resultImage.show();
 	}
 
+	/**
+	 * Convert image to 8 bit in place without scaling it
+	 * 
+	 * @param image input image
+	 */
+	static void convertTo8bitNoScaling( ImagePlus image )
+	{
+		boolean aux = ImageConverter.getDoScaling();
+		
+		ImageConverter.setDoScaling( false );
+		
+		if( image.getImageStackSize() > 1)			
+			(new StackConverter( image )).convertToGray8();
+		else
+			(new ImageConverter( image )).convertToGray8();
+		
+		ImageConverter.setDoScaling( aux );
+	}
 	
 	/**
 	 * Display the current probability maps
@@ -1713,6 +1731,15 @@ public class Weka_Segmentation implements PlugIn
 
 					if (showResults && null != segmentation) 
 					{
+						if ( false == probabilityMaps )
+						{
+							// convert slices to 8-bit and apply overlay LUT
+							convertTo8bitNoScaling( segmentation );
+							
+							segmentation.getProcessor().setColorModel( overlayLUT );
+							segmentation.getImageStack().setColorModel( overlayLUT );
+							segmentation.updateAndDraw();
+						}
 						segmentation.show();
 						testImage.show();
 					}
@@ -2550,10 +2577,11 @@ public class Weka_Segmentation implements PlugIn
 
 			resultImage.setTitle("Classified image");
 
-			if(resultImage.getImageStackSize() > 1)
-				(new StackConverter(resultImage)).convertToGray8();
-			else
-				(new ImageConverter(resultImage)).convertToGray8();
+			convertTo8bitNoScaling( resultImage );
+			
+			resultImage.getProcessor().setColorModel( win.getOverlayLUT() );
+			resultImage.getImageStack().setColorModel( win.getOverlayLUT() );
+			resultImage.updateAndDraw();
 
 			resultImage.show();
 		}
@@ -3074,7 +3102,7 @@ public class Weka_Segmentation implements PlugIn
 			AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,  win.overlayOpacity  / 100f);			
 			win.resultOverlay.setComposite(alpha);
 		}
-	}
+	}	
 	
 }// end of Weka_Segmentation class
 
