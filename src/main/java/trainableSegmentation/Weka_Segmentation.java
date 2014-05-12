@@ -860,8 +860,8 @@ public class Weka_Segmentation implements PlugIn
 			all.add(canvas, allConstraints);
 			
 			allConstraints.gridy++;
-			allConstraints.weightx = 1;
-			allConstraints.weighty = 1;
+			allConstraints.weightx = 0;
+			allConstraints.weighty = 0;
 			if(null != sliceSelector)
 				all.add(sliceSelector, allConstraints);
 			allConstraints.gridy--;
