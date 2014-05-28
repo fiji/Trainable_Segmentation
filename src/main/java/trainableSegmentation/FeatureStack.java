@@ -209,8 +209,10 @@ public class FeatureStack
 	ExecutorService exe = Executors.newFixedThreadPool( Prefs.getThreads() );
 	
 	/**
-	 * Construct object to store stack of image features
-	 * @param image original image
+	 * Construct object to store stack of image features. The input image
+	 * will be used as one of the features.
+	 * 
+	 * @param image original 2D image (grayscale or RGB)
 	 */
 	public FeatureStack(ImagePlus image)
 	{
@@ -231,10 +233,14 @@ public class FeatureStack
 	}
 	
 	/**
-	 * Initialize empty feature stack
+	 * Initialize empty feature stack. Features can be added later
+	 * using the <code>setStack</code> method. Use this method if
+	 * you want to use your own features (not compatible with the
+	 * <code>Weka_Segmentation</code> GUI). 
+	 * 
 	 * @param width image width
 	 * @param height image height
-	 * @param colorFeatures color image flat
+	 * @param colorFeatures color image flag
 	 */
 	public FeatureStack(int width, int height, boolean colorFeatures)
 	{
@@ -245,8 +251,10 @@ public class FeatureStack
 	}
 	
 	/**
-	 * Construct object to store stack of image features
-	 * @param ip original image
+	 * Construct object to store stack of image features. The input image
+	 * will be used as one of the features.
+	 * 
+	 * @param ip original 2D image (grayscale or RGB)
 	 */
 	public FeatureStack(ImageProcessor ip)
 	{
