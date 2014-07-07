@@ -1446,6 +1446,12 @@ public class Weka_Segmentation implements PlugIn
 					{
 						e.printStackTrace();
 					}
+					catch( OutOfMemoryError err )
+					{
+						err.printStackTrace();
+						IJ.log( "ERROR: plugin run out of memory. Please, "
+								+ "use a smaller input image or fewer features." );
+					}
 					finally
 					{
 						trainingFlag = false;						
