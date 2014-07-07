@@ -4607,12 +4607,11 @@ public class WekaSegmentation {
 					classifierCopy[ i ] = classifier;
 				else				
 					classifierCopy[ i ] = (AbstractClassifier) (AbstractClassifier.makeCopy( classifier ));
-				
-				
-							
+											
 			} catch (Exception e) {
 				IJ.log("Error: classifier could not be copied to classify in a multi-thread way.");
 				e.printStackTrace();
+				return null;
 			}
 			
 		}
