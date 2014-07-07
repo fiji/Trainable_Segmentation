@@ -4649,6 +4649,12 @@ public class WekaSegmentation {
 			} catch (Exception e) {
 				e.printStackTrace();
 				return null;
+			}
+			catch ( OutOfMemoryError err ) {
+				IJ.log( "ERROR: applyClassifierMT run out of memory. Please, "
+						+ "use a smaller input image or fewer features." );
+				err.printStackTrace();
+				return null;
 			} finally {
 				task.cancel(true);
 				monitor.shutdownNow();
@@ -5495,6 +5501,11 @@ public class WekaSegmentation {
 			return null;
 		} catch (ExecutionException e) {
 			e.printStackTrace();
+			return null;
+		} catch ( OutOfMemoryError err ) {
+			IJ.log( "ERROR: applyClassifier run out of memory. Please, "
+					+ "use a smaller input image or fewer features." );
+			err.printStackTrace();
 			return null;
 		} finally {
 			exe.shutdown();
