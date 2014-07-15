@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>fiji-lib</artifactId>
-			<version>${fiji.version}</version>
+			<version>${fiji-lib.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>VIB-lib</artifactId>
-			<version>${fiji.version}</version>
+			<version>${VIB-lib.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>fiji-lib</artifactId>
-			<version>${fiji.version}</version>
+			<version>${fiji-lib.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -104,12 +104,12 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>Anisotropic_Diffusion_2D</artifactId>
-			<version>${fiji.version}</version>
+			<version>${Anisotropic_Diffusion_2D.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>Stitching_</artifactId>
-			<version>${fiji.version}</version>
+			<version>${Stitching.version}</version>
 		</dependency>
 	</dependencies>
 
