@@ -18,35 +18,22 @@
 	<description></description>
 
 	<dependencies>
+		<!-- Fiji dependencies -->
 		<dependency>
 			<groupId>sc.fiji</groupId>
-			<artifactId>fiji-lib</artifactId>
-			<scope>test</scope>
+			<artifactId>Anisotropic_Diffusion_2D</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>${jama.groupId}</groupId>
-			<artifactId>jama</artifactId>
+			<groupId>sc.fiji</groupId>
+			<artifactId>Stitching_</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>VIB-lib</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math3</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>fiji-lib</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>ij</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
@@ -56,6 +43,18 @@
 			<groupId>sc.fiji</groupId>
 			<artifactId>legacy-imglib1</artifactId>
 		</dependency>
+
+		<!-- ImageJ dependencies -->
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>ij</artifactId>
+		</dependency>
+
+		<!-- ImgLib2 dependencies -->
+		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2-algorithms</artifactId>
@@ -64,14 +63,22 @@
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2-ij</artifactId>
 		</dependency>
+
+		<!-- Third party dependencies -->
 		<dependency>
-			<groupId>net.imglib2</groupId>
-			<artifactId>imglib2</artifactId>
+			<groupId>gov.nist.math</groupId>
+			<artifactId>jama</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
 			<artifactId>weka-dev</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+		</dependency>
+
+		<!-- Java3D dependencies -->
 		<dependency>
 			<groupId>java3d</groupId>
 			<artifactId>j3d-core</artifactId>
@@ -87,13 +94,12 @@
 			<artifactId>vecmath</artifactId>
 			<scope>provided</scope>
 		</dependency>
+
+		<!-- Test scope dependencies -->
 		<dependency>
-			<groupId>sc.fiji</groupId>
-			<artifactId>Anisotropic_Diffusion_2D</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>sc.fiji</groupId>
-			<artifactId>Stitching_</artifactId>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
