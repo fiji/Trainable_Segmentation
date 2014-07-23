@@ -14,8 +14,27 @@
 
 	<artifactId>Trainable_Segmentation</artifactId>
 	<version>2.1.0-SNAPSHOT</version>
+
 	<name>plugins/Trainable_Segmentation.jar</name>
 	<description></description>
+
+	<scm>
+		<connection>scm:git:git://github.com/fiji/Trainable_Segmentation</connection>
+		<developerConnection>scm:git:git@github.com:fiji/Trainable_Segmentation</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/fiji/Trainable_Segmentation</url>
+	</scm>
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://jenkins.imagej.net/job/Trainable_Segmentation/</url>
+	</ciManagement>
+
+	<repositories>
+		<repository>
+			<id>imagej.public</id>
+			<url>http://maven.imagej.net/content/groups/public</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 		<!-- Fiji dependencies -->
@@ -102,25 +121,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<ciManagement>
-		<system>Jenkins</system>
-		<url>http://jenkins.imagej.net/job/Trainable_Segmentation/</url>
-	</ciManagement>
-
-	<scm>
-		<connection>scm:git:git://github.com/fiji/Trainable_Segmentation</connection>
-		<developerConnection>scm:git:git@github.com:fiji/Trainable_Segmentation</developerConnection>
-		<tag>HEAD</tag>
-		<url>https://github.com/fiji/Trainable_Segmentation</url>
-	</scm>
-
-	<repositories>
-		<!-- NB: for project parent, in case of partial checkout -->
-		<repository>
-			<id>imagej.public</id>
-			<url>http://maven.imagej.net/content/groups/public</url>
-		</repository>
-	</repositories>
 
 </project>
