@@ -2,7 +2,6 @@ package trainableSegmentation;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,14 +15,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -32,53 +29,40 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
 import java.util.concurrent.atomic.AtomicInteger;
-
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.vecmath.Point3f;
 
 import hr.irb.fastRandomForest.FastRandomForest;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Prefs;
-
 import ij.gui.Line;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
-
 import ij.process.Blitter;
 import ij.process.ByteProcessor;
 import ij.process.FloatPolygon;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
-
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
-
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
-
 import weka.classifiers.pmml.consumer.PMMLClassifier;
 import weka.classifiers.trees.RandomForest;
-
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
 import weka.core.pmml.PMMLFactory;
 import weka.core.pmml.PMMLModel;
-
 import weka.filters.Filter;
-
 import weka.filters.supervised.attribute.AttributeSelection;
-
 import weka.filters.supervised.instance.Resample;
-
 import weka.gui.explorer.ClassifierPanel;
 
 
@@ -465,7 +449,7 @@ public class WekaSegmentation {
 
 		// Check if classes match
 		Attribute classAttribute = loadedTrainingData.classAttribute();
-		Enumeration<String> classValues  = classAttribute.enumerateValues();
+		Enumeration<Object> classValues  = classAttribute.enumerateValues();
 
 		// Update list of names of loaded classes
 		loadedClassNames = new ArrayList<String>();
@@ -473,7 +457,7 @@ public class WekaSegmentation {
 		int j = 0;
 		while(classValues.hasMoreElements())
 		{
-			final String className = classValues.nextElement().trim();
+			final String className = ((String)classValues.nextElement()).trim();
 			loadedClassNames.add(className);
 
 			IJ.log("Read class name: " + className);
@@ -2069,13 +2053,13 @@ public class WekaSegmentation {
 		if(null != loadedTrainingData)
 		{
 			Attribute classAttribute = loadedTrainingData.classAttribute();
-			Enumeration<String> classValues  = classAttribute.enumerateValues();
+			Enumeration<Object> classValues  = classAttribute.enumerateValues();
 
 			// Update list of names of loaded classes
 			loadedClassNames = new ArrayList<String>();
 			while(classValues.hasMoreElements())
 			{
-				final String className = classValues.nextElement().trim();
+				final String className = ( (String) classValues.nextElement() ).trim();
 				loadedClassNames.add(className);
 			}
 			IJ.log("Number of accumulated examples: " + loadedTrainingData.numInstances());
@@ -3767,7 +3751,7 @@ public class WekaSegmentation {
 
 		// Check if classes match
 		Attribute classAttribute = data.classAttribute();
-		Enumeration<String> classValues  = classAttribute.enumerateValues();
+		Enumeration<Object> classValues  = classAttribute.enumerateValues();
 
 		// Update list of names of loaded classes
 		loadedClassNames = new ArrayList<String>();
@@ -3777,7 +3761,7 @@ public class WekaSegmentation {
 
 		while(classValues.hasMoreElements())
 		{
-			final String className = classValues.nextElement().trim();
+			final String className = ( (String) classValues.nextElement() ).trim();
 			loadedClassNames.add(className);
 		}
 

@@ -41,7 +41,6 @@ package trainableSegmentation;
 import ij.IJ;
 import ij.ImageStack;
 import ij.plugin.PlugIn;
-
 import ij.process.FloatPolygon;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
@@ -2246,7 +2245,7 @@ public class Trainable_Segmentation implements PlugIn
 		
 		// Check if classes match
 		Attribute classAttribute = loadedTrainingData.classAttribute();
-		Enumeration<String> classValues  = classAttribute.enumerateValues();
+		Enumeration<Object> classValues  = classAttribute.enumerateValues();
 		
 		// Update list of names of loaded classes
 		loadedClassNames = new ArrayList<String>();
@@ -2254,7 +2253,7 @@ public class Trainable_Segmentation implements PlugIn
 		int j = 0;
 		while(classValues.hasMoreElements())
 		{
-			final String className = classValues.nextElement().trim();
+			final String className = ((String)classValues.nextElement()).trim();
 			loadedClassNames.add(className);
 			
 			IJ.log("Read class name: " + className);

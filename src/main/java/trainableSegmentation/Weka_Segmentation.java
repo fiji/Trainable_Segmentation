@@ -75,8 +75,8 @@ import java.lang.reflect.Field;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.EvaluationUtils;
+import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
-import weka.core.FastVector;
 import weka.core.Instances;
 import weka.core.OptionHandler;
 import weka.core.SerializationHelper;
@@ -1594,7 +1594,7 @@ public class Weka_Segmentation implements PlugIn
 	{
 		ThresholdCurve tc = new ThresholdCurve();
 
-		FastVector predictions = null;
+		ArrayList<Prediction> predictions = null;
 		try {
 			final EvaluationUtils eu = new EvaluationUtils();
 			predictions = eu.getTestPredictions(classifier, data);
@@ -2331,7 +2331,7 @@ public class Weka_Segmentation implements PlugIn
 				wekaSegmentation.setUpdateFeatures(false);
 
 		return true;
-	}
+	}// end showSettingsDialog
 
 	// Quite of a hack from Johannes Schindelin:
 	// use reflection to insert classifiers, since there is no other method to do that...
