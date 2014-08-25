@@ -559,7 +559,7 @@ public class Weka_Segmentation implements PlugIn
 		/** 50% alpha composite */
 		final Composite transparency050 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50f );
 		/** 25% alpha composite */
-		final Composite transparency025 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f );
+		//final Composite transparency025 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f );
 		/** opacity (in %) of the result overlay image */
 		int overlayOpacity = 33;
 		/** alpha composite for the result overlay image */
