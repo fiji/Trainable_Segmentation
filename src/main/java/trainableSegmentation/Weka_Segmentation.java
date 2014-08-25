@@ -41,7 +41,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Composite;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -65,7 +64,6 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.beans.PropertyEditor;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -83,7 +81,6 @@ import weka.core.SerializationHelper;
 import weka.core.Utils;
 import weka.gui.GUIChooser;
 import weka.gui.GenericObjectEditor;
-import weka.gui.PropertyDialog;
 import weka.gui.PropertyPanel;
 import weka.gui.beans.PluginManager;
 import weka.gui.visualize.PlotData2D;
@@ -2354,58 +2351,6 @@ public class Weka_Segmentation implements PlugIn
 			PluginManager.addFromProperties(editorProperties);						
 		} catch (Exception e) {
 			IJ.error("Could not insert my own cool classifiers!");
-		}
-	}
-
-	/**
-	 * Button listener class to handle the button action from the
-	 * settings dialog to set the Weka classifier parameters
-	 */
-	static class ClassifierSettingsButtonListener implements ActionListener
-	{
-		AbstractClassifier classifier;
-
-		/**
-		 * Build the button listener for selecting the classifier
-		 * @param classifier current classifier object
-		 */
-		public ClassifierSettingsButtonListener(AbstractClassifier classifier)
-		{
-			this.classifier = classifier;
-		}
-
-		/**
-		 * Control the action when clicking on the classifier settings box.
-		 * It displays the Weka dialog for selecting a classifier.
-		 */
-		public void actionPerformed(ActionEvent e)
-		{
-			try {
-				GenericObjectEditor.registerEditors();
-				GenericObjectEditor ce = new GenericObjectEditor(true);
-				ce.setClassType(weka.classifiers.Classifier.class);
-				Object initial = classifier;
-
-			 	ce.setValue(initial);
-
-				PropertyDialog pd = new PropertyDialog((Frame) null, ce, 100, 100);
-				pd.addWindowListener(new WindowAdapter() {
-					public void windowClosing(WindowEvent e) {
-						PropertyEditor pe = ((PropertyDialog)e.getSource()).getEditor();
-						Object c = (Object)pe.getValue();
-						String options = "";
-						if (c instanceof OptionHandler) {
-							options = Utils.joinOptions(((OptionHandler)c).getOptions());
-						}
-						IJ.log(c.getClass().getName() + " " + options);
-						return;
-					}
-				});
-				pd.setVisible(true);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				IJ.error(ex.getMessage());
-			}
 		}
 	}
 
