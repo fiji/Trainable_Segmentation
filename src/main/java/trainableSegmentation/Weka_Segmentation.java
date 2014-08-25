@@ -85,6 +85,7 @@ import weka.gui.GUIChooser;
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyDialog;
 import weka.gui.PropertyPanel;
+import weka.gui.beans.PluginManager;
 import weka.gui.visualize.PlotData2D;
 import weka.gui.visualize.ThresholdVisualizePanel;
 
@@ -2348,6 +2349,9 @@ public class Weka_Segmentation implements PlugIn
 			editorProperties.setProperty(key, value);
 			//new Exception("insert").printStackTrace();
 			//System.err.println("value: " + value);
+			
+			// add classifiers from properties (needed after upgrade to WEKA version 3.7.11)
+			PluginManager.addFromProperties(editorProperties);						
 		} catch (Exception e) {
 			IJ.error("Could not insert my own cool classifiers!");
 		}
