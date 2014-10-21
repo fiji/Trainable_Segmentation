@@ -1401,11 +1401,11 @@ public class RandError extends Metrics
      */
     private static void dumpSyntax () 
     {
-       System.out.println("Purpose: calculate Rand error between proposed and original labels.\n");     
+       System.out.println("Purpose: calculate adapted Rand error between proposed and original labels.\n");     
        System.out.println("Usage: RandError ");
        System.out.println("  -help                      : show this message");
        System.out.println("");
-       System.out.println("  -maxFScoreRandIndex        : calculate maximum F-score of the Rand index over a set of thresholds");
+       System.out.println("  -maxFScoreRandIndex        : calculate maximum F-score of the adapted Rand index over a set of thresholds");
        System.out.println("          labels             : image with the original labels");
        System.out.println("          proposal           : image with the proposed labels");
        System.out.println("          minThreshold       : minimum threshold value to binarize the proposal");
@@ -1414,7 +1414,7 @@ public class RandError extends Metrics
        System.out.println("Examples:");
        System.out.println("Calculate the maximum F-score of the Rand index between proposed and original labels over a set of");
        System.out.println("thresholds (from 0.0 to 1.0 in steps of 0.1)");
-       System.out.println("   WarpingError -maxFScoreRandIndex original-labels.tif proposed-labels.tif 0.0 1.0 0.1");
+       System.out.println("   RandError -maxFScoreRandIndex original-labels.tif proposed-labels.tif 0.0 1.0 0.1");
     }
 	
 	
