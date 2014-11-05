@@ -8,7 +8,6 @@ import ij.gui.NewImage;
 import ij.plugin.filter.Convolver;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.Blitter;
-import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
 

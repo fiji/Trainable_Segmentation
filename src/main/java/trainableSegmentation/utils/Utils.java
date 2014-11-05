@@ -20,11 +20,6 @@ package trainableSegmentation.utils;
  * Authors: Ignacio Arganda-Carreras (iarganda@mit.edu)
  */
 
-import java.awt.Color;
-import java.util.ArrayList;
-
-import javax.vecmath.Point3f;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -37,10 +32,15 @@ import ij.process.FloatProcessor;
 import ij.process.FloodFiller;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
+
+import java.awt.Color;
+import java.util.ArrayList;
+
+import javax.vecmath.Point3f;
+
 import trainableSegmentation.metrics.ClassificationStatistics;
 import util.FindConnectedRegions;
 import util.FindConnectedRegions.Results;
-import weka.core.Instances;
 
 /**
  * This class implements useful methods for the Weka Segmentation library.

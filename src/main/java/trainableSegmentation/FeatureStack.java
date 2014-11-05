@@ -46,6 +46,27 @@ package trainableSegmentation;
  * Authors: Verena Kaynig, Ignacio Arganda-Carreras, Albert Cardona
  */
 
+import anisotropic_diffusion.Anisotropic_Diffusion_2D;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.Prefs;
+import ij.io.FileSaver;
+import ij.plugin.ZProjector;
+import ij.plugin.filter.Convolver;
+import ij.plugin.filter.GaussianBlur;
+import ij.plugin.filter.RankFilters;
+import ij.process.ByteProcessor;
+import ij.process.ColorProcessor;
+import ij.process.FloatProcessor;
+import ij.process.ImageConverter;
+import ij.process.ImageProcessor;
+import imagescience.feature.Differentiator;
+import imagescience.feature.Laplacian;
+import imagescience.feature.Structure;
+import imagescience.image.Aspects;
+import imagescience.image.FloatImage;
+
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -58,44 +79,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import mpicbg.imglib.algorithm.fft.FourierConvolution;
 import mpicbg.imglib.image.Image;
 import mpicbg.imglib.image.ImagePlusAdapter;
 import mpicbg.imglib.image.display.imagej.ImageJFunctions;
 import mpicbg.imglib.type.numeric.real.FloatType;
-import mpicbg.imglib.algorithm.fft.FourierConvolution;
-
-import anisotropic_diffusion.Anisotropic_Diffusion_2D;
-
 import stitching.FloatArray2D;
 import trainableSegmentation.filters.Entropy_Filter;
 import trainableSegmentation.filters.Kuwahara;
 import trainableSegmentation.filters.Lipschitz_;
 import trainableSegmentation.utils.Utils;
-
 import vib.BilateralFilter;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
-import ij.IJ;
-import ij.ImageStack;
-import ij.ImagePlus;
-import ij.Prefs;
-import ij.io.FileSaver;
-import ij.process.ByteProcessor;
-import ij.process.ColorProcessor;
-import ij.process.FloatProcessor;
-import ij.process.ImageConverter;
-import ij.process.ImageProcessor;
-import ij.plugin.ZProjector;
-import ij.plugin.filter.GaussianBlur;
-import ij.plugin.filter.Convolver;
-import ij.plugin.filter.RankFilters;
-
-import imagescience.feature.Differentiator;
-import imagescience.feature.Laplacian;
-import imagescience.feature.Structure;
-import imagescience.image.Aspects;
-import imagescience.image.FloatImage;
 
 
 /**

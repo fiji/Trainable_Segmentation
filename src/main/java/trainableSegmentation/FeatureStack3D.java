@@ -35,13 +35,6 @@ package trainableSegmentation;
  *          Albert Cardona (acardona@ini.phys.ethz.ch)
  */
 
-import java.util.ArrayList;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -57,6 +50,13 @@ import imagescience.feature.Laplacian;
 import imagescience.feature.Structure;
 import imagescience.image.Aspects;
 import imagescience.image.FloatImage;
+
+import java.util.ArrayList;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class FeatureStack3D 
 {

@@ -1,5 +1,20 @@
 package trainableSegmentation;
 
+import hr.irb.fastRandomForest.FastRandomForest;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.Prefs;
+import ij.gui.Line;
+import ij.gui.PolygonRoi;
+import ij.gui.Roi;
+import ij.gui.ShapeRoi;
+import ij.process.Blitter;
+import ij.process.ByteProcessor;
+import ij.process.FloatPolygon;
+import ij.process.FloatProcessor;
+import ij.process.ImageProcessor;
+
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.BufferedReader;
@@ -35,20 +50,6 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.vecmath.Point3f;
 
-import hr.irb.fastRandomForest.FastRandomForest;
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.Prefs;
-import ij.gui.Line;
-import ij.gui.PolygonRoi;
-import ij.gui.Roi;
-import ij.gui.ShapeRoi;
-import ij.process.Blitter;
-import ij.process.ByteProcessor;
-import ij.process.FloatPolygon;
-import ij.process.FloatProcessor;
-import ij.process.ImageProcessor;
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
 import weka.classifiers.AbstractClassifier;

@@ -29,12 +29,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.experiment.PairedStatsCorrected;
-import weka.filters.supervised.instance.StratifiedRemoveFolds;
 
 /**
  * Runs 10 iterations of 10-fold crossvalidation on the supplied arff file(s)

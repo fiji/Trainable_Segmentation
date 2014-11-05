@@ -20,6 +20,16 @@ package trainableSegmentation.metrics;
 * Authors: Ignacio Arganda-Carreras (iarganda@mit.edu)
 */
 
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.Prefs;
+import ij.process.Blitter;
+import ij.process.ByteProcessor;
+import ij.process.FloatProcessor;
+import ij.process.ImageProcessor;
+import ij.util.ThreadUtil;
+
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,15 +44,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.vecmath.Point3f;
 
 import trainableSegmentation.utils.Utils;
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.Prefs;
-import ij.process.Blitter;
-import ij.process.ByteProcessor;
-import ij.process.FloatProcessor;
-import ij.process.ImageProcessor;
-import ij.util.ThreadUtil;
 
 
 /**

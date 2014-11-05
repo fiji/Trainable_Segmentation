@@ -21,12 +21,10 @@
 
 package hr.irb.fastRandomForest;
 
-import java.util.Random;
-import weka.classifiers.Classifier;
-import weka.core.Instances;
-import weka.core.Utils;
-
 import java.util.concurrent.Callable;
+
+import weka.classifiers.Classifier;
+import weka.core.Utils;
 
 /**
  * Used to retrieve the out-of-bag vote of an FastRandomForest classifier for a

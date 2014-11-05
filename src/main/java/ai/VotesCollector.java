@@ -1,8 +1,7 @@
 package ai;
 
 import java.util.concurrent.Callable;
-import weka.classifiers.Classifier;
-import weka.core.Instance;
+
 import weka.core.Instances;
 import weka.core.Utils;
 
