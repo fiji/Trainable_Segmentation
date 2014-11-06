@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>sc.fiji</groupId>
 		<artifactId>pom-fiji</artifactId>
-		<version>2.0.0-beta-1-SNAPSHOT</version>
+		<version>5.0.2</version>
 		<relativePath />
 	</parent>
 
@@ -37,14 +37,22 @@
 	</repositories>
 
 	<dependencies>
-		<!-- Fiji dependencies -->
+		<!-- FIXME - SNAPSHOT dependencies -->
 		<dependency>
 			<groupId>sc.fiji</groupId>
-			<artifactId>Anisotropic_Diffusion_2D</artifactId>
+			<artifactId>legacy-imglib1</artifactId>
+			<version>2.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>Stitching_</artifactId>
+			<version>2.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<!-- Fiji dependencies -->
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>Anisotropic_Diffusion_2D</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
@@ -57,10 +65,6 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>imagescience</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>sc.fiji</groupId>
-			<artifactId>legacy-imglib1</artifactId>
 		</dependency>
 
 		<!-- ImageJ dependencies -->
