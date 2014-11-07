@@ -23,10 +23,10 @@
 
 package hr.irb.fastRandomForest;
 
+import java.util.Random;
+
 import weka.core.Instance;
 import weka.core.Instances;
-
-import java.util.Random;
 
 /**
  * Utility functions for sorting float (single-precision) arrays, and for

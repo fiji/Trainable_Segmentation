@@ -32,9 +32,6 @@ package trainableSegmentation.filters;
 
 /* importing standard Java API Files and ImageJ packages */
 
-import java.awt.Rectangle;
-import java.util.Date;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -45,6 +42,9 @@ import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ShortProcessor;
+
+import java.awt.Rectangle;
+import java.util.Date;
 
 public class Lipschitz_ implements PlugInFilter 
 {

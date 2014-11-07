@@ -20,16 +20,16 @@ package trainableSegmentation.utils;
 * Authors: Ignacio Arganda-Carreras (iarganda@mit.edu), 
 */
 
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.SingularValueDecomposition;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 /**
  * This class implements methods to calculate the principal

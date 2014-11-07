@@ -20,6 +20,13 @@ package trainableSegmentation.metrics;
  * Authors: Ignacio Arganda-Carreras (iarganda@mit.edu)
  */
 
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
+
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -27,13 +34,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import trainableSegmentation.utils.Utils;
-
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.process.ByteProcessor;
-import ij.process.ImageProcessor;
-import ij.process.ShortProcessor;
 
 /**
  * This class implements the adjusted Rand error, defined as the 1 - adjusted Rand index. 

@@ -19,6 +19,7 @@
 
 package trainableSegmentation;
 
+import fiji.util.gui.OverlayedImageCanvas.Overlay;
 import ij.process.ImageProcessor;
 
 import java.awt.AlphaComposite;
@@ -26,8 +27,6 @@ import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-
-import fiji.util.gui.OverlayedImageCanvas.Overlay;
 /**
  * This class implements an overlay based on an image.
  * The overlay paints the image with a specific composite mode.

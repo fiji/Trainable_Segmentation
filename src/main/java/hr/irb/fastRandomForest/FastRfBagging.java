@@ -23,15 +23,25 @@
 
 package hr.irb.fastRandomForest;
 
-import weka.classifiers.Classifier;
-import weka.classifiers.RandomizableIteratedSingleClassifierEnhancer;
-import weka.core.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Random;
+import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import weka.classifiers.Classifier;
+import weka.classifiers.RandomizableIteratedSingleClassifierEnhancer;
+import weka.core.AdditionalMeasureProducer;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.Option;
+import weka.core.RevisionUtils;
+import weka.core.Utils;
+import weka.core.WeightedInstancesHandler;
 
 
 /**
