@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>sc.fiji</groupId>
 		<artifactId>pom-fiji</artifactId>
-		<version>2.0.0-beta-1-SNAPSHOT</version>
+		<version>5.0.2</version>
 		<relativePath />
 	</parent>
 
@@ -45,6 +45,7 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>Stitching_</artifactId>
+			<version>2.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
@@ -58,9 +59,15 @@
 			<groupId>sc.fiji</groupId>
 			<artifactId>imagescience</artifactId>
 		</dependency>
+		
+		<!-- ImgLib2 dependencies -->
 		<dependency>
-			<groupId>sc.fiji</groupId>
-			<artifactId>legacy-imglib1</artifactId>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2-algorithm-gpl</artifactId>
 		</dependency>
 
 		<!-- ImageJ dependencies -->
