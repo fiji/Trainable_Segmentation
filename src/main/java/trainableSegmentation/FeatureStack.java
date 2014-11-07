@@ -64,7 +64,6 @@ import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.algorithm.fft2.FFTConvolution;
 import anisotropic_diffusion.Anisotropic_Diffusion_2D;
-import stitching.FloatArray2D;
 import trainableSegmentation.filters.Entropy_Filter;
 import trainableSegmentation.filters.Kuwahara;
 import trainableSegmentation.filters.Lipschitz_;
@@ -2363,34 +2362,6 @@ public class FeatureStack
 		wholeStack.addSlice(merged.getTitle(), merged.getImageStack().getProcessor(1));		
 	}
 	
-	public void addTest()
-	{
-		FloatArray2D fftImage = new FloatArray2D((float[]) originalImage.getProcessor().getPixels(),
-													originalImage.getWidth(), originalImage.getHeight());
-		//int fftSize = FftReal.nfftFast(Math.max(width, height));
-		
-		//FloatArray2D fftImagePadded = CommonFunctions.zeroPad(fftImage, fftSize, fftSize);
-		
-		//fftImage = CommonFunctions.computeFFT(fftImage);
-		//float[] xcorr = CommonFunctions.multiply(fftImage.data, fftImage.data, false);
-		
-		//FloatArray2D xcorrImage = new FloatArray2D(xcorr, fftImage.width, fftImage.height);
-		//xcorrImage = CommonFunctions.com
-		
-		//float[] pcm = CommonFunctions.computePhaseCorrelationMatrix(fftImagePadded.data, fftImagePadded.data, false);
-
-		FloatProcessor blah = new FloatProcessor(width, height);
-		blah.setPixels(fftImage.data);
-		
-		ImagePlus foo = new ImagePlus("test", blah);
-		foo.show();
-		IJ.log("min Value " + blah.getMin() + " max: " + blah.getMax());
-		foo.setProcessor("test", blah.convertToByte(true));
-		foo.show();
-		IJ.log("min Value " + blah.convertToByte(true).getMin() + " max: " + blah.convertToByte(true).getMax());
-		
-	}
-
 	/**
 	 * Get slice image processor. Warning: every time this 
 	 * method is called, ImageStack creates a new processor.
