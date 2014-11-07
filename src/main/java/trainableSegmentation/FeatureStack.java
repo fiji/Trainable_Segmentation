@@ -79,12 +79,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import mpicbg.imglib.algorithm.fft.FourierConvolution;
-import mpicbg.imglib.image.Image;
-import mpicbg.imglib.image.ImagePlusAdapter;
-import mpicbg.imglib.image.display.imagej.ImageJFunctions;
-import mpicbg.imglib.type.numeric.real.FloatType;
-import stitching.FloatArray2D;
+
+import net.imglib2.img.ImagePlusAdapter;
+import net.imglib2.img.Img;
+import net.imglib2.img.display.imagej.ImageJFunctions;
+import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.algorithm.fft2.FFTConvolution;
+
 import trainableSegmentation.filters.Entropy_Filter;
 import trainableSegmentation.filters.Kuwahara;
 import trainableSegmentation.filters.Lipschitz_;
@@ -1882,10 +1883,6 @@ public class FeatureStack
 					kernels.addSlice("kernel angle = " + i, filter);
 				}
 
-				// Show kernels
-				//ImagePlus ip_kernels = new ImagePlus("kernels", kernels);
-				//ip_kernels.show();
-				
 				// Get channel(s) to process
 				ImagePlus[] channels = extractChannels(originalImage);
 				
@@ -1896,37 +1893,25 @@ public class FeatureStack
 
 					final ImageStack is = new ImageStack(width, height);
 					// Apply kernels
-					//FourierConvolution<FloatType, FloatType> fourierConvolution = null;
-					//Image<FloatType> image2 = ImagePlusAdapter.wrap(originalImage);
 					for (int i=0; i<nAngles; i++)
 					{
-						
-						Image<FloatType> kernel = ImagePlusAdapter.wrap( new ImagePlus("", kernels.getProcessor(i+1)) );
-						Image<FloatType> image2 = ImagePlusAdapter.wrap( channels[ ch ] );
+						ImagePlus ip2 = channels[ ch ].duplicate();
+						Img<FloatType> kernel = ImagePlusAdapter.wrap( new ImagePlus("", kernels.getProcessor(i+1)) );
+						Img<FloatType> image2 = ImagePlusAdapter.wrap( ip2 );
 
 						// compute Fourier convolution
-						FourierConvolution<FloatType, FloatType> fourierConvolution = new FourierConvolution<FloatType, FloatType>( image2, kernel );
-						//if (fourierConvolution == null || !fourierConvolution.replaceKernel( kernel ) )
-						//	fourierConvolution = new FourierConvolution<FloatType, FloatType>( image2, kernel );
+						FFTConvolution< FloatType > c = 
+								new FFTConvolution< FloatType >( image2, kernel );
+						c.convolve();
+						
+						ip2 = ImageJFunctions.wrap( image2, "" );
 
-						if ( !fourierConvolution.checkInput() || !fourierConvolution.process() )
-						{
-							IJ.log( "Cannot compute fourier convolution: " + fourierConvolution.getErrorMessage() );
-							return null;
-						}
-
-						Image<FloatType>  convolved = fourierConvolution.getResult();
-
-						is.addSlice("gabor angle = " + i, ImageJFunctions.copyToImagePlus( convolved ).getProcessor() );
+						is.addSlice("gabor angle = " + i, ip2.getProcessor() );
 
 					}
 					
 					// Normalize filtered stack (it seems necessary to have proper results)					
 					final ImagePlus projectStack = new ImagePlus("filtered stack", Utils.normalize( is ));
-					
-					//final ContrastEnhancer c = new ContrastEnhancer();
-					//c.stretchHistogram(projectStack, 0.4);
-					//projectStack.updateAndDraw();
 
 					final ImageStack resultStack = new ImageStack(width, height);
 
@@ -2017,10 +2002,6 @@ public class FeatureStack
 			kernels.addSlice("kernel angle = " + i, filter);
 		}
 
-		// Show kernels
-		//ImagePlus ip_kernels = new ImagePlus("kernels", kernels);
-		//ip_kernels.show();
-
 		// Get channel(s) to process
 		ImagePlus[] channels = extractChannels(originalImage);
 		
@@ -2031,35 +2012,25 @@ public class FeatureStack
 
 			final ImageStack is = new ImageStack(width, height);
 			// Apply kernels
-			//FourierConvolution<FloatType, FloatType> fourierConvolution = null;
-			//Image<FloatType> image2 = ImagePlusAdapter.wrap(originalImage);
 			for (int i=0; i<nAngles; i++)
 			{
-				Image<FloatType> kernel = ImagePlusAdapter.wrap( new ImagePlus("", kernels.getProcessor(i+1)) );
-				Image<FloatType> image2 = ImagePlusAdapter.wrap( channels[ ch ] );
+				ImagePlus ip2 = channels[ ch ].duplicate();
+				Img<FloatType> kernel = ImagePlusAdapter.wrap( new ImagePlus("", kernels.getProcessor(i+1)) );
+				Img<FloatType> image2 = ImagePlusAdapter.wrap( ip2 );
 
 				// compute Fourier convolution
-				FourierConvolution<FloatType, FloatType> fourierConvolution = new FourierConvolution<FloatType, FloatType>( image2, kernel );
-				//if (fourierConvolution == null || !fourierConvolution.replaceKernel( kernel ) )
-				//	fourierConvolution = new FourierConvolution<FloatType, FloatType>( image2, kernel );
-
-				if ( !fourierConvolution.checkInput() || !fourierConvolution.process() )
-				{
-					IJ.log( "Cannot compute fourier convolution: " + fourierConvolution.getErrorMessage() );
-					return;
-				}
-
-				Image<FloatType>  convolved = fourierConvolution.getResult();
-
-				is.addSlice("gabor angle = " + i, ImageJFunctions.copyToImagePlus( convolved ).getProcessor() );					
+				FFTConvolution< FloatType > c = 
+						new FFTConvolution< FloatType >( image2, kernel );
+				c.convolve();
+				
+				ip2 = ImageJFunctions.wrap( image2, "" );
+				
+				is.addSlice( "gabor angle = " + i, ip2.getProcessor() );					
 			}			
 
 			// Normalize filtered stack (it seems necessary to have proper results)
 			final ImagePlus projectStack = new ImagePlus("filtered stack", Utils.normalize( is ));
-			
-			//final ContrastEnhancer c = new ContrastEnhancer();
-			//c.stretchHistogram(projectStack, 0.4);
-			//projectStack.updateAndDraw();
+
 
 			final ImageStack resultStack = new ImageStack(width, height);
 
@@ -2394,34 +2365,6 @@ public class FeatureStack
 		wholeStack.addSlice(merged.getTitle(), merged.getImageStack().getProcessor(1));		
 	}
 	
-	public void addTest()
-	{
-		FloatArray2D fftImage = new FloatArray2D((float[]) originalImage.getProcessor().getPixels(),
-													originalImage.getWidth(), originalImage.getHeight());
-		//int fftSize = FftReal.nfftFast(Math.max(width, height));
-		
-		//FloatArray2D fftImagePadded = CommonFunctions.zeroPad(fftImage, fftSize, fftSize);
-		
-		//fftImage = CommonFunctions.computeFFT(fftImage);
-		//float[] xcorr = CommonFunctions.multiply(fftImage.data, fftImage.data, false);
-		
-		//FloatArray2D xcorrImage = new FloatArray2D(xcorr, fftImage.width, fftImage.height);
-		//xcorrImage = CommonFunctions.com
-		
-		//float[] pcm = CommonFunctions.computePhaseCorrelationMatrix(fftImagePadded.data, fftImagePadded.data, false);
-
-		FloatProcessor blah = new FloatProcessor(width, height);
-		blah.setPixels(fftImage.data);
-		
-		ImagePlus foo = new ImagePlus("test", blah);
-		foo.show();
-		IJ.log("min Value " + blah.getMin() + " max: " + blah.getMax());
-		foo.setProcessor("test", blah.convertToByte(true));
-		foo.show();
-		IJ.log("min Value " + blah.convertToByte(true).getMin() + " max: " + blah.convertToByte(true).getMax());
-		
-	}
-
 	/**
 	 * Get slice image processor. Warning: every time this 
 	 * method is called, ImageStack creates a new processor.
