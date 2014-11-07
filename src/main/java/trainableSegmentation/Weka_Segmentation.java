@@ -1826,7 +1826,6 @@ public class Weka_Segmentation implements PlugIn
 		// update GUI
 		win.updateAddClassButtons();
 
-		win.trainingComplete = true;
 		IJ.log("Loaded " + od.getDirectory() + od.getFileName());
 	}
 
