@@ -2429,6 +2429,9 @@ public class Weka_Segmentation implements PlugIn
 		for(int i = 0; i < args.length; i++)
 			command += "\", \"" + args[i];
 		command += "\");\n";
+		// in Windows systems, replace backslashes by double ones
+		if( IJ.isWindows() )
+			command = command.replaceAll( "\\\\", "\\\\\\\\" );
 		if(Recorder.record)
 			Recorder.recordString(command);
 	}
