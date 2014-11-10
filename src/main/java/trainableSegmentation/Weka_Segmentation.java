@@ -2626,11 +2626,13 @@ public class Weka_Segmentation implements PlugIn
 		{
 			final CustomWindow win = (CustomWindow) iw;
 			final WekaSegmentation wekaSegmentation = win.getWekaSegmentation();
-			ImagePlus testImage = IJ.openImage( dir +"/"+ fileName );
+			ImagePlus testImage = 
+					IJ.openImage( dir + File.separator + fileName );
 
 			if(null == testImage)
 			{
-				IJ.log("Error: " + dir +"/"+ fileName + " could not be opened");
+				IJ.log("Error: " + dir + File.separator	+ fileName 
+						+ " could not be opened");
 				return;
 			}
 
@@ -2638,7 +2640,7 @@ public class Weka_Segmentation implements PlugIn
 			boolean storeResults = storeResultsFlag.contains("true");
 			boolean showResults = showResultsFlag.contains("true");
 
-			IJ.log("Processing image " + dir + "/" + fileName );
+			IJ.log( "Processing image " + dir + File.separator + fileName );
 
 			ImagePlus segmentation = wekaSegmentation.applyClassifier(testImage, 0, probabilityMaps);
 
