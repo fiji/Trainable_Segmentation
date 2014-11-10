@@ -4173,7 +4173,7 @@ public class WekaSegmentation {
 			long end = System.currentTimeMillis();
 			IJ.log("Feature stack array is now updated (" + featureStackArray.getSize() 
 					+ " slice(s) with " + featureStackArray.getNumOfFeatures() 
-					+ " features, took " + (end-start) + "ms).");
+					+ " feature(s), took " + (end-start) + "ms).");
 		}
 
 		IJ.showStatus("Creating training instances...");
