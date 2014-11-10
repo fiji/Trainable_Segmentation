@@ -4361,13 +4361,7 @@ public class WekaSegmentation {
 					}
 
 					classImage.setTitle("classified_" + slice.getTitle());
-					
-					/*
-					if(probabilityMaps)
-						classImage.setProcessor(classImage.getProcessor().duplicate());
-					else
-						classImage.setProcessor(classImage.getProcessor().convertToByte(true).duplicate());
-					*/
+
 					classifiedSlices[i-1] = classImage;
 				}
 			}
