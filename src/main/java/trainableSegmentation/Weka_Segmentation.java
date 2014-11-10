@@ -651,6 +651,8 @@ public class Weka_Segmentation implements PlugIn
 			// add especial listener if the training image is a stack
 			if(null != sliceSelector)
 			{
+				// set slice selector to the correct number
+				sliceSelector.setValue( imp.getSlice() );
 				// add adjustment listener to the scroll bar
 				sliceSelector.addAdjustmentListener(new AdjustmentListener() 
 				{
@@ -1229,7 +1231,11 @@ public class Weka_Segmentation implements PlugIn
 			if (null == trainingImage) return; // user canceled open dialog
 		}
 		else
+		{
 			trainingImage = WindowManager.getCurrentImage().duplicate();
+			trainingImage.setSlice( 
+					WindowManager.getCurrentImage().getSlice() );
+		}
 
 
 		if (Math.max(trainingImage.getWidth(), trainingImage.getHeight()) > 1024)
@@ -1242,6 +1248,7 @@ public class Weka_Segmentation implements PlugIn
 		
 		// The display image is a copy of the training image (single image or stack)
 		displayImage = trainingImage.duplicate();
+		displayImage.setSlice( trainingImage.getSlice() );
 		displayImage.setTitle( Weka_Segmentation.PLUGIN_NAME + " " + Weka_Segmentation.PLUGIN_VERSION );
 
 		ij.gui.Toolbar.getInstance().setTool(ij.gui.Toolbar.FREELINE);
