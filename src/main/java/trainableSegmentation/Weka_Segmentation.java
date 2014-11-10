@@ -2643,6 +2643,12 @@ public class Weka_Segmentation implements PlugIn
 			IJ.log( "Processing image " + dir + File.separator + fileName );
 
 			ImagePlus segmentation = wekaSegmentation.applyClassifier(testImage, 0, probabilityMaps);
+			
+			// apply LUT to result image
+			convertTo8bitNoScaling( segmentation );			
+			segmentation.getProcessor().setColorModel( win.getOverlayLUT() );
+			segmentation.getImageStack().setColorModel( win.getOverlayLUT() );
+			segmentation.updateAndDraw();
 
 			if (showResults) 
 			{
