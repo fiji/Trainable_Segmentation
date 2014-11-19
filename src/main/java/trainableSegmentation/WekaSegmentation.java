@@ -4139,11 +4139,13 @@ public class WekaSegmentation {
 		
 		// At least two lists of different classes of examples need to be non empty
 		int nonEmpty = 0;
+		int sliceWithTraces = -1;
 		for(int i = 0; i < numOfClasses; i++)
 			for(int j=0; j<trainingImage.getImageStackSize(); j++)
 				if(examples[j].get(i).size() > 0)
 				{
 					nonEmpty++;
+					sliceWithTraces = i+1;
 					break;
 				}
 		
@@ -4160,6 +4162,10 @@ public class WekaSegmentation {
 			IJ.showStatus("Creating feature stack...");
 			IJ.log("Creating feature stack...");
 			long start = System.currentTimeMillis();
+			
+			// set the reference slice to one with traces
+			featureStackArray.setReference( sliceWithTraces );
+			
 			if ( false == featureStackArray.updateFeaturesMT(featureStackToUpdateTrain) )
 			{
 				IJ.log("Feature stack was not updated.");

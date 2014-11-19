@@ -140,7 +140,9 @@ public class FeatureStackArray
 	 */
 	public void set(FeatureStack fs, int index)
 	{
-		this.featureStackArray[ index ] = fs;		
+		this.featureStackArray[ index ] = fs;
+		if( this.referenceStackIndex == -1 )
+			setReference( index );
 	}
 	
 	/**
@@ -315,6 +317,15 @@ public class FeatureStackArray
 	public void resetReference()
 	{
 		this.referenceStackIndex = -1;
+	}
+	
+	/**
+	 * Set the reference index (used when the are 
+	 * changes in the features)
+	 */
+	public void setReference( int index )
+	{
+		this.referenceStackIndex = index;
 	}
 	
 	/**
