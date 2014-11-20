@@ -4145,7 +4145,7 @@ public class WekaSegmentation {
 				if(examples[j].get(i).size() > 0)
 				{
 					nonEmpty++;
-					sliceWithTraces = i+1;
+					sliceWithTraces = j; // store index of slice with traces
 					break;
 				}
 		
