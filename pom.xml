@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>sc.fiji</groupId>
 		<artifactId>pom-fiji</artifactId>
-		<version>5.1</version>
+		<version>6.1.0</version>
 		<relativePath />
 	</parent>
 
@@ -106,27 +106,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<configuration>
-					<rules>
-						<banDuplicateClasses>
-							<dependencies>
-								<dependency>
-									<artifactId>imglib2-algorithm</artifactId>
-									<ignoreClasses>
-										<ignoreClass>net/imglib2/algorithm/region/localneighborhood/*</ignoreClass>
-									</ignoreClasses>
-								</dependency>
-							</dependencies>
-						</banDuplicateClasses>
-					</rules>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 
 </project>
