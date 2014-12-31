@@ -1310,8 +1310,16 @@ public class VariationOfInformation extends Metrics
 		// C(B|A) (A = ground truth, B = segmentation)
 		double rec = (hb - hba) / hb;
 
-		if( rec == 0 )
+		if( ha == 0 )
+		{	
+			prec = 0.0;
+		    rec = 1.0;
+		}
+		if( hb == 0 )
+		{	
 			prec = 1.0;
+		    rec = 0.0;
+		}
 
 		// F-score
 		return 2.0 * prec * rec / (prec + rec);
