@@ -971,11 +971,11 @@ public class VariationOfInformation extends Metrics
 		final short[] pixels1 = (short[]) cluster1.getPixels();
 		final short[] pixels2 = (short[]) cluster2.getPixels();
 		
-		//(new ImagePlus("cluster 1", cluster1)).show();
-		//(new ImagePlus("cluster 2", cluster2)).show();
-		
-		double n = pixels1.length;
-		
+		// n: number of non-background pixels in the ground truth
+		double n = 0;
+		for( int i=0; i< pixels1.length; i++ )
+			if( pixels1[ i ] != 0 )
+				n++;
 		
 		// reset min and max of the cluster processors 
 		// (needed in order to have correct min-max values)
@@ -1004,7 +1004,8 @@ public class VariationOfInformation extends Metrics
 			}
 
 		// sum of squares of sums of columns
-		// (prune out the zero component in the labeling (un-assigned "out" space))
+		// (prune out the zero component in the labeling (un-assigned 
+		// "out" space))
 		double[] bj = new double[ pij[0].length ];
 		for(int j=1; j<pij[0].length; j++)
 			for(int i=1; i<pij.length; i++)
@@ -1012,6 +1013,7 @@ public class VariationOfInformation extends Metrics
 				bj[ j ] += pij[ i ][ j ];
 			}
 
+		// pi0: pixels marked as BG in cluster2 which are not BG in cluster1
 		double[] pi0 = new double[ pij.length ];
 		double aux = 0;
 		for(int i=1; i<pij.length; i++)
@@ -1020,37 +1022,19 @@ public class VariationOfInformation extends Metrics
 			aux += pi0[ i ];
 		}
 
-		// ai, bj and pij are the same in the Rand index calculation,
-		// here they are used in a different way to express the variation
-		// of information
-		
-		// In matlab:
-		// aux = a_i .* log(a_i);
-		// sumA = sum(aux(~isnan(aux)));
 		double sumA = 0;
 		for(int i=0; i<ai.length; i++)
 		{
 			if( ai[ i ] != 0 )
 				sumA += ai[ i ] * Math.log( ai[ i ] );
 		}
-
-		// In matlab:
-		// aux = b_j .* log(b_j);
-		// sumB = sum(aux(~isnan(aux))) - sum(p_i0)*log(n);
+		
 		double sumB = 0;
 		for(int j=0; j<bj.length; j++)
 			if( bj[ j ] != 0 )
 				sumB += bj[ j ] * Math.log( bj[ j ] );
 		sumB -= aux * Math.log( n );
-
-
-		// In matlab:
-		// aux = p_ij .* log(p_ij);
-		// s = sum(aux(~isnan(aux)));
-		// if isempty( s )
-		//    s = 0;
-		// end
-		// sumAB = s - sum(p_i0)*log(n);
+		
 		double sumAB = 0;
 		for(int i=1; i<pij.length; i++)
 			for(int j=1; j<pij[0].length; j++)
@@ -1061,27 +1045,35 @@ public class VariationOfInformation extends Metrics
 
 		sumAB -= aux * Math.log( n );
 		
-		// H(A|B)
-		double hab = sumB - sumAB;
-		// H(B|A)
-		double hba = sumA - sumAB;
 		// H(A)
 		double ha = -sumA;
 		// H(B)
 		double hb = -sumB;
+		// H(A|B)
+		double hab = sumB - sumAB;
+		// H(B|A)
+		double hba = sumA - sumAB;
 		
 		// An information theoretic analog of Rand precision 
 		// is the asymmetrically normalized mutual information
 		// C(A|B) (A = ground truth, B = segmentation)
 		double prec = (ha - hab) / ha;
-		
+
 		// An information theoretic analog of Rand recall 
 		// is defined similarly
 		// C(B|A) (A = ground truth, B = segmentation)
 		double rec = (hb - hba) / hb;
 
-		if( rec == 0 )
-		    prec = 1.0;
+		if( ha == 0 )
+		{	
+			prec = 0.0;
+		    rec = 1.0;
+		}
+		if( hb == 0 )
+		{	
+			prec = 1.0;
+		    rec = 0.0;
+		}
 				
 		// F-score
 		return 2.0 * prec * rec / (prec + rec);
