@@ -987,7 +987,7 @@ public class VariationOfInformation extends Metrics
 		
 		// compute overlap matrix
 		double[][]pij = new double[ nLabelsA + 1] [ nLabelsB + 1];
-		for(int i=0; i<n; i++)									
+		for(int i=0; i<pixels1.length; i++)									
 			pij[ pixels1[i] & 0xffff ] [ pixels2[i] & 0xffff ] ++;
 		
 		for( int i=0; i < (nLabelsA + 1); i++ )
@@ -1101,7 +1101,6 @@ public class VariationOfInformation extends Metrics
 			if( pixels1[ i ] != 0 )
 				n++;
 		
-		
 		// reset min and max of the cluster processors 
 		// (needed in order to have correct min-max values)
 		cluster1.resetMinAndMax();
@@ -1112,22 +1111,25 @@ public class VariationOfInformation extends Metrics
 		
 		// compute overlap matrix
 		double[][]pij = new double[ nLabelsA + 1] [ nLabelsB + 1];
-		for(int i=0; i<n; i++)									
+		for(int i=0; i<pixels1.length; i++)									
 			pij[ pixels1[i] & 0xffff ] [ pixels2[i] & 0xffff ] ++;
 		
 		for( int i=0; i < (nLabelsA + 1); i++ )
 			for( int j=0; j < (nLabelsB + 1); j++ )
+			{
 				pij[ i ][ j ] /= n;
+			}
 		
 		// sum of squares of sums of rows
 		// (skip background objects in the first cluster)
 		double[] ai = new double[ pij.length ];
 		for(int i=1; i<pij.length; i++)
+		{
 			for(int j=0; j<pij[0].length; j++)
 			{
 				ai[ i ] += pij[ i ][ j ];				
 			}
-
+		}
 		// sum of squares of sums of columns
 		// (prune out the zero component in the labeling (un-assigned "out" space))
 		double[] bj = new double[ pij[0].length ];
@@ -1167,7 +1169,6 @@ public class VariationOfInformation extends Metrics
 			if( bj[ j ] != 0 )
 				sumB += bj[ j ] * Math.log( bj[ j ] );
 		sumB -= aux * Math.log( n );
-
 
 		// In matlab:
 		// aux = p_ij .* log(p_ij);
