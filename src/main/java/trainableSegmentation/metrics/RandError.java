@@ -1313,6 +1313,100 @@ public class RandError extends Metrics
 	}
 	
 	/**
+	 * Get foreground-restricted Rand statistics (precision and recall) with
+	 * N^2 normalization.
+	 * 
+	 * @param cluster1 ground truth cluster
+	 * @param cluster2 proposed cluster
+	 * @return precision and recall values
+	 */
+	public double[] foregroundRestrictedStatsN2(
+			ShortProcessor cluster1,
+			ShortProcessor cluster2 )
+	{
+		final short[] pixels1 = (short[]) cluster1.getPixels();
+		final short[] pixels2 = (short[]) cluster2.getPixels();
+		
+		// n: number of non-background pixels in the ground truth
+		double n = 0;
+		for( int i=0; i< pixels1.length; i++ )
+			if( pixels1[ i ] != 0 )
+				n++;
+		
+		// reset min and max of the cluster processors 
+		// (needed in order to have correct min-max values)
+		cluster1.resetMinAndMax();
+		cluster2.resetMinAndMax();
+		
+		int nLabelsA = (int) cluster1.getMax();
+		int nLabelsB = (int) cluster2.getMax();
+		
+		// compute overlap matrix
+		double[][]pij = new double[ nLabelsA + 1] [ nLabelsB + 1];
+		for(int i=0; i<pixels1.length; i++)									
+			pij[ pixels1[i] & 0xffff ] [ pixels2[i] & 0xffff ] ++;
+		
+		for( int i=0; i < (nLabelsA + 1); i++ )
+			for( int j=0; j < (nLabelsB + 1); j++ )
+			{
+				pij[ i ][ j ] /= n;
+			}
+		
+		// sum of squares of sums of rows
+		// (skip background objects in the first cluster)
+		double[] ai = new double[ pij.length ];
+		for(int i=1; i<pij.length; i++)
+		{
+			for(int j=0; j<pij[0].length; j++)
+			{
+				ai[ i ] += pij[ i ][ j ];				
+			}
+		}
+		// sum of squares of sums of columns
+		// (prune out the zero component in the labeling (un-assigned "out" space))
+		double[] bj = new double[ pij[0].length ];
+		for(int j=1; j<pij[0].length; j++)
+			for(int i=1; i<pij.length; i++)		
+				bj[ j ] += pij[ i ][ j ];
+						
+		double[] pi0 = new double[ pij.length ];
+		double aux = 0;
+		for(int i=1; i<pij.length; i++)
+		{
+			pi0[ i ] = pij[ i ][ 0 ];
+			aux += pi0[ i ];
+		}
+
+		// In matlab:
+		// sumA2 = sum( a_i .* a_i );
+		double sumA2 = 0;
+		for(int i=0; i<ai.length; i++)
+			sumA2 += ai[ i ] * ai[ i ];	
+
+		// In matlab:
+		// sumB2 = sum( b_j .* b_j ) + sum(p_i0)/n;
+		double sumB2 = 0;
+		for(int j=0; j<bj.length; j++)
+				sumB2 += bj[ j ] * bj[ j ];
+		sumB2 += aux / n;
+
+		// In matlab:
+		// sumAB2 = sum(sum(p_ij.^2)) + sum(p_i0)/n;
+		double sumAB2 = 0;
+		for(int i=1; i<pij.length; i++)
+			for(int j=1; j<pij[0].length; j++)
+				sumAB2 += pij[ i ][ j ] * pij[ i ][ j ] ;
+		sumAB2 += aux / n;
+		
+		// precision
+		double prec = sumAB2 / sumB2;
+		// recall
+		double rec = sumAB2 / sumA2;
+		
+		return new double[]{ prec, rec };
+	}
+	
+	/**
 	 * Get the best F-score of the Rand index over a set of thresholds 
 	 * 
 	 * @param minThreshold minimum threshold value to binarize the input images
