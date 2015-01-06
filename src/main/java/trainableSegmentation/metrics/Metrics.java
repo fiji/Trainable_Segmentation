@@ -78,7 +78,7 @@ public abstract class Metrics
 			double error = getMetricValue( th );
 			if( min > error )
 			{
-				min = error;;
+				min = error;
 				bestTh = th;
 			}
 			if( verbose )
