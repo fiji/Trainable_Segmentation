@@ -517,7 +517,47 @@ public class RandError extends Metrics
 		
 		return getRandIndexStats( components1, components2 );		
 	}
-	
+
+	/**
+	 * Calculate the foreground-restricted Rand precision and recall between 
+	 * some 2D original labels and the corresponding proposed labels with N^2 
+	 * normalization. Both input images are binarized based on the input
+	 * threshold value.
+	 * 
+	 * @param label 2D image with the original (ground truth) binary labels
+	 * @param proposal 2D image with the proposed label probabilities
+	 * @param binaryThreshold threshold value to binarize the input images
+	 * @return foreground-restricted Rand error statistics
+	 */
+	public ClassificationStatistics foregroundRestrictedStatsN2(
+			ImageProcessor label,
+			ImageProcessor proposal,
+			double binaryThreshold )
+	{
+		// Binarize inputs
+		ByteProcessor binaryLabel = 
+				new ByteProcessor( label.getWidth(), label.getHeight() );
+		ByteProcessor binaryProposal = 
+				new ByteProcessor( label.getWidth(), label.getHeight() );
+		
+		for(int x=0; x<label.getWidth(); x++)
+			for(int y=0; y<label.getHeight(); y++)
+			{
+				binaryLabel.set(   x, y,    
+						label.getPixelValue( x, y ) > binaryThreshold ? 255 : 0);
+				binaryProposal.set(x, y, 
+						proposal.getPixelValue( x, y ) > binaryThreshold ? 255 : 0);
+			}
+		
+		// Find components
+		ShortProcessor components1 = ( ShortProcessor ) Utils.connectedComponents(
+				new ImagePlus("binary labels", binaryLabel), 4).allRegions.getProcessor();
+		
+		ShortProcessor components2 = ( ShortProcessor ) Utils.connectedComponents(
+				new ImagePlus("proposal labels", binaryProposal), 4).allRegions.getProcessor();
+		
+		return foregroundRestrictedStatsN2( components1, components2 );		
+	}
 	
 	/**
 	 * Calculate the Rand index between to clusters, as described by
@@ -1318,9 +1358,9 @@ public class RandError extends Metrics
 	 * 
 	 * @param cluster1 ground truth cluster
 	 * @param cluster2 proposed cluster
-	 * @return precision and recall values
+	 * @return foreground-restiricted statistics (Rand error, precision, etc)
 	 */
-	public double[] foregroundRestrictedStatsN2(
+	public ClassificationStatistics foregroundRestrictedStatsN2(
 			ShortProcessor cluster1,
 			ShortProcessor cluster2 )
 	{
@@ -1399,11 +1439,23 @@ public class RandError extends Metrics
 		sumAB2 += aux / n;
 		
 		// precision
-		double prec = sumAB2 / sumB2;
+		//double prec = sumAB2 / sumB2;
 		// recall
-		double rec = sumAB2 / sumA2;
+		//double rec = sumAB2 / sumA2;
 		
-		return new double[]{ prec, rec };
+		double n2 = n*n;
+		// true positives
+		double tp = n2 * sumAB2;
+		// false positives
+		double fp = n2 * sumB2 - tp;
+		// false negatives
+		double fn = n2 * sumA2 - tp;
+		// true negatives
+		double tn = n2 - tp -fp -fn;
+		// Rand error
+		double randError = (fp + fn) / n2;
+		
+		return new ClassificationStatistics( tp, tn, fp, fn, randError );
 	}
 	
 	/**
