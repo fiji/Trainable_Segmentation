@@ -415,10 +415,11 @@ public class VariationOfInformation extends Metrics
 		final short[] pixels1 = (short[]) cluster1.getPixels();
 		final short[] pixels2 = (short[]) cluster2.getPixels();
 		
-		//(new ImagePlus("cluster 1", cluster1)).show();
-		//(new ImagePlus("cluster 2", cluster2)).show();
-		
-		double n = pixels1.length;
+		// n: number of non-background pixels in the ground truth
+		double n = 0;
+		for( int i=0; i< pixels1.length; i++ )
+			if( pixels1[ i ] != 0 )
+				n++;
 		
 		
 		// reset min and max of the cluster processors 
@@ -431,7 +432,7 @@ public class VariationOfInformation extends Metrics
 		
 		// compute overlap matrix
 		double[][]pij = new double[ nLabelsA + 1] [ nLabelsB + 1];
-		for(int i=0; i<n; i++)									
+		for( int i=0; i < pixels1.length; i++ )
 			pij[ pixels1[i] & 0xffff ] [ pixels2[i] & 0xffff ] ++;
 		
 		for( int i=0; i < (nLabelsA + 1); i++ )
