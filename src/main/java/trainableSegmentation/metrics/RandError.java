@@ -463,8 +463,9 @@ public class RandError extends Metrics
 		ShortProcessor components2 = ( ShortProcessor ) Utils.connectedComponents(
 				new ImagePlus("proposal labels", binaryProposal), 4).allRegions.getProcessor();
 		
-		return 1 - randIndex( components1, components2 );
-		
+		//return 1 - randIndex( components1, components2 );
+		ClassificationStatistics cs = foregroundRestrictedStatsN2( components1, components2 );
+		return cs.metricValue;
 	}
 	
 	/**
@@ -515,7 +516,8 @@ public class RandError extends Metrics
 		ShortProcessor components2 = ( ShortProcessor ) Utils.connectedComponents(
 				new ImagePlus("proposal labels", binaryProposal), 4).allRegions.getProcessor();
 		
-		return getRandIndexStats( components1, components2 );		
+		//return getRandIndexStats( components1, components2 );
+		return foregroundRestrictedStatsN2( components1, components2 );
 	}
 
 	/**
