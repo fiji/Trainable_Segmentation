@@ -542,71 +542,133 @@ public class WekaSegmentation {
 		return this.trainHeader;
 	}
 
+	
+	/**
+	 * bag class for getting the result of the loaded classifier
+	 */
+	private static class LoadedClassifier {
+		AbstractClassifier newClassifier = null;
+		Instances newHeader = null;
+	}
+
+	/**
+	 * load a binary classifier
+	 * 
+	 * @param classifierInputStream
+	 * @throws Exception
+	 *             exception is thrown if the reading is not properly done, the
+	 *             caller has to handle this exception
+	 */
+	private LoadedClassifier internalLoadClassifier(
+			InputStream classifierInputStream) throws Exception {
+		ObjectInputStream objectInputStream = new ObjectInputStream(
+				classifierInputStream);
+		LoadedClassifier lc = new LoadedClassifier();
+		lc.newClassifier = (AbstractClassifier) objectInputStream.readObject();
+		try { // see if we can load the header
+			lc.newHeader = (Instances) objectInputStream.readObject();
+		} finally {
+			objectInputStream.close();
+		}
+		return lc;
+	}
+
+	/**
+	 * load a binary classifier from a stream
+	 * 
+	 * @param classifierInputStream
+	 *            the input stream
+	 * @return true if properly read, false otherwise
+	 */
+	public boolean loadClassifier(InputStream classifierInputStream) {
+		assert classifierInputStream != null;
+		try {
+
+			LoadedClassifier loadresult = internalLoadClassifier(classifierInputStream);
+
+			try {
+				// Check if the loaded information corresponds to current state
+				// of
+				// the segmentator
+				// (the attributes can be adjusted, but the classes must match)
+				if (false == adjustSegmentationStateToData(loadresult.newHeader)) {
+					IJ.log("Error: current segmentator state could not be updated to loaded data requirements (attributes and classes)");
+					return false;
+				}
+			} catch (Exception e) {
+				IJ.log("Error while adjusting data!");
+				e.printStackTrace();
+				return false;
+			}
+
+			this.classifier = loadresult.newClassifier;
+			this.trainHeader = loadresult.newHeader;
+
+			return true;
+
+		} catch (Exception e) {
+			IJ.error("Load Failed", "Error while loading classifier");
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 	/**
 	 * Read header classifier from a .model file
-	 * @param filename complete path and file name
+	 * 
+	 * @param filename
+	 *            complete path and file name
 	 * @return false if error
 	 */
-	public boolean loadClassifier(String filename)
-	{
+	public boolean loadClassifier(String filename) {
 		AbstractClassifier newClassifier = null;
 		Instances newHeader = null;
 		File selected = new File(filename);
 		try {
-			InputStream is = new FileInputStream( selected );
-			if (selected.getName().endsWith(ClassifierPanel.PMML_FILE_EXTENSION))
-			{
+			InputStream is = new FileInputStream(selected);
+			if (selected.getName()
+					.endsWith(ClassifierPanel.PMML_FILE_EXTENSION)) {
 				PMMLModel model = PMMLFactory.getPMMLModel(is, null);
 				if (model instanceof PMMLClassifier)
-					newClassifier = (PMMLClassifier)model;
+					newClassifier = (PMMLClassifier) model;
 				else
-					throw new Exception("PMML model is not a classification/regression model!");
-			}
-			else
-			{
+					throw new Exception(
+							"PMML model is not a classification/regression model!");
+			} else {
 				if (selected.getName().endsWith(".gz"))
 					is = new GZIPInputStream(is);
 
-				ObjectInputStream objectInputStream = new ObjectInputStream(is);
-				newClassifier = (AbstractClassifier) objectInputStream.readObject();
-				try
-				{ // see if we can load the header
-					newHeader = (Instances) objectInputStream.readObject();
-				}
-				catch (Exception e)
-				{
+				try {
+					LoadedClassifier loadresult = internalLoadClassifier(is);
+					newHeader = loadresult.newHeader;
+					newClassifier = loadresult.newClassifier;
+				} catch (Exception e) {
 					IJ.error("Load Failed", "Error while loading train header");
 					e.printStackTrace();
 					return false;
 				}
-				finally
-				{
-					objectInputStream.close();
-				}
+
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			IJ.error("Load Failed", "Error while loading classifier");
 			e.printStackTrace();
 			return false;
 		}
 
-		try{
-			// Check if the loaded information corresponds to current state of the segmentator
+		try {
+			// Check if the loaded information corresponds to current state of
+			// the segmentator
 			// (the attributes can be adjusted, but the classes must match)
-			if(false == adjustSegmentationStateToData(newHeader))
-			{
+			if (false == adjustSegmentationStateToData(newHeader)) {
 				IJ.log("Error: current segmentator state could not be updated to loaded data requirements (attributes and classes)");
 				return false;
 			}
-		}catch(Exception e)
-		{
+		} catch (Exception e) {
 			IJ.log("Error while adjusting data!");
 			e.printStackTrace();
 			return false;
 		}
-		
+
 		this.classifier = newClassifier;
 		this.trainHeader = newHeader;
 
