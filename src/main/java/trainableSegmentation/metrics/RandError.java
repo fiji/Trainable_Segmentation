@@ -139,10 +139,13 @@ public class RandError extends Metrics
 	}
 	
 	/**
-	 * Calculate the Rand index and its derived statistics in 2D between 
+	 * Calculate the standard Rand index and its derived statistics in 2D between 
 	 * some original labels and the corresponding proposed labels. Both images 
 	 * are binarized. We follow the definition of Rand index described by
 	 * William M. Rand \cite{Rand71}.
+	 * NOTE: the Rand index is averaged over the slices, but the F-score is 
+	 * calculated using the total number of positive and negative samples (it 
+	 * is not an averaged F-score). 
 	 *
 	 * BibTeX:
 	 * <pre>
@@ -159,7 +162,7 @@ public class RandError extends Metrics
 	 * </pre>
 	 * 
 	 * @param binaryThreshold threshold value to binarize proposal (larger than 0 and smaller than 1)
-	 * @return Rand index value and derived statistics
+	 * @return standard Rand index value and derived statistics
 	 */
 	public ClassificationStatistics getRandIndexStats( double binaryThreshold )
 	{
@@ -198,7 +201,7 @@ public class RandError extends Metrics
 		}
 		catch(Exception ex)
 		{
-			IJ.log("Error when calculating rand error in a concurrent way.");
+			IJ.log( "Error when calculating standard Rand index stats in a concurrent way." );
 			ex.printStackTrace();
 		}
 		finally{
