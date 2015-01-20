@@ -42,6 +42,9 @@ import trainableSegmentation.utils.Utils;
  * This class implements the Rand error metric.
  * The Rand error is defined as the 1 - Rand index. We follow the
  * definition of Rand index as described by William M. Rand \cite{Rand71}.
+ * Two implementations are given, the classic one, and a foreground-restricted 
+ * version that prunes out the background pixels of the ground truth during the 
+ * metric calculation.
  *
  * BibTeX:
  * <pre>
