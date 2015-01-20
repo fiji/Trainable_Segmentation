@@ -468,7 +468,7 @@ public class RandError extends Metrics
 		ShortProcessor components2 = ( ShortProcessor ) Utils.connectedComponents(
 				new ImagePlus("proposal labels", binaryProposal), 4).allRegions.getProcessor();
 		
-		return 1 - foregroundRestrictedRandIndex( components1, components2 );
+		return 1 - classicRandIndex( components1, components2 );
 	}
 	
 	/**
