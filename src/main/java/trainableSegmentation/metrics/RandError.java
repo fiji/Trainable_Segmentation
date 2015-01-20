@@ -279,8 +279,8 @@ public class RandError extends Metrics
 	}
 	
 	/**
-	 * Calculate the precision-recall values based on Rand index between 
-	 * some 2D original labels and the corresponding proposed labels. 
+	 * Calculate the precision-recall values based on standard Rand index 
+	 * between some 2D original labels and the corresponding proposed labels. 
 	 * We follow the definition of Rand index as described by
 	 * William M. Rand \cite{Rand71}.
 	 *
@@ -301,12 +301,12 @@ public class RandError extends Metrics
 	 * @param minThreshold minimum threshold value to binarize the input images
 	 * @param maxThreshold maximum threshold value to binarize the input images
 	 * @param stepThreshold threshold step value to use during binarization
-	 * @return Rand index value and derived statistics for each threshold
+	 * @return standard Rand index value and derived statistics for each threshold
 	 */
 	public ArrayList< ClassificationStatistics > getRandIndexStats(
 			double minThreshold,
 			double maxThreshold,
-			double stepThreshold)
+			double stepThreshold )
 	{
 		
 		if( minThreshold < 0 || minThreshold > maxThreshold || maxThreshold > 1)
@@ -323,8 +323,8 @@ public class RandError extends Metrics
 		for(double th = minThreshold; th <= maxThreshold; th += stepThreshold)
 		{
 			if( verbose ) 
-				IJ.log("  Calculating Rand index statistics for threshold value " + String.format("%.3f", th) + "...");
-			cs.add( getRandIndexStats( th ));
+				IJ.log("  Calculating standard Rand index statistics for threshold value " + String.format("%.3f", th) + "...");
+			cs.add( getRandIndexStats( th ) );
 			final double fScore = cs.get( cs.size()-1 ).fScore;
 			if( fScore > bestFscore )
 			{
