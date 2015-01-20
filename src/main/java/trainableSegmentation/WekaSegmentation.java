@@ -615,26 +615,26 @@ public class WekaSegmentation {
 
 	/**
 	 * Read header classifier from a .model file
-	 * 
-	 * @param filename
-	 *            complete path and file name
+	 * @param filename complete path and file name
 	 * @return false if error
 	 */
-	public boolean loadClassifier(String filename) {
+	public boolean loadClassifier(String filename)
+	{
 		AbstractClassifier newClassifier = null;
 		Instances newHeader = null;
 		File selected = new File(filename);
 		try {
-			InputStream is = new FileInputStream(selected);
-			if (selected.getName()
-					.endsWith(ClassifierPanel.PMML_FILE_EXTENSION)) {
+			InputStream is = new FileInputStream( selected );
+			if (selected.getName().endsWith(ClassifierPanel.PMML_FILE_EXTENSION))
+			{
 				PMMLModel model = PMMLFactory.getPMMLModel(is, null);
 				if (model instanceof PMMLClassifier)
-					newClassifier = (PMMLClassifier) model;
+					newClassifier = (PMMLClassifier)model;
 				else
-					throw new Exception(
-							"PMML model is not a classification/regression model!");
-			} else {
+					throw new Exception("PMML model is not a classification/regression model!");
+			}
+			else
+			{
 				if (selected.getName().endsWith(".gz"))
 					is = new GZIPInputStream(is);
 
@@ -649,21 +649,24 @@ public class WekaSegmentation {
 				}
 
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			IJ.error("Load Failed", "Error while loading classifier");
 			e.printStackTrace();
 			return false;
 		}
 
-		try {
-			// Check if the loaded information corresponds to current state of
-			// the segmentator
+		try{
+			// Check if the loaded information corresponds to current state of the segmentator
 			// (the attributes can be adjusted, but the classes must match)
-			if (false == adjustSegmentationStateToData(newHeader)) {
+			if(false == adjustSegmentationStateToData(newHeader))
+			{
 				IJ.log("Error: current segmentator state could not be updated to loaded data requirements (attributes and classes)");
 				return false;
 			}
-		} catch (Exception e) {
+		}catch(Exception e)
+		{
 			IJ.log("Error while adjusting data!");
 			e.printStackTrace();
 			return false;
