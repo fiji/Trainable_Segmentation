@@ -583,6 +583,8 @@ public class RandError extends Metrics
 	 * some 2D original labels and the corresponding proposed labels with N^2 
 	 * normalization. Both input images are binarized based on the input
 	 * threshold value.
+	 * NOTE: the returned metric value is the foreground-restricted Rand error 
+	 * (not the Rand index).
 	 * 
 	 * @param label 2D image with the original (ground truth) binary labels
 	 * @param proposal 2D image with the proposed label probabilities
