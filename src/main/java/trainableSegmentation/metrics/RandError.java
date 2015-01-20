@@ -525,7 +525,7 @@ public class RandError extends Metrics
 	}
 	
 	/**
-	 * Calculate the Rand index between some 2D original labels 
+	 * Calculate the standard Rand index between some 2D original labels 
 	 * and the corresponding proposed labels. Both image are binarized.
 	 * We follow the definition of Rand index as described by
 	 * William M. Rand \cite{Rand71}.
@@ -547,12 +547,12 @@ public class RandError extends Metrics
 	 * @param label 2D image with the original labels
 	 * @param proposal 2D image with the proposed labels
 	 * @param binaryThreshold threshold value to binarize the input images
-	 * @return rand index value and derived statistics
+	 * @return standard Rand index value and derived statistics
 	 */
 	public  ClassificationStatistics randIndexStats(
 			ImageProcessor label,
 			ImageProcessor proposal,
-			double binaryThreshold)
+			double binaryThreshold )
 	{
 		// Binarize inputs
 		ByteProcessor binaryLabel = new ByteProcessor( label.getWidth(), label.getHeight() );
@@ -572,8 +572,7 @@ public class RandError extends Metrics
 		ShortProcessor components2 = ( ShortProcessor ) Utils.connectedComponents(
 				new ImagePlus("proposal labels", binaryProposal), 4).allRegions.getProcessor();
 		
-		//return getRandIndexStats( components1, components2 );
-		return foregroundRestrictedStatsN2( components1, components2 );
+		return getRandIndexStats( components1, components2 );
 	}
 
 	/**
