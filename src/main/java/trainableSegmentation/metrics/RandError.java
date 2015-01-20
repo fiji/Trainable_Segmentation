@@ -78,7 +78,9 @@ public class RandError extends Metrics
 	 * Calculate the Rand error in 2D between some original labels 
 	 * and the corresponding proposed labels. Both image are binarized.
 	 * The Rand error is defined as the 1 - Rand index, as described by
-	 * William M. Rand \cite{Rand71}.
+	 * William M. Rand \cite{Rand71}. 
+	 * Note: foreground pixels are considered part of the same object. If more
+	 * than one slice is provided, the error is averaged per slice.
 	 *
 	 * BibTeX:
 	 * <pre>
@@ -95,7 +97,7 @@ public class RandError extends Metrics
 	 * </pre>
 	 * 
 	 * @param binaryThreshold threshold value to binarize proposal (larger than 0 and smaller than 1)
-	 * @return Rand error
+	 * @return average Rand error (defined as 1.0 - classic Rand index) per slice
 	 */
 	public double getMetricValue(double binaryThreshold)
 	{
@@ -340,7 +342,7 @@ public class RandError extends Metrics
 	}
 	
 	/**
-	 * Get Rand error between two images in a concurrent way 
+	 * Get standard Rand error between two images in a concurrent way 
 	 * (to be submitted to an Executor Service). Both images
 	 * are binarized.
 	 * The Rand error is defined as the 1 - Rand index, as described by
@@ -363,7 +365,7 @@ public class RandError extends Metrics
 	 * @param image1 first image
 	 * @param image2 second image
 	 * @param binaryThreshold threshold to apply to both images
-	 * @return Rand error
+	 * @return standard Rand error (1 - standard Rand index)
 	 */
 	public Callable<Double> getRandErrorConcurrent(
 			final ImageProcessor image1, 
@@ -419,7 +421,7 @@ public class RandError extends Metrics
 	}
 	
 	/**
-	 * Calculate the Rand error between some 2D original labels 
+	 * Calculate the standard Rand error between some 2D original labels 
 	 * and the corresponding proposed labels. Both image are binarized.
 	 * The Rand error is defined as the 1 - Rand index, as described by
 	 * William M. Rand \cite{Rand71}.
@@ -441,7 +443,7 @@ public class RandError extends Metrics
 	 * @param label 2D image with the original labels
 	 * @param proposal 2D image with the proposed labels
 	 * @param binaryThreshold threshold value to binarize the input images
-	 * @return Rand error
+	 * @return standard Rand error (1 - standard Rand index)
 	 */
 	public double randError(
 			ImageProcessor label,
@@ -466,9 +468,7 @@ public class RandError extends Metrics
 		ShortProcessor components2 = ( ShortProcessor ) Utils.connectedComponents(
 				new ImagePlus("proposal labels", binaryProposal), 4).allRegions.getProcessor();
 		
-		//return 1 - randIndex( components1, components2 );
-		ClassificationStatistics cs = foregroundRestrictedStatsN2( components1, components2 );
-		return cs.metricValue;
+		return 1 - randIndex( components1, components2 );
 	}
 	
 	/**
