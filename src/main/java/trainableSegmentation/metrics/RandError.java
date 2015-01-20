@@ -468,7 +468,7 @@ public class RandError extends Metrics
 		ShortProcessor components2 = ( ShortProcessor ) Utils.connectedComponents(
 				new ImagePlus("proposal labels", binaryProposal), 4).allRegions.getProcessor();
 		
-		return 1 - randIndex( components1, components2 );
+		return 1 - foregroundRestrictedRandIndex( components1, components2 );
 	}
 	
 	/**
@@ -658,11 +658,11 @@ public class RandError extends Metrics
 	 * 
 	 * @param cluster1 ground truth, 2D segmented image (objects are labeled with different numbers) 
 	 * @param cluster2 prediction, 2D segmented image (objects are labeled with different numbers)
-	 * @return Rand index
+	 * @return foreground-restricted Rand index of the two images
 	 */
-	public double randIndex(
+	public double foregroundRestrictedRandIndex(
 			ShortProcessor cluster1,
-			ShortProcessor cluster2)
+			ShortProcessor cluster2 )
 	{
 		final short[] pixels1 = (short[]) cluster1.getPixels();
 		final short[] pixels2 = (short[]) cluster2.getPixels();
