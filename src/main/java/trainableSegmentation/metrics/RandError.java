@@ -1242,9 +1242,8 @@ public class RandError extends Metrics
 	
 	
 	/**
-	 * Calculate the Rand index between to clusters, as described by
-	 * William M. Rand \cite{Rand71}, but pruning out the zero component of
-	 * the ground truth, which leads to an asymmetric index.
+	 * Calculate the standard Rand index between to clusters, as described by
+	 * William M. Rand \cite{Rand71}.
 	 *
 	 * BibTeX:
 	 * <pre>
@@ -1271,14 +1270,8 @@ public class RandError extends Metrics
 		final short[] pixels1 = (short[]) cluster1.getPixels();
 		final short[] pixels2 = (short[]) cluster2.getPixels();
 		
-		//(new ImagePlus("cluster 1", cluster1)).show();
-		//(new ImagePlus("cluster 2", cluster2)).show();
-		
-		double nPixels = pixels1.length;
-		
-		// number of pixels that are "in" (not background) in 
-		// the first cluster (ground truth)
-		double n = 0;
+		// number of pixels
+		double n = pixels1.length;
 		
 		// reset min and max of the cluster processors 
 		// (needed in order to have correct min-max values)
@@ -1290,59 +1283,39 @@ public class RandError extends Metrics
 		
 		//IJ.log(" cont.length = " +cont.length );
 		//IJ.log(" cont[0].length = " +cont[0].length );
-
-		for(int i=0; i<nPixels; i++)
-		{						
+		
+		for(int i=0; i<n; i++)					
 			cont[ pixels1[i] & 0xffff ] [ pixels2[i] & 0xffff ] ++;
-			if( pixels1[ i ] > 0)
-				n++;
-		}
+
 		// sum over rows & columnns of nij^2
 		//double t2 = 0;				
 		
 		// sums of rows
-		// (skip background objects in the first cluster)
 		double[] ni = new double[ cont.length ];
-		for(int i=1; i<cont.length; i++)
+		for(int i=0; i<cont.length; i++)
 			for(int j=0; j<cont[0].length; j++)
 			{
 				ni[ i ] += cont[ i ][ j ];				
 			}
-		/*
-		// sum of squares of sums of rows
-		double nis = 0;
-		for(int k=0; k<ni.length; k++)
-			nis += ni[ k ] * ni[ k ];
-		*/
 		
 		// sums of columns
-		// (prune out the zero component in the labeling (un-assigned "out" space))
 		double[] nj = new double[ cont[0].length ];
-		for(int j=1; j<cont[0].length; j++)
-			for(int i=1; i<cont.length; i++)
+		for(int j=0; j<cont[0].length; j++)
+			for(int i=0; i<cont.length; i++)
 			{
 				nj[ j ] += cont[ i ][ j ];
-				//t2 += cont[ i ][ j ] * cont[ i ][ j ];
 			}
-		/*
-		// sum of squares of sums of columns
-		double njs = 0;
-		for(int k=0; k<nj.length; k++)
-			njs += nj[ k ] * nj[ k ];
-		*/
 		
 		// true positives - type (i): objects in the pair are placed in the 
 		// same class in cluster1 and in the same class in claster2
-		// (prune out the zero component in the labeling (un-assigned "out" space))
 		double truePositives = 0;
-		for(int j=1; j<cont[0].length; j++)
-			for(int i=1; i<cont.length; i++)
+		for(int j=0; j<cont[0].length; j++)
+			for(int i=0; i<cont.length; i++)
 			{
 				truePositives += cont[ i ][ j ] * ( cont[ i ][ j ] - 1.0 ) / 2.0;
 			}
 													
-		// total number of pairs after pruning the brackground
-		// pixels of the ground truth
+		// total number of pairs 
 		double nPairsTotal = n * (n-1) / 2 ;
 		
 		// number of true samples withing the ground truth
