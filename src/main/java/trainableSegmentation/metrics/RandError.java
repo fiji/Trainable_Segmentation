@@ -471,6 +471,59 @@ public class RandError extends Metrics
 		return 1 - classicRandIndex( components1, components2 );
 	}
 	
+	
+	/**
+	 * Calculate the foreground-restricted Rand error between some 2D original
+	 * labels and the corresponding proposed labels. Both image are binarized.
+	 * The foreground-restricted Rand error is defined as the 1 - Rand index (as
+	 * described by William M. Rand \cite{Rand71}, but pruining out the 
+	 * zero-component of the ground-truth).
+	 *
+	 * BibTeX:
+	 * <pre>
+	 * &#64;article{Rand71,
+	 *   author    = {William M. Rand},
+	 *   title     = {Objective criteria for the evaluation of clustering methods},
+	 *   journal   = {Journal of the American Statistical Association},
+	 *   year      = {1971},
+	 *   volume    = {66},
+	 *   number    = {336},
+	 *   pages     = {846--850},
+	 *   doi       = {10.2307/2284239)
+	 * }
+	 * </pre>
+	 * 
+	 * @param label 2D image with the original labels
+	 * @param proposal 2D image with the proposed labels
+	 * @param binaryThreshold threshold value to binarize the input images
+	 * @return foreground-restricted Rand error (1 - foreground-restricted Rand index)
+	 */
+	public double foregroundRestrictedRandError(
+			ImageProcessor label,
+			ImageProcessor proposal,
+			double binaryThreshold )
+	{
+		// Binarize inputs
+		ByteProcessor binaryLabel = new ByteProcessor( label.getWidth(), label.getHeight() );
+		ByteProcessor binaryProposal = new ByteProcessor( label.getWidth(), label.getHeight() );
+		
+		for(int x=0; x<label.getWidth(); x++)
+			for(int y=0; y<label.getHeight(); y++)
+			{
+				binaryLabel.set(   x, y,    label.getPixelValue( x, y ) > binaryThreshold ? 255 : 0);
+				binaryProposal.set(x, y, proposal.getPixelValue( x, y ) > binaryThreshold ? 255 : 0);
+			}
+		
+		// Find components
+		ShortProcessor components1 = ( ShortProcessor ) Utils.connectedComponents(
+				new ImagePlus("binary labels", binaryLabel), 4).allRegions.getProcessor();
+		
+		ShortProcessor components2 = ( ShortProcessor ) Utils.connectedComponents(
+				new ImagePlus("proposal labels", binaryProposal), 4).allRegions.getProcessor();
+		
+		return 1 - foregroundRestrictedRandIndex( components1, components2 );
+	}
+	
 	/**
 	 * Calculate the Rand index between some 2D original labels 
 	 * and the corresponding proposed labels. Both image are binarized.
