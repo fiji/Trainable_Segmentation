@@ -385,7 +385,7 @@ public class RandError extends Metrics
 	}
 
 	/**
-	 * Get Rand index value and derived statistics between two images 
+	 * Get standard Rand index value and derived statistics between two images 
 	 * in a concurrent way (to be submitted to an Executor Service). 
 	 * Both images are binarized.
 	 * We follow the Rand index definition described by William M. Rand \cite{Rand71}.
@@ -407,12 +407,12 @@ public class RandError extends Metrics
 	 * @param image1 first image
 	 * @param image2 second image
 	 * @param binaryThreshold threshold to apply to both images
-	 * @return Rand index value and derived statistics
+	 * @return standard Rand index value and derived statistics
 	 */
 	public  Callable<ClassificationStatistics> getRandIndexStatsConcurrent(
 			final ImageProcessor image1, 
 			final ImageProcessor image2,
-			final double binaryThreshold) 
+			final double binaryThreshold ) 
 	{
 		return new Callable<ClassificationStatistics>()
 		{
