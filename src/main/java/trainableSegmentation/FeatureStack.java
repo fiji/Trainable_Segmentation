@@ -1581,7 +1581,6 @@ public class FeatureStack
 	 * @param sigma smoothing scale
 	 * @param xOrder x-order of differentiation
 	 * @param yOrder y-order of differentiation
-	 * @return filter image after specific order derivatives
 	 */
 	public void addDerivatives(
 			final double sigma,
@@ -1670,7 +1669,6 @@ public class FeatureStack
 	 * Add Laplacian features to current stack
 	 *
 	 * @param sigma smoothing scale	
-	 * @return filter Laplacian filter image
 	 */
 	public void addLaplacian(
 			final double sigma)
@@ -1768,7 +1766,6 @@ public class FeatureStack
 	 * @param sigma smoothing scale	
 	 * @param integrationScale integration scale (standard deviation of the Gaussian 
 	 * 			kernel used for smoothing the elements of the structure tensor, must be larger than zero)
-	 * @return filter structure tensor filter image
 	 */
 	public void addStructure(
 			final double sigma,
@@ -2269,7 +2266,6 @@ public class FeatureStack
 	 * @param originalImage input image
 	 * @param spatialRadius spatial radius
 	 * @param rangeRadius range radius	  
-	 * @return result image
 	 */
 	public void addBilateralFilter(
 			final ImagePlus originalImage,					

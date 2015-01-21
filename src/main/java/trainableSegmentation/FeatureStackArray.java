@@ -366,7 +366,7 @@ public class FeatureStackArray
 	/**
 	 * Get a specific label of the reference stack
 	 * @param index slice index (>=1)
-	 * @return
+	 * @return label name
 	 */
 	public String getLabel(int index)
 	{

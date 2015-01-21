@@ -1706,13 +1706,13 @@ public class WekaSegmentation {
 	 * black pixels will be added to class 2.
 	 *
 	 * @param labelImage binary image
-	 * @param mask mask image
+	 * @param mask binary mask image to prevent some pixel to be selected (null if all pixels are eligible)
 	 * @param weights weight image
 	 * @param featureStack corresponding feature stack
 	 * @param whiteClassName name of the class which receives the white pixels
 	 * @param blackClassName name of the class which receives the black pixels
 	 * @param numSamples number of samples to add of each class
-	 * @param mask binary mask image to prevent some pixel to be selected (null if all pixels are eligible)
+	 
 	 * @return false if error
 	 */
 	public boolean addRandomBalancedBinaryData(
@@ -4818,7 +4818,7 @@ public class WekaSegmentation {
 	
 	/**
 	 * Classify a list of images in a concurrent way
-	 * @param list of images to classify
+	 * @param images list of images to classify
 	 * @param dataInfo empty set of instances containing the data structure (attributes and classes)
 	 * @param classifier classifier to use
 	 * @param counter counter used to display the progress in the tool bar
@@ -5822,7 +5822,7 @@ public class WekaSegmentation {
 
 	/**
 	 * Set feature update flag
-	 * @param udpateFeatures new feature update flag
+	 * @param updateFeatures new feature update flag
 	 */
 	public void setUpdateFeatures(boolean updateFeatures)
 	{

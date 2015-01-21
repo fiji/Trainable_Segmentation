@@ -507,7 +507,6 @@ public class WarpingError extends Metrics {
 	 * @param minThreshold minimum threshold value to binarize the input images
 	 * @param maxThreshold maximum threshold value to binarize the input images
 	 * @param stepThreshold threshold step value to use during binarization
-	 * @param verbose flag to print or not output information
 	 * @return maximal F-score of the pixel error
 	 */
 	public double getPixelErrorMaximalFScore(
@@ -865,7 +864,6 @@ public class WarpingError extends Metrics {
 	 * @param minThreshold minimum threshold value to binarize the input images
 	 * @param maxThreshold maximum threshold value to binarize the input images
 	 * @param stepThreshold threshold step value to use during binarization
-	 * @param verbose flag to print or not output information
 	 * @return maximal F-score of the pixel error
 	 */
 	public double getDualPixelErrorMaximalFScore(

@@ -1022,7 +1022,7 @@ public class FeatureStack3D
 	
 	/**
 	 * Convert FeatureStack3D into a feature stack array (for 2D stacks). Experimental.
-	 * @return
+	 * @return array of feature stacks
 	 */
 	public FeatureStackArray getFeatureStackArray()
 	{

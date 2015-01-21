@@ -120,7 +120,7 @@ public class Entropy_Filter implements PlugInFilter
 	 * Apply entropy filter to an image
 	 * @param ip input image
 	 * @param radius radius to use (in pixels)
-	 * @param numBin number of bins to use in the histogram
+	 * @param numBins number of bins to use in the histogram
 	 */
 	public void applyEntropy(
 			ImageProcessor ip, 

@@ -201,7 +201,7 @@ public class Utils {
 	  /**
 	   * Calculates the area under the ROC curve as the Wilcoxon-Mann-Whitney statistic.
 	   *
-	   * @param tcurve a previously extracted threshold curve Instances.
+	   * @param stats classification statistics .
 	   * @return the ROC area, or Double.NaN if you don't pass in 
 	   * a ThresholdCurve generated Instances. 
 	   */
