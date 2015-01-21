@@ -1503,8 +1503,10 @@ public class Weka_Segmentation implements PlugIn
 		if( null == classifiedImage )
 		{
 			// if not result image is there yet, calculate it
+			win.setButtonsEnabled( false );
 			wekaSegmentation.applyClassifier( false );
 			classifiedImage = wekaSegmentation.getClassifiedImage();
+			win.updateButtonsEnabling();
 		}
 		final ImagePlus resultImage = classifiedImage.duplicate();
 		
