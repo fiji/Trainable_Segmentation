@@ -328,29 +328,16 @@ public class RandError extends Metrics
 	}
 	
 	/**
-	 * Calculate the foreground-restricted Rand index and its derived statistics in 2D 
-	 * between some original labels and the corresponding proposed labels. Both images 
-	 * are binarized. We follow the definition of Rand index described by
-	 * William M. Rand \cite{Rand71}. Individual results are given per each slice.
+	 * Calculate the foreground-restricted Rand error (N^2 normalization) and 
+	 * its derived statistics in 2D between some original labels and the 
+	 * corresponding proposed labels. Both images are binarized. Individual 
+	 * results are given per each slice.
 	 *
-	 * BibTeX:
-	 * <pre>
-	 * &#64;article{Rand71,
-	 *   author    = {William M. Rand},
-	 *   title     = {Objective criteria for the evaluation of clustering methods},
-	 *   journal   = {Journal of the American Statistical Association},
-	 *   year      = {1971},
-	 *   volume    = {66},
-	 *   number    = {336},
-	 *   pages     = {846--850},
-	 *   doi       = {10.2307/2284239)
-	 * }
-	 * </pre>
-	 * 
 	 * @param binaryThreshold threshold value to binarize proposal ([0 1])
-	 * @return Rand index value and derived statistics per slice.
+	 * @return foreground-restricted Rand error value and derived statistics per slice.
 	 */
-	public ClassificationStatistics[] getForegroundRestrictedRandIndexStatsPerSlice( final double binaryThreshold )
+	public ClassificationStatistics[] getForegroundRestrictedRandErrorStatsPerSlice(
+			final double binaryThreshold )
 	{
 		final ImageStack labelSlices = originalLabels.getImageStack();
 		final ImageStack proposalSlices = proposedLabels.getImageStack();
@@ -382,8 +369,10 @@ public class RandError extends Metrics
                 			if (zmin==0) 
                 				IJ.showProgress( i+1, zmax);
                 			
-                			cs[ i ] = randIndexStats( labelSlices.getProcessor( i+1 ).convertToFloat(), 
-                					proposalSlices.getProcessor( i+1 ).convertToFloat(), binaryThreshold );
+                			cs[ i ] = foregroundRestrictedStatsN2(
+                					labelSlices.getProcessor( i+1 ).convertToFloat(), 
+                					proposalSlices.getProcessor( i+1 ).convertToFloat(), 
+                					binaryThreshold );
                 		}
                     }
                 }
