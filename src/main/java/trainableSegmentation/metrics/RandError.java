@@ -1750,7 +1750,7 @@ public class RandError extends Metrics
        System.out.println("Usage: RandError ");
        System.out.println("  -help                      : show this message");
        System.out.println("");
-       System.out.println("  -maxFScoreRandIndex        : calculate maximum F-score of the adapted Rand index over a set of thresholds");
+       System.out.println("  -maxFScoreRandIndex        : calculate maximum F-score of the standard Rand index over a set of thresholds");
        System.out.println("          labels             : image with the original labels");
        System.out.println("          proposal           : image with the proposed labels");
        System.out.println("          minThreshold       : minimum threshold value to binarize the proposal");
