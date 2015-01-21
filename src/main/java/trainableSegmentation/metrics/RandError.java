@@ -1573,12 +1573,13 @@ public class RandError extends Metrics
 	}
 	
 	/**
-	 * Get the best F-score of the Rand index over a set of thresholds 
+	 * Get the best F-score of the standard Rand index over a set of thresholds.
+	 * Note: background pixels are considered part of the same object. 
 	 * 
 	 * @param minThreshold minimum threshold value to binarize the input images
 	 * @param maxThreshold maximum threshold value to binarize the input images
 	 * @param stepThreshold threshold step value to use during binarization
-	 * @return maximal F-score of the Rand index
+	 * @return maximal F-score of the standard Rand index
 	 */
 	public double getRandIndexMaximalFScore(
 			double minThreshold,
