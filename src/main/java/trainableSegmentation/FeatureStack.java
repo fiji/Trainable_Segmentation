@@ -664,58 +664,6 @@ public class FeatureStack
 		};
 	}
 	
-	/**
-	 * Get original image after Gaussian blur and minimum filtering (to be called from an ExecutorService)
-	 * 
-	 * @param originalImage input image
-	 * @param blurRadius filter radius for Gaussian blur
-	 * @param minRadius radius of minimum filter
-	 * @return filtered image
-	 */
-/*	public Callable<ImagePlus> getBlurMin(
-			final ImagePlus originalImage,
-			final float blurRadius,
-			final float minRadius)
-	{
-		return new Callable<ImagePlus>(){
-			public ImagePlus call(){
-		
-				final ImageProcessor ip = originalImage.getProcessor().duplicate();
-				GaussianBlur gs = new GaussianBlur();
-				gs.blur(ip, blurRadius);
-				final RankFilters filter = new RankFilters();
-				filter.rank(ip, minRadius, RankFilters.MIN);
-				return new ImagePlus (availableFeatures[BLUR_MINIMUM]+ "_"  + blurRadius + "_"  + minRadius, ip);
-			}
-		};
-	}
-	*/
-	/**
-	 * Get original image after Gaussian blur and maximum filtering (to be called from an ExecutorService)
-	 * 
-	 * @param originalImage input image
-	 * @param blurRadius filter radius for Gaussian blur
-	 * @param minRadius radius of maximum filter
-	 * @return filtered image
-	 */
-/*	public Callable<ImagePlus> getBlurMax(
-			final ImagePlus originalImage,
-			final float blurRadius,
-			final float maxRadius)
-	{
-		return new Callable<ImagePlus>(){
-			public ImagePlus call(){
-		
-				final ImageProcessor ip = originalImage.getProcessor().duplicate();
-				GaussianBlur gs = new GaussianBlur();
-				gs.blur(ip, blurRadius);
-				final RankFilters filter = new RankFilters();
-				filter.rank(ip, maxRadius, RankFilters.MAX);
-				return new ImagePlus (availableFeatures[BLUR_MAXIMUM]+ "_"  + blurRadius + "_"  + maxRadius, ip);
-			}
-		};
-	}
-	*/
 	public void addMax(float radius)
 	{
 		final ImageProcessor ip = originalImage.getProcessor().duplicate();
