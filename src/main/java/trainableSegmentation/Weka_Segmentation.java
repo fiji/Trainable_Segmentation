@@ -1499,11 +1499,15 @@ public class Weka_Segmentation implements PlugIn
 	 */
 	void showClassificationImage()
 	{
-		if(null == classifiedImage)
-			return;
+		if( null == classifiedImage )
+		{
+			// if not result image is there yet, calculate it
+			wekaSegmentation.applyClassifier( false );
+			classifiedImage = wekaSegmentation.getClassifiedImage();
+		}
 		final ImagePlus resultImage = classifiedImage.duplicate();
 		
-		resultImage.setTitle("Classified image");
+		resultImage.setTitle( "Classified image" );
 		
 		convertTo8bitNoScaling( resultImage );
 					
