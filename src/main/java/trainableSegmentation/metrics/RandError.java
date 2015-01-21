@@ -270,11 +270,11 @@ public class RandError extends Metrics
 	 * Calculate the foreground-restricted Rand error (N^2 normalization) and 
 	 * its derived statistics in 2D between some original labels and the 
 	 * corresponding proposed labels. Both images are binarized.
-	 * NOTE: the metric value returned is the averaged foreground-restricted 
-	 * Rand error (not index).
+	 * NOTE: the metric value returned in the classification statistics is the 
+	 * foreground-restricted Rand index averaged per slice.
 	 * 
 	 * @param binaryThreshold threshold value to binarize proposal (larger than 0 and smaller than 1)
-	 * @return foreground-restricted Rand error value and derived statistics
+	 * @return foreground-restricted Rand index value and derived statistics
 	 */
 	public ClassificationStatistics getForegroundRestrictedRandIndexStats( 
 			double binaryThreshold )
@@ -297,7 +297,7 @@ public class RandError extends Metrics
 			for(int i = 1; i <= labelSlices.getSize(); i++)
 			{
 				futures.add( exe.submit(
-						getForegroundRestrictedRandErrorStatsConcurrent(
+						getForegroundRestrictedRandIndexStatsConcurrent(
 								labelSlices.getProcessor(i).convertToFloat(),
 								proposalSlices.getProcessor(i).convertToFloat(),										
 								binaryThreshold ) ) );
@@ -604,16 +604,17 @@ public class RandError extends Metrics
 	}
 	
 	/**
-	 * Get foreground-restricted Rand error value and derived statistics between two images 
-	 * in a concurrent way (to be submitted to an Executor Service). 
+	 * Get foreground-restricted Rand index value and derived statistics 
+	 * between two images in a concurrent way (to be submitted to an Executor 
+	 * Service). 
 	 * Both images are binarized.
 	 * 
 	 * @param image1 ground-truth image
 	 * @param image2 proposed labels image
 	 * @param binaryThreshold threshold to apply to both images
-	 * @return foreground-restricted Rand error value and derived statistics
+	 * @return foreground-restricted Rand index value and derived statistics
 	 */
-	public  Callable<ClassificationStatistics> getForegroundRestrictedRandErrorStatsConcurrent(
+	public  Callable<ClassificationStatistics> getForegroundRestrictedRandIndexStatsConcurrent(
 			final ImageProcessor image1, 
 			final ImageProcessor image2,
 			final double binaryThreshold ) 
@@ -788,13 +789,12 @@ public class RandError extends Metrics
 	 * some 2D original labels and the corresponding proposed labels with N^2 
 	 * normalization. Both input images are binarized based on the input
 	 * threshold value.
-	 * NOTE: the returned metric value is the foreground-restricted Rand error 
-	 * (not the Rand index).
+	 * NOTE: the returned metric value is the foreground-restricted Rand index 
 	 * 
 	 * @param label 2D image with the original (ground truth) binary labels
 	 * @param proposal 2D image with the proposed label probabilities
 	 * @param binaryThreshold threshold value to binarize the input images
-	 * @return foreground-restricted Rand error statistics
+	 * @return foreground-restricted Rand index statistics
 	 */
 	public ClassificationStatistics foregroundRestrictedStatsN2(
 			ImageProcessor label,
@@ -1598,7 +1598,7 @@ public class RandError extends Metrics
 	 * 
 	 * @param cluster1 ground truth cluster
 	 * @param cluster2 proposed cluster
-	 * @return foreground-restiricted statistics (Rand error, precision, etc)
+	 * @return foreground-restiricted statistics (Rand index, precision, etc)
 	 */
 	public ClassificationStatistics foregroundRestrictedStatsN2(
 			ShortProcessor cluster1,
@@ -1695,7 +1695,7 @@ public class RandError extends Metrics
 		// Rand error
 		double randError = (fp + fn) / n2;
 		
-		return new ClassificationStatistics( tp, tn, fp, fn, randError );
+		return new ClassificationStatistics( tp, tn, fp, fn, 1 - randError );
 	}
 	
 	/**
