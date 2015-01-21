@@ -1134,7 +1134,7 @@ public class Weka_Segmentation implements PlugIn
 
 				saveClassifierButton.setEnabled( win.trainingComplete );
 				overlayButton.setEnabled(resultExists);
-				resultButton.setEnabled(resultExists);
+				resultButton.setEnabled( win.trainingComplete );
 				
 				plotButton.setEnabled( win.trainingComplete );				
 				probabilityButton.setEnabled( win.trainingComplete );
