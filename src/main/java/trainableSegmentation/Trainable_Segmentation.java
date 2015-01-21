@@ -1133,11 +1133,11 @@ public class Trainable_Segmentation implements PlugIn
 	 * @param w image width
 	 * @param h image height
 	 * @param numThreads number of threads to create
-	 * @param prob create a multi-channel probability image
 	 * @return result image
 	 */
 	public ImagePlus applyClassifier(final Instances data,
-	                                 final int w, final int h,
+	                                 final int w, 
+	                                 final int h,
 	                                 final int numThreads)
 	{
 		IJ.log("Applying classifier in " + numThreads + " threads...");
