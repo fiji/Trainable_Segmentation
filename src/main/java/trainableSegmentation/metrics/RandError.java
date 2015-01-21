@@ -282,7 +282,7 @@ public class RandError extends Metrics
 		final ImageStack labelSlices = originalLabels.getImageStack();
 		final ImageStack proposalSlices = proposedLabels.getImageStack();
 
-		double randError = 0;
+		double randIndex = 0;
 		double tp = 0;
 		double tn = 0;
 		double fp = 0;
@@ -307,7 +307,7 @@ public class RandError extends Metrics
 			for(Future<ClassificationStatistics> f : futures)
 			{
 				ClassificationStatistics cs = f.get();
-				randError += cs.metricValue;
+				randIndex += cs.metricValue;
 				tp += cs.truePositives;
 				tn += cs.trueNegatives;
 				fp += cs.falsePositives;
@@ -316,7 +316,7 @@ public class RandError extends Metrics
 		}
 		catch(Exception ex)
 		{
-			IJ.log( "Error when calculating foreground-restricted Rand error "
+			IJ.log( "Error when calculating foreground-restricted Rand index "
 					+ "stats in a concurrent way." );
 			ex.printStackTrace();
 		}
@@ -324,19 +324,19 @@ public class RandError extends Metrics
 			exe.shutdown();
 		}
 
-		return new ClassificationStatistics( tp, tn, fp, fn, randError / labelSlices.getSize() );
+		return new ClassificationStatistics( tp, tn, fp, fn, randIndex / labelSlices.getSize() );
 	}
 	
 	/**
-	 * Calculate the foreground-restricted Rand error (N^2 normalization) and 
+	 * Calculate the foreground-restricted Rand index (N^2 normalization) and 
 	 * its derived statistics in 2D between some original labels and the 
 	 * corresponding proposed labels. Both images are binarized. Individual 
 	 * results are given per each slice.
 	 *
 	 * @param binaryThreshold threshold value to binarize proposal ([0 1])
-	 * @return foreground-restricted Rand error value and derived statistics per slice.
+	 * @return foreground-restricted Rand index value and derived statistics per slice.
 	 */
-	public ClassificationStatistics[] getForegroundRestrictedRandErrorStatsPerSlice(
+	public ClassificationStatistics[] getForegroundRestrictedRandIndexStatsPerSlice(
 			final double binaryThreshold )
 	{
 		final ImageStack labelSlices = originalLabels.getImageStack();
@@ -369,7 +369,7 @@ public class RandError extends Metrics
                 			if (zmin==0) 
                 				IJ.showProgress( i+1, zmax);
                 			
-                			cs[ i ] = foregroundRestrictedStatsN2(
+                			cs[ i ] = getForegroundRestrictedRandIndexStatsN2(
                 					labelSlices.getProcessor( i+1 ).convertToFloat(), 
                 					proposalSlices.getProcessor( i+1 ).convertToFloat(), 
                 					binaryThreshold );
@@ -623,7 +623,7 @@ public class RandError extends Metrics
 		{
 			public ClassificationStatistics call()
 			{				
-				return foregroundRestrictedStatsN2( 
+				return getForegroundRestrictedRandIndexStatsN2( 
 						image1, image2, binaryThreshold );
 			}
 		};
@@ -796,7 +796,7 @@ public class RandError extends Metrics
 	 * @param binaryThreshold threshold value to binarize the input images
 	 * @return foreground-restricted Rand index statistics
 	 */
-	public ClassificationStatistics foregroundRestrictedStatsN2(
+	public ClassificationStatistics getForegroundRestrictedRandIndexStatsN2(
 			ImageProcessor label,
 			ImageProcessor proposal,
 			double binaryThreshold )
@@ -823,7 +823,7 @@ public class RandError extends Metrics
 		ShortProcessor components2 = ( ShortProcessor ) Utils.connectedComponents(
 				new ImagePlus("proposal labels", binaryProposal), 4).allRegions.getProcessor();
 		
-		return foregroundRestrictedStatsN2( components1, components2 );		
+		return getForegroundRestrictedRandIndexStatsN2( components1, components2 );		
 	}
 	
 	/**
@@ -1600,7 +1600,7 @@ public class RandError extends Metrics
 	 * @param cluster2 proposed cluster
 	 * @return foreground-restiricted statistics (Rand index, precision, etc)
 	 */
-	public ClassificationStatistics foregroundRestrictedStatsN2(
+	public ClassificationStatistics getForegroundRestrictedRandIndexStatsN2(
 			ShortProcessor cluster1,
 			ShortProcessor cluster2 )
 	{
