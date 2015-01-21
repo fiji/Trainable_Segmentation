@@ -400,6 +400,58 @@ public class RandError extends Metrics
 	}
 	
 	/**
+	 * Calculate the precision-recall values based on the foreground-restricted
+	 * Rand index between some 2D original labels and the corresponding 
+	 * proposed labels. 
+	 * 
+	 * 
+	 * @param minThreshold minimum threshold value to binarize the input images
+	 * @param maxThreshold maximum threshold value to binarize the input images
+	 * @param stepThreshold threshold step value to use during binarization
+	 * @return foreground-restricted Rand index value and derived statistics for each threshold
+	 */
+	public ArrayList< ClassificationStatistics > getForegroundRestrictedRandIndexStats(
+			double minThreshold,
+			double maxThreshold,
+			double stepThreshold )
+	{
+		
+		if( minThreshold < 0 || minThreshold > maxThreshold || maxThreshold > 1)
+		{
+			IJ.log("Error: unvalid threshold values.");
+			return null;
+		}
+		
+		ArrayList< ClassificationStatistics > cs = new ArrayList<ClassificationStatistics>();
+		
+		double bestFscore = 0;
+		double bestTh = minThreshold;
+		
+		for(double th = minThreshold; th <= maxThreshold; th += stepThreshold)
+		{
+			if( verbose ) 
+				IJ.log("  Calculating foreground-restricted Rand index "
+						+ "statistics for threshold value " + 
+						String.format("%.3f", th) + "...");
+			cs.add( getRandIndexStats( th ) );
+			final double fScore = cs.get( cs.size()-1 ).fScore;
+			if( fScore > bestFscore )
+			{
+				bestFscore = fScore;
+				bestTh = th;
+			}
+			if( verbose )
+				IJ.log("    F-score = " + fScore);
+		}
+		
+		if( verbose )
+			IJ.log(" ** Best F-score = " + bestFscore + ", "
+					+ "with threshold = " + bestTh + " **\n");
+		
+		return cs;
+	}
+	
+	/**
 	 * Get standard Rand error between two images in a concurrent way 
 	 * (to be submitted to an Executor Service). Both images
 	 * are binarized.
@@ -1597,6 +1649,37 @@ public class RandError extends Metrics
 	    }	    
 	    return maxFScore;
 	}
+	
+	/**
+	 * Get the best F-score of the foreground-restricted Rand index over a set 
+	 * of thresholds.
+	 * Note: the background pixels of the ground truth are pruned out in the 
+	 * calculations. 
+	 * 
+	 * @param minThreshold minimum threshold value to binarize the input images
+	 * @param maxThreshold maximum threshold value to binarize the input images
+	 * @param stepThreshold threshold step value to use during binarization
+	 * @return maximal F-score of the standard Rand index
+	 */
+	public double getForegroundRestrictedRandIndexMaximalFScore(
+			double minThreshold,
+			double maxThreshold,
+			double stepThreshold)
+	{
+		ArrayList<ClassificationStatistics> stats = 
+				getForegroundRestrictedRandIndexStats( 
+						minThreshold, maxThreshold, stepThreshold );
+	    // trainableSegmentation.utils.Utils.plotPrecisionRecall( stats );    
+	    double maxFScore = 0;
+
+	    for(ClassificationStatistics stat : stats)
+	    {
+	    	if (stat.fScore > maxFScore)
+	    		maxFScore = stat.fScore;
+	    }	    
+	    return maxFScore;
+	}
+	
 	
     /**
      * Main method for calcualte the Rand error metrics 
