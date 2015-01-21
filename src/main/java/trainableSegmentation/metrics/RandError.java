@@ -482,7 +482,7 @@ public class RandError extends Metrics
 				IJ.log("  Calculating foreground-restricted Rand index "
 						+ "statistics for threshold value " + 
 						String.format("%.3f", th) + "...");
-			cs.add( getRandIndexStats( th ) );
+			cs.add( getForegroundRestrictedRandIndexStats( th ) );
 			final double fScore = cs.get( cs.size()-1 ).fScore;
 			if( fScore > bestFscore )
 			{
