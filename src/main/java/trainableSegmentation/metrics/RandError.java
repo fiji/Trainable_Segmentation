@@ -79,7 +79,7 @@ public class RandError extends Metrics
 	 * and the corresponding proposed labels. Both image are binarized.
 	 * The Rand error is defined as the 1 - Rand index, as described by
 	 * William M. Rand \cite{Rand71}. 
-	 * Note: foreground pixels are considered part of the same object. If more
+	 * Note: background pixels are considered part of the same object. If more
 	 * than one slice is provided, the error is averaged per slice.
 	 *
 	 * BibTeX:
@@ -128,7 +128,8 @@ public class RandError extends Metrics
 		}
 		catch(Exception ex)
 		{
-			IJ.log("Error when calculating rand error in a concurrent way.");
+			IJ.log( "Error when calculating standard Rand "
+					+ "error in a concurrent way." );
 			ex.printStackTrace();
 		}
 		finally{
