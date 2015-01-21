@@ -268,7 +268,7 @@ public class RandError extends Metrics
 	
 	
 	/**
-	 * Calculate the foreground-restriected Rand index and its derived statistics in 2D 
+	 * Calculate the foreground-restricted Rand index and its derived statistics in 2D 
 	 * between some original labels and the corresponding proposed labels. Both images 
 	 * are binarized. We follow the definition of Rand index described by
 	 * William M. Rand \cite{Rand71}. Individual results are given per each slice.
