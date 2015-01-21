@@ -139,6 +139,60 @@ public class RandError extends Metrics
 	}
 	
 	/**
+	 * Calculate the foreground-restricted Rand error in 2D between some 
+	 * original labels and the corresponding proposed labels. Both image are 
+	 * binarized.The foreground-restricted Rand error is defined as 
+	 * 1.0 - foreground-restricted Rand index. 
+	 * Note: the background pixels of the ground-truth are pruned out. If more
+	 * than one slice is provided, the error is averaged per slice.
+	 *
+	 * 
+	 * @param binaryThreshold threshold value to binarize proposal (larger than 0 and smaller than 1)
+	 * @return average foreground-restricted Rand error
+	 */
+	public double getForegroundRestrictedMetricValue( double binaryThreshold )
+	{
+
+		final ImageStack labelSlices = originalLabels.getImageStack();
+		final ImageStack proposalSlices = proposedLabels.getImageStack();
+
+		double randError = 0;
+
+		// Executor service to produce concurrent threads
+		final ExecutorService exe = Executors.newFixedThreadPool(Prefs.getThreads());
+
+		final ArrayList< Future<Double> > futures = new ArrayList< Future<Double> >();
+
+		try{
+			for(int i = 1; i <= labelSlices.getSize(); i++)
+			{
+				futures.add(exe.submit( 
+						getForegroundRestrictedRandErrorConcurrent(
+								labelSlices.getProcessor(i).convertToFloat(),
+								proposalSlices.getProcessor(i).convertToFloat(),										
+								binaryThreshold ) ) );
+			}
+
+			// Wait for the jobs to be done
+			for(Future<Double> f : futures)
+			{
+				randError += f.get();				
+			}			
+		}
+		catch(Exception ex)
+		{
+			IJ.log("Error when calculating rand error in a concurrent way.");
+			ex.printStackTrace();
+		}
+		finally{
+			exe.shutdown();
+		}
+
+		return randError / labelSlices.getSize();
+	}
+	
+	
+	/**
 	 * Calculate the standard Rand index and its derived statistics in 2D between 
 	 * some original labels and the corresponding proposed labels. Both images 
 	 * are binarized. We follow the definition of Rand index described by
@@ -384,6 +438,30 @@ public class RandError extends Metrics
 		};
 	}
 
+	/**
+	 * Get foreground-restricted Rand error between two images in a concurrent 
+	 * way (to be submitted to an Executor Service). Both images are binarized.
+	 * 
+	 * @param image1 ground truth 2D image
+	 * @param image2 proposal 2D image
+	 * @param binaryThreshold threshold to apply to both images
+	 * @return foreground-restricted Rand error (1 - foreground-restricted Rand index)
+	 */
+	public Callable<Double> getForegroundRestrictedRandErrorConcurrent(
+			final ImageProcessor image1, 
+			final ImageProcessor image2,
+			final double binaryThreshold) 
+	{
+		return new Callable<Double>()
+		{
+			public Double call()
+			{				
+				return foregroundRestrictedRandError( 
+						image1, image2, binaryThreshold );
+			}
+		};
+	}	
+	
 	/**
 	 * Get standard Rand index value and derived statistics between two images 
 	 * in a concurrent way (to be submitted to an Executor Service). 
