@@ -650,16 +650,6 @@ public class Trainable_Segmentation implements PlugIn
 			});
 		}
 
-		/* 		public void changeDisplayImage(ImagePlus imp){
-  			super.getImagePlus().setProcessor(imp.getProcessor());
-  			super.getImagePlus().setTitle(imp.getTitle());
-  		}private void saveFeatureStack() {
-					// TODO Auto-generated method stub
-					
-				}
-		 */
-
-
 		/**
 		 * Repaint all panels
 		 */
