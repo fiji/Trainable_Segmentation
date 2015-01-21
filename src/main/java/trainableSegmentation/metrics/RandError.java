@@ -1135,7 +1135,7 @@ public class RandError extends Metrics
 		
 		return agreements / nPairsStack;
 	}
-	
+
 	/**
 	 * Calculate the Rand index between to 3D clusters, as described by
 	 * William M. Rand \cite{Rand71}, but pruning out the zero component of
@@ -1163,132 +1163,132 @@ public class RandError extends Metrics
 	public static ClassificationStatistics adaptedRandIndexStats3D(
 			ImagePlus originalLabels,
 			ImagePlus proposedLabels)
+	{
+		if( originalLabels.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false 
+				|| proposedLabels.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false)
+			return null;
+
+		//IJ.log( "Calculating adapted Rand index stats...");
+
+		int nSlices = originalLabels.getImageStackSize();
+
+		int maxIDGroundTruth = 0;
+		int maxIDProposal = 0;
+
+		// Calculate larger IDs of both clusters
+		for( int slice = 1; slice <= nSlices; slice ++ )
 		{
-			if( originalLabels.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false 
-					|| proposedLabels.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false)
-				return null;
-		
-			//IJ.log( "Calculating adapted Rand index stats...");
-						
-			int nSlices = originalLabels.getImageStackSize();
-			
-			int maxIDGroundTruth = 0;
-			int maxIDProposal = 0;
-							
-			// Calculate larger IDs of both clusters
-			for( int slice = 1; slice <= nSlices; slice ++ )
-			{
-				ImageProcessor gt = originalLabels.getImageStack().getProcessor( slice );
-				gt.resetMinAndMax();
-				if ( maxIDGroundTruth < gt.getMax() )
-					maxIDGroundTruth = (int) gt.getMax();
-				ImageProcessor proposal = proposedLabels.getImageStack().getProcessor( slice );
-				proposal.resetMinAndMax();
-				if ( maxIDProposal < proposal.getMax() )
-					maxIDProposal = (int) proposal.getMax();
-			}
-			
-			double agreements = 0;
-
-			
-			// Form the contingency matrix
-			long[][]cont = new long[ maxIDGroundTruth + 1] [ maxIDProposal + 1];
-			double[] ni = new double[ cont.length    ];
-			double[] nj = new double[ cont[0].length ];
-			
-			// number of pixels that are "in" (not background) in
-			// cluster number 1 (ground truth)
-			double n = 0;						
-			
-			for( int slice = 1; slice <= nSlices; slice ++ )
-			{
-				//IJ.log(" Processing slice " + slice +"...");
-				
-				ShortProcessor cluster1 = (ShortProcessor) originalLabels.getImageStack().getProcessor( slice );
-				ShortProcessor cluster2 = (ShortProcessor) proposedLabels.getImageStack().getProcessor( slice );
-				
-				final short[] pixels1 = (short[]) cluster1.getPixels();
-				final short[] pixels2 = (short[]) cluster2.getPixels();
-				
-				double nPixels = pixels1.length;
-				
-														
-				for(int i=0; i<nPixels; i++)
-				{						
-					cont[ pixels1[i] & 0xffff ] [ pixels2[i] & 0xffff ] ++;
-					if( pixels1[ i ] > 0)
-						n++;
-				}
-			}
-			// sum of squares of sums of rows
-			// (skip background objects in the first cluster)
-
-			for(int i=1; i<cont.length; i++)
-				for(int j=0; j<cont[0].length; j++)
-				{
-					ni[ i ] += cont[ i ][ j ];				
-				}
-
-			// sum of squares of sums of columns
-			// (prune out the zero component in the labeling (un-assigned "out" space))				
-			for(int j=1; j<cont[0].length; j++)
-				for(int i=1; i<cont.length; i++)
-				{
-					nj[ j ] += cont[ i ][ j ];
-				}
-			
-			
-			// true positives - type (i): objects in the pair are placed in the 
-			// same class in cluster1 and in the same class in claster2
-			// (prune out the zero component in the labeling (un-assigned "out" space))
-			double truePositives = 0;
-			for(int j=1; j<cont[0].length; j++)
-				for(int i=1; i<cont.length; i++)			
-					truePositives += cont[ i ][ j ] * ( cont[ i ][ j ] - 1.0 ); // / 2.0;			
-
-			// total number of pairs (after pruning background pixels
-			// of the ground truth)
-			double nPairsTotal = n * (n-1.0);// / 2.0 ;
-
-			// total number of positive samples in ground truth
-			double nPosTrue = 0;
-			for(int k=0; k<ni.length; k++)
-				nPosTrue += ni[ k ] * (ni[ k ]-1.0);// /2.0;
-
-			// number of pairs actually classified as positive (in the prediction)
-			double nPosActual = 0;
-			for(int k=0; k<nj.length; k++)
-				nPosActual += nj[ k ] * (nj[ k ]-1.0); ///2.0;				
-
-			// true negatives - type (ii): objects in the pair are placed in different 
-			// classes in cluster1 and in different classes in claster2
-			// trueNegatives = 	nNegTrue - falsePositives = (nPairsTotal - nPosTrue) - (nPosActual - truePositives)	
-			double trueNegatives = nPairsTotal + truePositives - nPosTrue - nPosActual;
-
-			//IJ.log("  agreements = " + (truePositives + trueNegatives) );
-
-			agreements += truePositives + trueNegatives;	// number of agreements
-
-
-			double falsePositives = nPosActual - truePositives;
-			double nNegActual = nPairsTotal - nPosActual;
-			double falseNegatives = nNegActual - trueNegatives;
-
-			truePositives /= 2.0;
-			trueNegatives /= 2.0;
-			falsePositives /= 2.0;
-			falseNegatives /= 2.0;
-						
-
-			// agreements /= 2.0;
-			// nPairsTotal /= 2.0;
-			
-			
-			double randIndex = agreements / nPairsTotal;
-			
-			return new ClassificationStatistics( truePositives, trueNegatives, falsePositives,  falseNegatives, randIndex);
+			ImageProcessor gt = originalLabels.getImageStack().getProcessor( slice );
+			gt.resetMinAndMax();
+			if ( maxIDGroundTruth < gt.getMax() )
+				maxIDGroundTruth = (int) gt.getMax();
+			ImageProcessor proposal = proposedLabels.getImageStack().getProcessor( slice );
+			proposal.resetMinAndMax();
+			if ( maxIDProposal < proposal.getMax() )
+				maxIDProposal = (int) proposal.getMax();
 		}
-	
+
+		double agreements = 0;
+
+
+		// Form the contingency matrix
+		long[][]cont = new long[ maxIDGroundTruth + 1] [ maxIDProposal + 1];
+		double[] ni = new double[ cont.length    ];
+		double[] nj = new double[ cont[0].length ];
+
+		// number of pixels that are "in" (not background) in
+		// cluster number 1 (ground truth)
+		double n = 0;						
+
+		for( int slice = 1; slice <= nSlices; slice ++ )
+		{
+			//IJ.log(" Processing slice " + slice +"...");
+
+			ShortProcessor cluster1 = (ShortProcessor) originalLabels.getImageStack().getProcessor( slice );
+			ShortProcessor cluster2 = (ShortProcessor) proposedLabels.getImageStack().getProcessor( slice );
+
+			final short[] pixels1 = (short[]) cluster1.getPixels();
+			final short[] pixels2 = (short[]) cluster2.getPixels();
+
+			double nPixels = pixels1.length;
+
+
+			for(int i=0; i<nPixels; i++)
+			{						
+				cont[ pixels1[i] & 0xffff ] [ pixels2[i] & 0xffff ] ++;
+				if( pixels1[ i ] > 0)
+					n++;
+			}
+		}
+		// sum of squares of sums of rows
+		// (skip background objects in the first cluster)
+
+		for(int i=1; i<cont.length; i++)
+			for(int j=0; j<cont[0].length; j++)
+			{
+				ni[ i ] += cont[ i ][ j ];				
+			}
+
+		// sum of squares of sums of columns
+		// (prune out the zero component in the labeling (un-assigned "out" space))				
+		for(int j=1; j<cont[0].length; j++)
+			for(int i=1; i<cont.length; i++)
+			{
+				nj[ j ] += cont[ i ][ j ];
+			}
+
+
+		// true positives - type (i): objects in the pair are placed in the 
+		// same class in cluster1 and in the same class in claster2
+		// (prune out the zero component in the labeling (un-assigned "out" space))
+		double truePositives = 0;
+		for(int j=1; j<cont[0].length; j++)
+			for(int i=1; i<cont.length; i++)			
+				truePositives += cont[ i ][ j ] * ( cont[ i ][ j ] - 1.0 ); // / 2.0;			
+
+		// total number of pairs (after pruning background pixels
+		// of the ground truth)
+		double nPairsTotal = n * (n-1.0);// / 2.0 ;
+
+		// total number of positive samples in ground truth
+		double nPosTrue = 0;
+		for(int k=0; k<ni.length; k++)
+			nPosTrue += ni[ k ] * (ni[ k ]-1.0);// /2.0;
+
+		// number of pairs actually classified as positive (in the prediction)
+		double nPosActual = 0;
+		for(int k=0; k<nj.length; k++)
+			nPosActual += nj[ k ] * (nj[ k ]-1.0); ///2.0;				
+
+		// true negatives - type (ii): objects in the pair are placed in different 
+		// classes in cluster1 and in different classes in claster2
+		// trueNegatives = 	nNegTrue - falsePositives = (nPairsTotal - nPosTrue) - (nPosActual - truePositives)	
+		double trueNegatives = nPairsTotal + truePositives - nPosTrue - nPosActual;
+
+		//IJ.log("  agreements = " + (truePositives + trueNegatives) );
+
+		agreements += truePositives + trueNegatives;	// number of agreements
+
+
+		double falsePositives = nPosActual - truePositives;
+		double nNegActual = nPairsTotal - nPosActual;
+		double falseNegatives = nNegActual - trueNegatives;
+
+		truePositives /= 2.0;
+		trueNegatives /= 2.0;
+		falsePositives /= 2.0;
+		falseNegatives /= 2.0;
+
+
+		// agreements /= 2.0;
+		// nPairsTotal /= 2.0;
+
+
+		double randIndex = agreements / nPairsTotal;
+
+		return new ClassificationStatistics( truePositives, trueNegatives, falsePositives,  falseNegatives, randIndex);
+	}
+
 	
 	/**
 	 * Calculate the Rand index stats between to 3D clusters, as described by
