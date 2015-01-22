@@ -1587,7 +1587,8 @@ public class Weka_Segmentation implements PlugIn
 		if(null == data)
 		{
 			IJ.error( "Error in plot result", 
-					"No data available yet to display results" );
+					"No data available yet to plot results: you need to trace\n"
+					+ "some training samples or load data from file." );
 			win.updateButtonsEnabling();
 			return;
 		}
