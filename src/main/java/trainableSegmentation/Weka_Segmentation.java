@@ -2542,9 +2542,21 @@ public class Weka_Segmentation implements PlugIn
 			final CustomWindow win = (CustomWindow) iw;
 			final WekaSegmentation wekaSegmentation = win.getWekaSegmentation();
 
-			final ImagePlus classifiedImage =  wekaSegmentation.getClassifiedImage();
-			if(null == classifiedImage)
+			ImagePlus classifiedImage =  wekaSegmentation.getClassifiedImage();
+			if( null == classifiedImage && win.trainingComplete == true )
+			{
+				// if not result image is there yet, calculate it
+				win.setButtonsEnabled( false );
+				wekaSegmentation.applyClassifier( false );
+				classifiedImage = wekaSegmentation.getClassifiedImage();
+				win.updateButtonsEnabling();
+			}
+			else
+			{
+				IJ.log( "Result image could not be created: "
+						+ " you need to train or load a classifier first." );
 				return;
+			}
 			final ImagePlus resultImage = classifiedImage.duplicate();
 
 			resultImage.setTitle("Classified image");
