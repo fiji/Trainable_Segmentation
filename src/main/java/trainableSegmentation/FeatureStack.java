@@ -66,6 +66,7 @@ import imagescience.feature.Laplacian;
 import imagescience.feature.Structure;
 import imagescience.image.Aspects;
 import imagescience.image.FloatImage;
+import imagescience.image.Image;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -1503,11 +1504,11 @@ public class FeatureStack
 				
 				for(int ch=0; ch < channels.length; ch++)
 				{
-					imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] );
+					Image img = Image.wrap( channels[ ch ] );
 					Aspects aspects = img.aspects();
 
 
-					imagescience.image.Image newimg = new FloatImage(img);
+					Image newimg = new FloatImage(img);
 					Differentiator diff = new Differentiator();
 
 					diff.run(newimg, sigma , xOrder, yOrder, 0);
@@ -1545,11 +1546,11 @@ public class FeatureStack
 		
 		for(int ch=0; ch < channels.length; ch++)
 		{
-			final imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] ) ;
+			final Image img = Image.wrap( channels[ ch ] ) ;
 
 			final Aspects aspects = img.aspects();				
 
-			final imagescience.image.FloatImage newimg = new FloatImage( img );
+			final FloatImage newimg = new FloatImage( img );
 
 			final Differentiator diff = new Differentiator();
 
@@ -1591,11 +1592,11 @@ public class FeatureStack
 				
 				for(int ch=0; ch < channels.length; ch++)
 				{
-					final imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] ) ;
+					final Image img = Image.wrap( channels[ ch ] ) ;
 				
 					final Aspects aspects = img.aspects();				
 
-					imagescience.image.Image newimg = new FloatImage( img );
+					Image newimg = new FloatImage( img );
 
 					final Laplacian laplace = new Laplacian();
 
@@ -1632,11 +1633,11 @@ public class FeatureStack
 		
 		for(int ch=0; ch < channels.length; ch++)
 		{
-			final imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] ) ;
+			final Image img = Image.wrap( channels[ ch ] ) ;
 		
 			final Aspects aspects = img.aspects();				
 
-			imagescience.image.Image newimg = new FloatImage( img );
+			Image newimg = new FloatImage( img );
 
 			final Laplacian laplace = new Laplacian();
 
@@ -1683,12 +1684,12 @@ public class FeatureStack
 				
 				for(int ch=0; ch < channels.length; ch++)
 				{
-					final imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] ) ;
+					final Image img = Image.wrap( channels[ ch ] ) ;
 				
 					final Aspects aspects = img.aspects();				
 
 					final Structure structure = new Structure();
-					final Vector<imagescience.image.Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
+					final Vector<Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
 
 					final int nrimgs = eigenimages.size();
 					for (int i=0; i<nrimgs; ++i)
@@ -1730,12 +1731,12 @@ public class FeatureStack
 		
 		for(int ch=0; ch < channels.length; ch++)
 		{
-			final imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] ) ;
+			final Image img = Image.wrap( channels[ ch ] ) ;
 		
 			final Aspects aspects = img.aspects();				
 
 			final Structure structure = new Structure();
-			final Vector<imagescience.image.Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
+			final Vector<Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
 
 			final int nrimgs = eigenimages.size();
 			for (int i=0; i<nrimgs; ++i)

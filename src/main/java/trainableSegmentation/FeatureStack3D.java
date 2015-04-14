@@ -50,6 +50,7 @@ import imagescience.feature.Laplacian;
 import imagescience.feature.Structure;
 import imagescience.image.Aspects;
 import imagescience.image.FloatImage;
+import imagescience.image.Image;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -198,11 +199,11 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
+					Image img = Image.wrap( channel );
 					Aspects aspects = img.aspects();
 
 
-					imagescience.image.Image newimg = new FloatImage(img);
+					Image newimg = new FloatImage(img);
 					Differentiator diff = new Differentiator();
 					
 					diff.run(newimg, sigma , xOrder, yOrder, zOrder);
@@ -261,12 +262,12 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
+					Image img = Image.wrap( channel );
 					Aspects aspects = img.aspects();
 
 
-					imagescience.image.Image newimg = new FloatImage(img);
-					imagescience.image.Image newimg2 = new FloatImage(img);
+					Image newimg = new FloatImage(img);
+					Image newimg2 = new FloatImage(img);
 					
 					Differentiator diff = new Differentiator();
 
@@ -332,15 +333,15 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
+					Image img = Image.wrap( channel );
 				
 					final Aspects aspects = img.aspects();				
 
-					imagescience.image.Image newimg = new FloatImage( img );
+					Image newimg = new FloatImage( img );
 
 					final Hessian hessian = new Hessian();
 
-					final Vector<imagescience.image.Image> hessianImages = hessian.run(newimg, sigma, absolute);
+					final Vector<Image> hessianImages = hessian.run(newimg, sigma, absolute);
 					
 					final int nrimgs = hessianImages.size();
 					for (int i=0; i<nrimgs; ++i)
@@ -400,11 +401,11 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
+					Image img = Image.wrap( channel );
 				
 					final Aspects aspects = img.aspects();				
 
-					imagescience.image.Image newimg = new FloatImage( img );
+					Image newimg = new FloatImage( img );
 
 					final Laplacian laplace = new Laplacian();
 
@@ -461,11 +462,11 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
+					Image img = Image.wrap( channel );
 				
 					final Aspects aspects = img.aspects();				
 
-					imagescience.image.Image newimg = new FloatImage( img );
+					Image newimg = new FloatImage( img );
 
 					final Edges edges = new Edges();
 
@@ -709,12 +710,12 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
+					Image img = Image.wrap( channel );
 				
 					final Aspects aspects = img.aspects();				
 
 					final Structure structure = new Structure();
-					final Vector<imagescience.image.Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
+					final Vector<Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
 
 					final int nrimgs = eigenimages.size();
 					for (int i=0; i<nrimgs; ++i)
