@@ -1504,17 +1504,7 @@ public class FeatureStack
 				
 				for(int ch=0; ch < channels.length; ch++)
 				{
-					Image img = Image.wrap( channels[ ch ] );
-					Aspects aspects = img.aspects();
-
-
-					Image newimg = new FloatImage(img);
-					Differentiator diff = new Differentiator();
-
-					diff.run(newimg, sigma , xOrder, yOrder, 0);
-					newimg.aspects(aspects);
-
-					results[ch] =  newimg.imageplus();				
+					results[ch] = computeDerivativeImage(sigma, xOrder, yOrder, channels[ch]);
 				}
 						
 				ImagePlus newimp = mergeResultChannels(results);
@@ -1546,19 +1536,7 @@ public class FeatureStack
 		
 		for(int ch=0; ch < channels.length; ch++)
 		{
-			final Image img = Image.wrap( channels[ ch ] ) ;
-
-			final Aspects aspects = img.aspects();				
-
-			final FloatImage newimg = new FloatImage( img );
-
-			final Differentiator diff = new Differentiator();
-
-			diff.run(newimg, sigma , xOrder, yOrder, 0);
-
-			newimg.aspects( aspects );
-
-			results[ch] =  newimg.imageplus();
+			results[ch] = computeDerivativeImage(sigma, xOrder, yOrder, channels[ch]);
 		
 		}
 		ImagePlus newimp = mergeResultChannels(results);
@@ -1592,19 +1570,7 @@ public class FeatureStack
 				
 				for(int ch=0; ch < channels.length; ch++)
 				{
-					final Image img = Image.wrap( channels[ ch ] ) ;
-				
-					final Aspects aspects = img.aspects();				
-
-					Image newimg = new FloatImage( img );
-
-					final Laplacian laplace = new Laplacian();
-
-					newimg = laplace.run(newimg, sigma);
-					newimg.aspects(aspects);						
-
-					results[ch] =  newimg.imageplus();
-					
+					results[ch] = computeLaplacianImage(sigma, channels[ ch ]);
 				}
 				
 				ImagePlus newimp = mergeResultChannels(results);
@@ -1633,18 +1599,7 @@ public class FeatureStack
 		
 		for(int ch=0; ch < channels.length; ch++)
 		{
-			final Image img = Image.wrap( channels[ ch ] ) ;
-		
-			final Aspects aspects = img.aspects();				
-
-			Image newimg = new FloatImage( img );
-
-			final Laplacian laplace = new Laplacian();
-
-			newimg = laplace.run(newimg, sigma);
-			newimg.aspects(aspects);						
-
-			results[ch] =  newimg.imageplus();
+			results[ch] = computeLaplacianImage(sigma, channels[ch]);
 			
 		}
 		
@@ -1684,21 +1639,12 @@ public class FeatureStack
 				
 				for(int ch=0; ch < channels.length; ch++)
 				{
-					final Image img = Image.wrap( channels[ ch ] ) ;
-				
-					final Aspects aspects = img.aspects();				
-
-					final Structure structure = new Structure();
-					final Vector<Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
-
-					final int nrimgs = eigenimages.size();
-					for (int i=0; i<nrimgs; ++i)
-						eigenimages.get(i).aspects(aspects);
+					final ArrayList<ImagePlus> eigenimages = computeEigenimages(sigma, integrationScale, channels[ch]);
 
 					final ImageStack is = new ImageStack(width, height);
 
-					is.addSlice(availableFeatures[STRUCTURE] +"_largest_" + sigma + "_" + integrationScale, eigenimages.get(0).imageplus().getProcessor() );
-					is.addSlice(availableFeatures[STRUCTURE] +"_smallest_" + sigma + "_" + integrationScale, eigenimages.get(1).imageplus().getProcessor() );
+					is.addSlice(availableFeatures[STRUCTURE] +"_largest_" + sigma + "_" + integrationScale, eigenimages.get(0).getProcessor() );
+					is.addSlice(availableFeatures[STRUCTURE] +"_smallest_" + sigma + "_" + integrationScale, eigenimages.get(1).getProcessor() );
 
 					results[ ch ] = new ImagePlus ("Structure stack", is);
 				}
@@ -1731,21 +1677,12 @@ public class FeatureStack
 		
 		for(int ch=0; ch < channels.length; ch++)
 		{
-			final Image img = Image.wrap( channels[ ch ] ) ;
-		
-			final Aspects aspects = img.aspects();				
-
-			final Structure structure = new Structure();
-			final Vector<Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
-
-			final int nrimgs = eigenimages.size();
-			for (int i=0; i<nrimgs; ++i)
-				eigenimages.get(i).aspects(aspects);
+			final ArrayList<ImagePlus> eigenimages = computeEigenimages(sigma, integrationScale, channels[ch]);
 
 			final ImageStack is = new ImageStack(width, height);
 
-			is.addSlice(availableFeatures[STRUCTURE] +"_largest_" + sigma + "_" + integrationScale, eigenimages.get(0).imageplus().getProcessor() );
-			is.addSlice(availableFeatures[STRUCTURE] +"_smallest_" + sigma + "_" + integrationScale, eigenimages.get(1).imageplus().getProcessor() );
+			is.addSlice(availableFeatures[STRUCTURE] +"_largest_" + sigma + "_" + integrationScale, eigenimages.get(0).getProcessor() );
+			is.addSlice(availableFeatures[STRUCTURE] +"_smallest_" + sigma + "_" + integrationScale, eigenimages.get(1).getProcessor() );
 
 			results[ ch ] = new ImagePlus ("Structure stack", is);
 		}									
@@ -3451,5 +3388,55 @@ public class FeatureStack
 	{
 		return this.oldColorFormat;
 	}
+
+	// -- Methods that use ImageScience --
+
+	private static ArrayList<ImagePlus> computeEigenimages(final double sigma,
+		final double integrationScale, ImagePlus imp)
+	{
+		final Image img = Image.wrap(imp);
+		final Aspects aspects = img.aspects();
+		final Image newimg = new FloatImage(img);
+
+		final Structure structure = new Structure();
+		final Vector<Image> eigenimages = structure.run(newimg, sigma, integrationScale);
+
+		final int nrimgs = eigenimages.size();
+		for (int i=0; i<nrimgs; ++i)
+			eigenimages.get(i).aspects(aspects);
+
+		final ArrayList<ImagePlus> result = new ArrayList<ImagePlus>(nrimgs);
+		for (final Image eigenimage : eigenimages)
+			result.add(eigenimage.imageplus());
+		return result;
+	}
 	
+	private static ImagePlus computeDerivativeImage(final double sigma,
+		final int xOrder, final int yOrder, ImagePlus imp)
+	{
+		final Image img = Image.wrap(imp);
+		final Aspects aspects = img.aspects();
+		final Image newimg = new FloatImage(img);
+
+		final Differentiator diff = new Differentiator();
+
+		diff.run(newimg, sigma , xOrder, yOrder, 0);
+		newimg.aspects(aspects);
+
+		return newimg.imageplus();
+	}
+
+	private static ImagePlus computeLaplacianImage(final double sigma, ImagePlus imp) {
+		final Image img = Image.wrap(imp) ;
+		final Aspects aspects = img.aspects();
+		Image newimg = new FloatImage(img);
+
+		final Laplacian laplace = new Laplacian();
+
+		newimg = laplace.run(newimg, sigma);
+		newimg.aspects(aspects);
+
+		return newimg.imageplus();
+	}
+
 }
