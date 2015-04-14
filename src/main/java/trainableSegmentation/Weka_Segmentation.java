@@ -6,6 +6,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.WindowManager;
+import ij.gui.GenericDialog;
 import ij.gui.ImageWindow;
 import ij.gui.Roi;
 import ij.gui.StackWindow;
@@ -2122,6 +2123,8 @@ public class Weka_Segmentation implements PlugIn
 		final int rows = (int)Math.round(FeatureStack.availableFeatures.length/2.0);
 		gd.addCheckboxGroup(rows, 2, FeatureStack.availableFeatures, oldEnableFeatures);
 
+		disableMissingFeatures(gd);
+
 		if(wekaSegmentation.getLoadedTrainingData() != null)
 		{
 			final Vector<Checkbox> v = gd.getCheckboxes();
@@ -3099,5 +3102,34 @@ public class Weka_Segmentation implements PlugIn
 		}
 	}	
 	
+	/** Disables features which rely on missing third party libraries. */
+	public static void disableMissingFeatures(final GenericDialog gd)
+	{
+		try {
+		if (!isImageScienceAvailable()) {
+			IJ.log("Warning: ImageScience library unavailable. " +
+				"Some training features will be disabled.");
+			@SuppressWarnings("unchecked")
+			final Vector<Checkbox> v = gd.getCheckboxes();
+			for (int i = 0; i < v.size(); i++) {
+				if (FeatureStack.IMAGESCIENCE_FEATURES[i]) {
+					v.get(i).setState(false);
+					v.get(i).setEnabled(false);
+				}
+			}
+		}
+		}
+		catch (Throwable t) { IJ.handleException(t); }
+	}
+
+	private static boolean isImageScienceAvailable() {
+		try {
+			return ImageScience.isAvailable();
+		}
+		catch (final NoClassDefFoundError err) {
+			return false;
+		}
+	}
+
 }// end of Weka_Segmentation class
 
