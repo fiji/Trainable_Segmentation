@@ -1624,25 +1624,7 @@ public class FeatureStack
 		{
 			public ImagePlus call()
 			{
-				
-				// Get channel(s) to process
-				ImagePlus[] channels = extractChannels(originalImage);
-				
-				ImagePlus[] results = new ImagePlus[ channels.length ];
-				
-				for(int ch=0; ch < channels.length; ch++)
-				{
-					final ArrayList<ImagePlus> eigenimages = ImageScience.computeEigenimages(sigma, integrationScale, channels[ch]);
-
-					final ImageStack is = new ImageStack(width, height);
-
-					is.addSlice(availableFeatures[STRUCTURE] +"_largest_" + sigma + "_" + integrationScale, eigenimages.get(0).getProcessor() );
-					is.addSlice(availableFeatures[STRUCTURE] +"_smallest_" + sigma + "_" + integrationScale, eigenimages.get(1).getProcessor() );
-
-					results[ ch ] = new ImagePlus ("Structure stack", is);
-				}
-				
-				return mergeResultChannels(results);
+				return computeStructure(originalImage, sigma, integrationScale);
 			}
 		};
 	}
@@ -1662,25 +1644,7 @@ public class FeatureStack
 		if (Thread.currentThread().isInterrupted()) 
 			return;
 			
-		
-		// Get channel(s) to process
-		ImagePlus[] channels = extractChannels(originalImage);
-		
-		ImagePlus[] results = new ImagePlus[ channels.length ];
-		
-		for(int ch=0; ch < channels.length; ch++)
-		{
-			final ArrayList<ImagePlus> eigenimages = ImageScience.computeEigenimages(sigma, integrationScale, channels[ch]);
-
-			final ImageStack is = new ImageStack(width, height);
-
-			is.addSlice(availableFeatures[STRUCTURE] +"_largest_" + sigma + "_" + integrationScale, eigenimages.get(0).getProcessor() );
-			is.addSlice(availableFeatures[STRUCTURE] +"_smallest_" + sigma + "_" + integrationScale, eigenimages.get(1).getProcessor() );
-
-			results[ ch ] = new ImagePlus ("Structure stack", is);
-		}									
-		
-		ImagePlus merged = mergeResultChannels(results);
+		ImagePlus merged = computeStructure(originalImage, sigma, integrationScale);
 		
 		wholeStack.addSlice(merged.getImageStack().getSliceLabel( 1 ), merged.getImageStack().getProcessor( 1 ) );
 		wholeStack.addSlice(merged.getImageStack().getSliceLabel( 2 ), merged.getImageStack().getProcessor( 2 ) );				
@@ -3380,6 +3344,31 @@ public class FeatureStack
 	public boolean isOldColorFormat()
 	{
 		return this.oldColorFormat;
+	}
+
+	// -- Helper methods --
+
+	private ImagePlus computeStructure(final ImagePlus imp, final double sigma,
+		final double integrationScale)
+	{
+		// Get channel(s) to process
+		ImagePlus[] channels = extractChannels(imp);
+
+		ImagePlus[] results = new ImagePlus[ channels.length ];
+
+		for(int ch=0; ch < channels.length; ch++)
+		{
+			final ArrayList<ImagePlus> eigenimages = ImageScience.computeEigenimages(sigma, integrationScale, channels[ch]);
+
+			final ImageStack is = new ImageStack(width, height);
+
+			is.addSlice(availableFeatures[STRUCTURE] +"_largest_" + sigma + "_" + integrationScale, eigenimages.get(0).getProcessor() );
+			is.addSlice(availableFeatures[STRUCTURE] +"_smallest_" + sigma + "_" + integrationScale, eigenimages.get(1).getProcessor() );
+
+			results[ ch ] = new ImagePlus ("Structure stack", is);
+		}
+
+		return mergeResultChannels(results);
 	}
 
 }
