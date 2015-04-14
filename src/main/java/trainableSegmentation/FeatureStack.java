@@ -155,6 +155,31 @@ public class FeatureStack
 					   	"Membrane_projections","Variance","Mean", "Minimum", "Maximum", "Median", 
 					   	"Anisotropic_diffusion", "Bilateral", "Lipschitz", "Kuwahara", "Gabor" , 
 					   	"Derivatives", "Laplacian", "Structure", "Entropy", "Neighbors"};
+
+	/** Features only available if the ImageScience library is present. */
+	public static final boolean[] IMAGESCIENCE_FEATURES = {
+		false, // Gaussian_blur
+		false, // Sobel_filter
+		false, // Hessian
+		false, // Difference_of_gaussians
+		false, // Membrane_projections
+		false, // Variance
+		false, // Mean
+		false, // Minimum
+		false, // Maximum
+		false, // Median
+		false, // Anisotropic_diffusion
+		false, // Bilateral
+		false, // Lipschitz
+		false, // Kuwahara
+		false, // Gabor
+		true,  // Derivatives
+		true,  // Laplacian
+		true,  // Structure
+		false, // Entropy
+		false  // Neighbors
+	};
+
 	/** flags of filters to be used */
 	private boolean[] enableFeatures = new boolean[]{
 			true, 	/* Gaussian_blur */

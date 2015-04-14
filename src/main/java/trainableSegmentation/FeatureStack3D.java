@@ -101,6 +101,22 @@ public class FeatureStack3D
 						"Structure", "Edges", "Difference_of_Gaussian", "Minimum",
 						"Maximum", "Mean", "Median", "Variance"};
 	
+	/** Features only available if the ImageScience library is present. */
+	public static final boolean[] IMAGESCIENCE_FEATURES = {
+		false, // Gaussian_blur
+		true,  // Hessian
+		true,  // Derivatives
+		true,  // Laplacian
+		true,  // Structure
+		true,  // Edges
+		true,  // Difference of Gaussian
+		false, // Minimum
+		false, // Maximum
+		false, // Mean
+		false, // Median
+		false  // Variance
+	};
+
 	/** flags of filters to be used */	
 	private boolean[] enableFeatures = new boolean[]{
 			true, 	/* Gaussian_blur */
