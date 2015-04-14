@@ -199,17 +199,7 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					Image img = Image.wrap( channel );
-					Aspects aspects = img.aspects();
-
-
-					Image newimg = new FloatImage(img);
-					Differentiator diff = new Differentiator();
-					
-					diff.run(newimg, sigma , xOrder, yOrder, zOrder);
-					newimg.aspects(aspects);
-
-					final ImagePlus ip = newimg.imageplus();
+					final ImagePlus ip = computeDifferentialImage(sigma, xOrder, yOrder, zOrder, channel);
 					if( xOrder + yOrder + zOrder == 0)
 						ip.setTitle( availableFeatures[GAUSSIAN] +"_" + sigma );
 					else
@@ -262,23 +252,8 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					Image img = Image.wrap( channel );
-					Aspects aspects = img.aspects();
-
-
-					Image newimg = new FloatImage(img);
-					Image newimg2 = new FloatImage(img);
-					
-					Differentiator diff = new Differentiator();
-
-					diff.run(newimg, sigma1 , 0, 0, 0);
-					diff.run(newimg2, sigma2 , 0, 0, 0);
-					
-					newimg.aspects(aspects);
-					newimg2.aspects(aspects);
-
-					final ImagePlus ip = newimg.imageplus();
-					final ImagePlus ip2 = newimg2.imageplus();
+					final ImagePlus ip = computeDifferentialImage(sigma1, 0, 0, 0, channel);
+					final ImagePlus ip2 = computeDifferentialImage(sigma2, 0, 0, 0, channel);
 					
 					ImageCalculator ic = new ImageCalculator();
 					final ImagePlus res = ic.run("Difference create stack", ip2, ip );
@@ -333,23 +308,10 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					Image img = Image.wrap( channel );
-				
-					final Aspects aspects = img.aspects();				
-
-					Image newimg = new FloatImage( img );
-
-					final Hessian hessian = new Hessian();
-
-					final Vector<Image> hessianImages = hessian.run(newimg, sigma, absolute);
-					
-					final int nrimgs = hessianImages.size();
-					for (int i=0; i<nrimgs; ++i)
-						hessianImages.get(i).aspects(aspects);
-
-					final ImageStack smallest = hessianImages.get(0).imageplus().getImageStack();
-					final ImageStack middle   = hessianImages.get(1).imageplus().getImageStack();
-					final ImageStack largest  = hessianImages.get(2).imageplus().getImageStack();
+					final ArrayList<ImagePlus> result = computeHessianImages(sigma, absolute, channel);
+					final ImageStack smallest = result.get(0).getImageStack();
+					final ImageStack middle   = result.get(1).getImageStack();
+					final ImageStack largest  = result.get(2).getImageStack();
 					// remove pad
 					smallest.deleteLastSlice();
 					smallest.deleteSlice(1);
@@ -401,19 +363,7 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					Image img = Image.wrap( channel );
-				
-					final Aspects aspects = img.aspects();				
-
-					Image newimg = new FloatImage( img );
-
-					final Laplacian laplace = new Laplacian();
-
-					newimg = laplace.run(newimg, sigma);
-					newimg.aspects(aspects);						
-
-					
-					final ImagePlus ip = newimg.imageplus();
+					final ImagePlus ip = computeLaplacianImage(sigma, channel);
 					ip.setTitle(availableFeatures[LAPLACIAN] +"_" + sigma );
 					
 					// remove pad				
@@ -462,19 +412,7 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					Image img = Image.wrap( channel );
-				
-					final Aspects aspects = img.aspects();				
-
-					Image newimg = new FloatImage( img );
-
-					final Edges edges = new Edges();
-
-					newimg = edges.run(newimg, sigma, false);
-					newimg.aspects(aspects);						
-
-					
-					final ImagePlus ip = newimg.imageplus();
+					final ImagePlus ip = computeEdgesImage(sigma, channel);
 					ip.setTitle(availableFeatures[EDGES] +"_" + sigma );
 					
 					// remove pad				
@@ -710,19 +648,9 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					Image img = Image.wrap( channel );
-				
-					final Aspects aspects = img.aspects();				
-
-					final Structure structure = new Structure();
-					final Vector<Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
-
-					final int nrimgs = eigenimages.size();
-					for (int i=0; i<nrimgs; ++i)
-						eigenimages.get(i).aspects(aspects);
-
-					final ImageStack largest  = eigenimages.get(0).imageplus().getImageStack();					
-					final ImageStack smallest = eigenimages.get(1).imageplus().getImageStack();
+					final ArrayList<ImagePlus> result = computeEigenimages(sigma, integrationScale, channel);
+					final ImageStack largest  = result.get(0).getImageStack();
+					final ImageStack smallest = result.get(1).getImageStack();
 					
 					// remove pad
 					smallest.deleteLastSlice();
@@ -1060,4 +988,93 @@ public class FeatureStack3D
 		this.maximumSigma = maximumSigma;
 	}
 	
+	// -- Methods that use ImageScience --
+
+	private static ImagePlus computeDifferentialImage(final double sigma,
+		final int xOrder, final int yOrder, final int zOrder,
+		final ImagePlus imp)
+	{
+		Image img = Image.wrap(imp);
+		Aspects aspects = img.aspects();
+
+		Image newimg = new FloatImage(img);
+		Differentiator diff = new Differentiator();
+
+		diff.run(newimg, sigma , xOrder, yOrder, zOrder);
+		newimg.aspects(aspects);
+
+		final ImagePlus ip = newimg.imageplus();
+		return ip;
+	}
+
+	private static ArrayList<ImagePlus> computeHessianImages(final double sigma,
+		final boolean absolute, final ImagePlus imp)
+	{
+		final Image img = Image.wrap(imp);
+		final Aspects aspects = img.aspects();
+
+		final Image newimg = new FloatImage(img);
+		final Hessian hessian = new Hessian();
+
+		final Vector<Image> hessianImages = hessian.run(newimg, sigma, absolute);
+
+		final int nrimgs = hessianImages.size();
+		for (int i=0; i<nrimgs; ++i)
+			hessianImages.get(i).aspects(aspects);
+
+		final ArrayList<ImagePlus> result = new ArrayList<ImagePlus>(nrimgs);
+		for (final Image hessianImage : hessianImages)
+			result.add(hessianImage.imageplus());
+		return result;
+	}
+
+	private static ImagePlus computeLaplacianImage(final double sigma,
+		final ImagePlus imp)
+	{
+		final Image img = Image.wrap(imp);
+		final Aspects aspects = img.aspects();
+
+		Image newimg = new FloatImage( img );
+		final Laplacian laplace = new Laplacian();
+
+		newimg = laplace.run(newimg, sigma);
+		newimg.aspects(aspects);
+
+		return newimg.imageplus();
+	}
+
+	private static ImagePlus computeEdgesImage(final double sigma, final ImagePlus imp) {
+		final Image img = Image.wrap(imp);
+		final Aspects aspects = img.aspects();
+
+		Image newimg = new FloatImage(img);
+		final Edges edges = new Edges();
+
+		newimg = edges.run(newimg, sigma, false);
+		newimg.aspects(aspects);
+
+		return newimg.imageplus();
+	}
+
+	private static ArrayList<ImagePlus> computeEigenimages(final double sigma,
+		final double integrationScale, final ImagePlus imp)
+	{
+		final Image img = Image.wrap( imp );
+		final Aspects aspects = img.aspects();
+
+		final Image newimg = new FloatImage(img);
+		final Structure structure = new Structure();
+
+		final Vector<Image> eigenimages = structure.run(newimg, sigma, integrationScale);
+
+		final int nrimgs = eigenimages.size();
+		for (int i=0; i<nrimgs; ++i)
+			eigenimages.get(i).aspects(aspects);
+
+		final ArrayList<ImagePlus> result = new ArrayList<ImagePlus>(nrimgs);
+		for (final Image eigenimage : eigenimages)
+			result.add(eigenimage.imageplus());
+		return result;
+	}
+
 }
