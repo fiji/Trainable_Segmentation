@@ -22,6 +22,17 @@ public final class ImageScience {
 		// prevent instantiation of utility class
 	}
 
+	/**
+	 * Tests whether the ImageScience library is installed.
+	 * 
+	 * @return true if ImageScience classes are available.
+	 * @throws NoClassDefFoundError if ImageScience classes cannot be loaded.
+	 */
+	public static boolean isAvailable() {
+		Image.class.getName();
+		return true;
+	}
+
 	public static ArrayList<ImagePlus> computeEigenimages(final double sigma,
 		final double integrationScale, final ImagePlus imp)
 	{
