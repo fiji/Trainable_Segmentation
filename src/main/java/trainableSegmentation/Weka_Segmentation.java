@@ -118,7 +118,8 @@ public class Weka_Segmentation implements PlugIn
 	/** plugin's name */
 	public static final String PLUGIN_NAME = "Trainable Weka Segmentation";
 	/** plugin's current version */
-	public static final String PLUGIN_VERSION = "v2.1.8";
+	public static final String PLUGIN_VERSION = "v" +
+		Weka_Segmentation.class.getPackage().getImplementationVersion();
 	
 	/** reference to the segmentation backend */
 	final WekaSegmentation wekaSegmentation;
