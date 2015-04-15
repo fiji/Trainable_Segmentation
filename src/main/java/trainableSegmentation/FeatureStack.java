@@ -61,11 +61,6 @@ import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
-import imagescience.feature.Differentiator;
-import imagescience.feature.Laplacian;
-import imagescience.feature.Structure;
-import imagescience.image.Aspects;
-import imagescience.image.FloatImage;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -73,7 +68,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -161,6 +155,31 @@ public class FeatureStack
 					   	"Membrane_projections","Variance","Mean", "Minimum", "Maximum", "Median", 
 					   	"Anisotropic_diffusion", "Bilateral", "Lipschitz", "Kuwahara", "Gabor" , 
 					   	"Derivatives", "Laplacian", "Structure", "Entropy", "Neighbors"};
+
+	/** Features only available if the ImageScience library is present. */
+	public static final boolean[] IMAGESCIENCE_FEATURES = {
+		false, // Gaussian_blur
+		false, // Sobel_filter
+		false, // Hessian
+		false, // Difference_of_gaussians
+		false, // Membrane_projections
+		false, // Variance
+		false, // Mean
+		false, // Minimum
+		false, // Maximum
+		false, // Median
+		false, // Anisotropic_diffusion
+		false, // Bilateral
+		false, // Lipschitz
+		false, // Kuwahara
+		false, // Gabor
+		true,  // Derivatives
+		true,  // Laplacian
+		true,  // Structure
+		false, // Entropy
+		false  // Neighbors
+	};
+
 	/** flags of filters to be used */
 	private boolean[] enableFeatures = new boolean[]{
 			true, 	/* Gaussian_blur */
@@ -1503,17 +1522,7 @@ public class FeatureStack
 				
 				for(int ch=0; ch < channels.length; ch++)
 				{
-					imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] );
-					Aspects aspects = img.aspects();
-
-
-					imagescience.image.Image newimg = new FloatImage(img);
-					Differentiator diff = new Differentiator();
-
-					diff.run(newimg, sigma , xOrder, yOrder, 0);
-					newimg.aspects(aspects);
-
-					results[ch] =  newimg.imageplus();				
+					results[ch] = ImageScience.computeDerivativeImage(sigma, xOrder, yOrder, channels[ch]);
 				}
 						
 				ImagePlus newimp = mergeResultChannels(results);
@@ -1545,19 +1554,7 @@ public class FeatureStack
 		
 		for(int ch=0; ch < channels.length; ch++)
 		{
-			final imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] ) ;
-
-			final Aspects aspects = img.aspects();				
-
-			final imagescience.image.FloatImage newimg = new FloatImage( img );
-
-			final Differentiator diff = new Differentiator();
-
-			diff.run(newimg, sigma , xOrder, yOrder, 0);
-
-			newimg.aspects( aspects );
-
-			results[ch] =  newimg.imageplus();
+			results[ch] = ImageScience.computeDerivativeImage(sigma, xOrder, yOrder, channels[ch]);
 		
 		}
 		ImagePlus newimp = mergeResultChannels(results);
@@ -1591,19 +1588,7 @@ public class FeatureStack
 				
 				for(int ch=0; ch < channels.length; ch++)
 				{
-					final imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] ) ;
-				
-					final Aspects aspects = img.aspects();				
-
-					imagescience.image.Image newimg = new FloatImage( img );
-
-					final Laplacian laplace = new Laplacian();
-
-					newimg = laplace.run(newimg, sigma);
-					newimg.aspects(aspects);						
-
-					results[ch] =  newimg.imageplus();
-					
+					results[ch] = ImageScience.computeLaplacianImage(sigma, channels[ ch ]);
 				}
 				
 				ImagePlus newimp = mergeResultChannels(results);
@@ -1632,18 +1617,7 @@ public class FeatureStack
 		
 		for(int ch=0; ch < channels.length; ch++)
 		{
-			final imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] ) ;
-		
-			final Aspects aspects = img.aspects();				
-
-			imagescience.image.Image newimg = new FloatImage( img );
-
-			final Laplacian laplace = new Laplacian();
-
-			newimg = laplace.run(newimg, sigma);
-			newimg.aspects(aspects);						
-
-			results[ch] =  newimg.imageplus();
+			results[ch] = ImageScience.computeLaplacianImage(sigma, channels[ch]);
 			
 		}
 		
@@ -1675,34 +1649,7 @@ public class FeatureStack
 		{
 			public ImagePlus call()
 			{
-				
-				// Get channel(s) to process
-				ImagePlus[] channels = extractChannels(originalImage);
-				
-				ImagePlus[] results = new ImagePlus[ channels.length ];
-				
-				for(int ch=0; ch < channels.length; ch++)
-				{
-					final imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] ) ;
-				
-					final Aspects aspects = img.aspects();				
-
-					final Structure structure = new Structure();
-					final Vector<imagescience.image.Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
-
-					final int nrimgs = eigenimages.size();
-					for (int i=0; i<nrimgs; ++i)
-						eigenimages.get(i).aspects(aspects);
-
-					final ImageStack is = new ImageStack(width, height);
-
-					is.addSlice(availableFeatures[STRUCTURE] +"_largest_" + sigma + "_" + integrationScale, eigenimages.get(0).imageplus().getProcessor() );
-					is.addSlice(availableFeatures[STRUCTURE] +"_smallest_" + sigma + "_" + integrationScale, eigenimages.get(1).imageplus().getProcessor() );
-
-					results[ ch ] = new ImagePlus ("Structure stack", is);
-				}
-				
-				return mergeResultChannels(results);
+				return computeStructure(originalImage, sigma, integrationScale);
 			}
 		};
 	}
@@ -1722,34 +1669,7 @@ public class FeatureStack
 		if (Thread.currentThread().isInterrupted()) 
 			return;
 			
-		
-		// Get channel(s) to process
-		ImagePlus[] channels = extractChannels(originalImage);
-		
-		ImagePlus[] results = new ImagePlus[ channels.length ];
-		
-		for(int ch=0; ch < channels.length; ch++)
-		{
-			final imagescience.image.Image img = imagescience.image.Image.wrap( channels[ ch ] ) ;
-		
-			final Aspects aspects = img.aspects();				
-
-			final Structure structure = new Structure();
-			final Vector<imagescience.image.Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
-
-			final int nrimgs = eigenimages.size();
-			for (int i=0; i<nrimgs; ++i)
-				eigenimages.get(i).aspects(aspects);
-
-			final ImageStack is = new ImageStack(width, height);
-
-			is.addSlice(availableFeatures[STRUCTURE] +"_largest_" + sigma + "_" + integrationScale, eigenimages.get(0).imageplus().getProcessor() );
-			is.addSlice(availableFeatures[STRUCTURE] +"_smallest_" + sigma + "_" + integrationScale, eigenimages.get(1).imageplus().getProcessor() );
-
-			results[ ch ] = new ImagePlus ("Structure stack", is);
-		}									
-		
-		ImagePlus merged = mergeResultChannels(results);
+		ImagePlus merged = computeStructure(originalImage, sigma, integrationScale);
 		
 		wholeStack.addSlice(merged.getImageStack().getSliceLabel( 1 ), merged.getImageStack().getProcessor( 1 ) );
 		wholeStack.addSlice(merged.getImageStack().getSliceLabel( 2 ), merged.getImageStack().getProcessor( 2 ) );				
@@ -3450,5 +3370,30 @@ public class FeatureStack
 	{
 		return this.oldColorFormat;
 	}
-	
+
+	// -- Helper methods --
+
+	private ImagePlus computeStructure(final ImagePlus imp, final double sigma,
+		final double integrationScale)
+	{
+		// Get channel(s) to process
+		ImagePlus[] channels = extractChannels(imp);
+
+		ImagePlus[] results = new ImagePlus[ channels.length ];
+
+		for(int ch=0; ch < channels.length; ch++)
+		{
+			final ArrayList<ImagePlus> eigenimages = ImageScience.computeEigenimages(sigma, integrationScale, channels[ch]);
+
+			final ImageStack is = new ImageStack(width, height);
+
+			is.addSlice(availableFeatures[STRUCTURE] +"_largest_" + sigma + "_" + integrationScale, eigenimages.get(0).getProcessor() );
+			is.addSlice(availableFeatures[STRUCTURE] +"_smallest_" + sigma + "_" + integrationScale, eigenimages.get(1).getProcessor() );
+
+			results[ ch ] = new ImagePlus ("Structure stack", is);
+		}
+
+		return mergeResultChannels(results);
+	}
+
 }

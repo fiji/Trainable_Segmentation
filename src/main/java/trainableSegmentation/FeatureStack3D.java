@@ -43,13 +43,6 @@ import ij.plugin.Filters3D;
 import ij.plugin.ImageCalculator;
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
-import imagescience.feature.Differentiator;
-import imagescience.feature.Edges;
-import imagescience.feature.Hessian;
-import imagescience.feature.Laplacian;
-import imagescience.feature.Structure;
-import imagescience.image.Aspects;
-import imagescience.image.FloatImage;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -108,6 +101,22 @@ public class FeatureStack3D
 						"Structure", "Edges", "Difference_of_Gaussian", "Minimum",
 						"Maximum", "Mean", "Median", "Variance"};
 	
+	/** Features only available if the ImageScience library is present. */
+	public static final boolean[] IMAGESCIENCE_FEATURES = {
+		false, // Gaussian_blur
+		true,  // Hessian
+		true,  // Derivatives
+		true,  // Laplacian
+		true,  // Structure
+		true,  // Edges
+		true,  // Difference of Gaussian
+		false, // Minimum
+		false, // Maximum
+		false, // Mean
+		false, // Median
+		false  // Variance
+	};
+
 	/** flags of filters to be used */	
 	private boolean[] enableFeatures = new boolean[]{
 			true, 	/* Gaussian_blur */
@@ -198,17 +207,7 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
-					Aspects aspects = img.aspects();
-
-
-					imagescience.image.Image newimg = new FloatImage(img);
-					Differentiator diff = new Differentiator();
-					
-					diff.run(newimg, sigma , xOrder, yOrder, zOrder);
-					newimg.aspects(aspects);
-
-					final ImagePlus ip = newimg.imageplus();
+					final ImagePlus ip = ImageScience.computeDifferentialImage(sigma, xOrder, yOrder, zOrder, channel);
 					if( xOrder + yOrder + zOrder == 0)
 						ip.setTitle( availableFeatures[GAUSSIAN] +"_" + sigma );
 					else
@@ -261,23 +260,8 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
-					Aspects aspects = img.aspects();
-
-
-					imagescience.image.Image newimg = new FloatImage(img);
-					imagescience.image.Image newimg2 = new FloatImage(img);
-					
-					Differentiator diff = new Differentiator();
-
-					diff.run(newimg, sigma1 , 0, 0, 0);
-					diff.run(newimg2, sigma2 , 0, 0, 0);
-					
-					newimg.aspects(aspects);
-					newimg2.aspects(aspects);
-
-					final ImagePlus ip = newimg.imageplus();
-					final ImagePlus ip2 = newimg2.imageplus();
+					final ImagePlus ip = ImageScience.computeDifferentialImage(sigma1, 0, 0, 0, channel);
+					final ImagePlus ip2 = ImageScience.computeDifferentialImage(sigma2, 0, 0, 0, channel);
 					
 					ImageCalculator ic = new ImageCalculator();
 					final ImagePlus res = ic.run("Difference create stack", ip2, ip );
@@ -332,23 +316,10 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
-				
-					final Aspects aspects = img.aspects();				
-
-					imagescience.image.Image newimg = new FloatImage( img );
-
-					final Hessian hessian = new Hessian();
-
-					final Vector<imagescience.image.Image> hessianImages = hessian.run(newimg, sigma, absolute);
-					
-					final int nrimgs = hessianImages.size();
-					for (int i=0; i<nrimgs; ++i)
-						hessianImages.get(i).aspects(aspects);
-
-					final ImageStack smallest = hessianImages.get(0).imageplus().getImageStack();
-					final ImageStack middle   = hessianImages.get(1).imageplus().getImageStack();
-					final ImageStack largest  = hessianImages.get(2).imageplus().getImageStack();
+					final ArrayList<ImagePlus> result = ImageScience.computeHessianImages(sigma, absolute, channel);
+					final ImageStack smallest = result.get(0).getImageStack();
+					final ImageStack middle   = result.get(1).getImageStack();
+					final ImageStack largest  = result.get(2).getImageStack();
 					// remove pad
 					smallest.deleteLastSlice();
 					smallest.deleteSlice(1);
@@ -400,19 +371,7 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
-				
-					final Aspects aspects = img.aspects();				
-
-					imagescience.image.Image newimg = new FloatImage( img );
-
-					final Laplacian laplace = new Laplacian();
-
-					newimg = laplace.run(newimg, sigma);
-					newimg.aspects(aspects);						
-
-					
-					final ImagePlus ip = newimg.imageplus();
+					final ImagePlus ip = ImageScience.computeLaplacianImage(sigma, channel);
 					ip.setTitle(availableFeatures[LAPLACIAN] +"_" + sigma );
 					
 					// remove pad				
@@ -461,19 +420,7 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
-				
-					final Aspects aspects = img.aspects();				
-
-					imagescience.image.Image newimg = new FloatImage( img );
-
-					final Edges edges = new Edges();
-
-					newimg = edges.run(newimg, sigma, false);
-					newimg.aspects(aspects);						
-
-					
-					final ImagePlus ip = newimg.imageplus();
+					final ImagePlus ip = ImageScience.computeEdgesImage(sigma, channel);
 					ip.setTitle(availableFeatures[EDGES] +"_" + sigma );
 					
 					// remove pad				
@@ -709,19 +656,9 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					imagescience.image.Image img = imagescience.image.Image.wrap( channel );
-				
-					final Aspects aspects = img.aspects();				
-
-					final Structure structure = new Structure();
-					final Vector<imagescience.image.Image> eigenimages = structure.run(new FloatImage(img), sigma, integrationScale);
-
-					final int nrimgs = eigenimages.size();
-					for (int i=0; i<nrimgs; ++i)
-						eigenimages.get(i).aspects(aspects);
-
-					final ImageStack largest  = eigenimages.get(0).imageplus().getImageStack();					
-					final ImageStack smallest = eigenimages.get(1).imageplus().getImageStack();
+					final ArrayList<ImagePlus> result = ImageScience.computeEigenimages(sigma, integrationScale, channel);
+					final ImageStack largest  = result.get(0).getImageStack();
+					final ImageStack smallest = result.get(1).getImageStack();
 					
 					// remove pad
 					smallest.deleteLastSlice();
@@ -1058,5 +995,5 @@ public class FeatureStack3D
 	{
 		this.maximumSigma = maximumSigma;
 	}
-	
+
 }
