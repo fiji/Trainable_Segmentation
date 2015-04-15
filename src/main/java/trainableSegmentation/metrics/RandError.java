@@ -1699,6 +1699,136 @@ public class RandError extends Metrics
 	}
 	
 	/**
+	 * Get foreground-restricted disagreements between prediction and 
+	 * ground truth labels with N^2 normalization (mergers).
+	 * 
+	 * @param cluster1 ground truth cluster
+	 * @param cluster2 proposed cluster
+	 * @return normalized foreground-restricted mergers per label
+	 */
+	public double[] getForegroundRestrictedGroundTruthDisagreements(
+			ShortProcessor cluster1,
+			ShortProcessor cluster2 )
+	{
+		final short[] pixels1 = (short[]) cluster1.getPixels();
+		final short[] pixels2 = (short[]) cluster2.getPixels();
+		
+		// n: number of non-background pixels in the ground truth
+		double n = 0;
+		for( int i=0; i< pixels1.length; i++ )
+			if( pixels1[ i ] != 0 )
+				n++;
+		
+		// reset min and max of the cluster processors 
+		// (needed in order to have correct min-max values)
+		cluster1.resetMinAndMax();
+		cluster2.resetMinAndMax();
+		
+		int nLabelsA = (int) cluster1.getMax();
+		int nLabelsB = (int) cluster2.getMax();
+		
+		// compute overlap matrix
+		double[][]pij = new double[ nLabelsA + 1] [ nLabelsB + 1];
+		for(int i=0; i<pixels1.length; i++)									
+			pij[ pixels1[i] & 0xffff ] [ pixels2[i] & 0xffff ] ++;
+		
+		for( int i=0; i < (nLabelsA + 1); i++ )
+			for( int j=0; j < (nLabelsB + 1); j++ )
+			{
+				pij[ i ][ j ] /= n;
+			}
+		
+		// sum of squares of sums of columns
+		// (prune out the zero component in the labeling (un-assigned "out" space))
+		double[] bj = new double[ pij[0].length ];
+		for(int j=1; j<pij[0].length; j++)
+			for(int i=1; i<pij.length; i++)		
+				bj[ j ] += pij[ i ][ j ];
+						
+		// disagreement array
+		double[] dis = new double[ pij[0].length ];
+		
+		for(int j=0; j<bj.length; j++)
+		{
+
+			double sum =0;
+			for(int i=1; i<pij.length; i++)
+				sum += pij[ i ][ j ] * pij[ i ][ j ];
+
+			dis[ j ] = bj[ j ] * bj[ j ] - sum;
+		}
+
+		return dis;
+	}
+	
+	/**
+	 * Get foreground-restricted disagreements between ground truth and 
+	 * prediction labels with N^2 normalization (splits).
+	 * 
+	 * @param cluster1 ground truth cluster
+	 * @param cluster2 proposed cluster
+	 * @return normalized foreground-restricted splits per label
+	 */
+	public double[] getForegroundRestrictedPredictionDisagreements(
+			ShortProcessor cluster1,
+			ShortProcessor cluster2 )
+	{
+		final short[] pixels1 = (short[]) cluster1.getPixels();
+		final short[] pixels2 = (short[]) cluster2.getPixels();
+		
+		// n: number of non-background pixels in the ground truth
+		double n = 0;
+		for( int i=0; i< pixels1.length; i++ )
+			if( pixels1[ i ] != 0 )
+				n++;
+		
+		// reset min and max of the cluster processors 
+		// (needed in order to have correct min-max values)
+		cluster1.resetMinAndMax();
+		cluster2.resetMinAndMax();
+		
+		int nLabelsA = (int) cluster1.getMax();
+		int nLabelsB = (int) cluster2.getMax();
+		
+		// compute overlap matrix
+		double[][]pij = new double[ nLabelsA + 1] [ nLabelsB + 1];
+		for(int i=0; i<pixels1.length; i++)									
+			pij[ pixels1[i] & 0xffff ] [ pixels2[i] & 0xffff ] ++;
+		
+		for( int i=0; i < (nLabelsA + 1); i++ )
+			for( int j=0; j < (nLabelsB + 1); j++ )
+			{
+				pij[ i ][ j ] /= n;
+			}
+	
+		// disagreement array
+		double[] dis = new double[ pij.length ];
+		
+		// sum of squares of sums of rows
+		// (skip background objects in the first cluster)
+		double[] ai = new double[ pij.length ];
+		for(int i=1; i<pij.length; i++)
+		{
+			for(int j=0; j<pij[0].length; j++)
+			{
+				ai[ i ] += pij[ i ][ j ];				
+			}
+		}
+
+		// In matlab:
+		// sumA2 = sum( a_i .* a_i );
+		for(int i=0; i<ai.length; i++)
+		{
+			double sum = 0;
+			for(int j=0; j<pij[0].length; j++)
+				sum += pij[ i ][ j ] * pij[ i ][ j ];
+			dis[ i ] = ai[ i ] * ai[ i ] - sum;
+		}
+		
+		return dis;
+	}
+	
+	/**
 	 * Get the best F-score of the standard Rand index over a set of thresholds.
 	 * Note: background pixels are considered part of the same object. 
 	 * 
