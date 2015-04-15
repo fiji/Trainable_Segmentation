@@ -50,6 +50,7 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>imagescience</artifactId>
+			<optional>true</optional>
 		</dependency>
 		
 		<!-- ImgLib2 dependencies -->
