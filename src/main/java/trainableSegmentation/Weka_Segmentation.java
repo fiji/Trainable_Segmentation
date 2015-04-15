@@ -3106,7 +3106,6 @@ public class Weka_Segmentation implements PlugIn
 	/** Disables features which rely on missing third party libraries. */
 	public static void disableMissingFeatures(final GenericDialog gd)
 	{
-		try {
 		if (!isImageScienceAvailable()) {
 			IJ.log("Warning: ImageScience library unavailable. " +
 				"Some training features will be disabled.");
@@ -3119,8 +3118,6 @@ public class Weka_Segmentation implements PlugIn
 				}
 			}
 		}
-		}
-		catch (Throwable t) { IJ.handleException(t); }
 	}
 
 	private static boolean isImageScienceAvailable() {
