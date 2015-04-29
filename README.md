@@ -1,4 +1,4 @@
-![](http://jenkins.imagej.net/job/Trainable_Segmentation/lastBuild/badge/icon)
+[![](http://jenkins.imagej.net/job/Trainable_Segmentation/lastBuild/badge/icon)](http://jenkins.imagej.net/job/Trainable_Segmentation/)
 
 Trainable_Segmentation
 ======================
