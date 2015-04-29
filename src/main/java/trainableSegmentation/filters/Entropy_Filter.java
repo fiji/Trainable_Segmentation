@@ -79,7 +79,8 @@ public class Entropy_Filter implements PlugInFilter
 			int numBins)
 	{
 		final double log2=Math.log(2.0);
-		final ByteProcessor bp = (ByteProcessor) ip.convertToByte(false);
+		ip.resetMinAndMax();
+		final ByteProcessor bp = (ByteProcessor) ip.convertToByte(true);
 		
 		bp.setHistogramRange( 0, 255 );
 		bp.setHistogramSize( numBins );
