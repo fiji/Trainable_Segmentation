@@ -1,3 +1,5 @@
+![](http://jenkins.imagej.net/job/Trainable_Segmentation/lastBuild/badge/icon)
+
 Trainable_Segmentation
 ======================
 
