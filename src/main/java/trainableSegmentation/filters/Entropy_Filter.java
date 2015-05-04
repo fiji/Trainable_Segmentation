@@ -128,40 +128,7 @@ public class Entropy_Filter implements PlugInFilter
 			int radius, 
 			int numBins)
 	{
-		final double log2=Math.log(2.0);
-		final ByteProcessor bp = (ByteProcessor) ip.convertToByte( true );
-			
-		bp.setHistogramRange( 0, 255 );
-		bp.setHistogramSize( numBins );
-		
-		final int size = 2 * radius + 1;
-		
-		final FloatProcessor fp = new FloatProcessor(bp.getWidth(), bp.getHeight());
-		
-		for(int i=0; i<bp.getWidth(); i++)
-		{			
-			for(int j=0; j<bp.getHeight(); j++)
-			{
-				final OvalRoi roi = new OvalRoi(i-radius, j-radius, size, size);				
-				bp.setRoi( roi );
-				final int[] histogram = bp.getHistogram(); // Get histogram from the ROI
-				
-				double total = 0;
-				for (int k = 0 ; k < numBins ; k++ )
-					total +=histogram[ k ];
-
-				double entropy = 0;
-				for (int k = 0 ; k < numBins ; k++ )
-				{
-					if (histogram[k]>0)
-					{   
-						double p = histogram[k]/total; // calculate p
-		  				entropy += -p * Math.log(p)/log2;						
-					}
-				}
-				fp.putPixelValue(i, j, entropy );
-			}
-		}
+		final FloatProcessor fp = getEntropy(ip, radius, numBins);
 		
 		ImageProcessor ip2;
 		
