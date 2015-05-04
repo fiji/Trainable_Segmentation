@@ -2547,19 +2547,23 @@ public class Weka_Segmentation implements PlugIn
 			final WekaSegmentation wekaSegmentation = win.getWekaSegmentation();
 
 			ImagePlus classifiedImage =  wekaSegmentation.getClassifiedImage();
-			if( null == classifiedImage && win.trainingComplete == true )
+			if( null == classifiedImage )
 			{
-				// if not result image is there yet, calculate it
-				win.setButtonsEnabled( false );
-				wekaSegmentation.applyClassifier( false );
-				classifiedImage = wekaSegmentation.getClassifiedImage();
-				win.updateButtonsEnabling();
-			}
-			else
-			{
-				IJ.log( "Result image could not be created: "
-						+ " you need to train or load a classifier first." );
-				return;
+				// check if the training is complete
+				if( win.trainingComplete == true )
+				{
+					// if not result image is there yet, calculate it
+					win.setButtonsEnabled( false );
+					wekaSegmentation.applyClassifier( false );
+					classifiedImage = wekaSegmentation.getClassifiedImage();
+					win.updateButtonsEnabling();
+				}
+				else
+				{
+					IJ.log( "Result image could not be created: "
+							+ " you need to train or load a classifier first." );
+					return;
+				}
 			}
 			final ImagePlus resultImage = classifiedImage.duplicate();
 
