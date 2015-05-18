@@ -15,6 +15,26 @@
 	<name>plugins/Trainable_Segmentation.jar</name>
 	<description />
 
+	<developers>
+		<developer>
+			<id>iarganda</id>
+			<name>Ignacio Arganda-Carreras</name>
+			<email>ignacio.arganda@gmail.com</email>
+			<url>http://biocomp.cnb.csic.es/~iarganda/index_EN.html</url>
+			<organization>INRA</organization>
+			<organizationUrl>http://www-ijpb.versailles.inra.fr/en/bc/equipes/modelisation-imagerie/</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+				<role>maintainer</role>
+			</roles>
+			<timezone>-6</timezone>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor><name>Verena Kaynig</name></contributor>
+	</contributors>
+
 	<scm>
 		<connection>scm:git:git://github.com/fiji/Trainable_Segmentation</connection>
 		<developerConnection>scm:git:git@github.com:fiji/Trainable_Segmentation</developerConnection>
