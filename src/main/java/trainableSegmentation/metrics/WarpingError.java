@@ -1331,11 +1331,12 @@ public class WarpingError extends Metrics {
 				}
 
 			// Sort mismatches in descending order
-			Collections.sort(mismatches,  new Comparator<Point3f>() {
-			    public int compare(Point3f o1, Point3f o2) {
-			        return (int)((o2.z - o1.z) *10000);
-			    }});
-
+			if( mismatches.size() > 1 )
+				Collections.sort(mismatches,  new Comparator<Point3f>() {
+					public int compare( Point3f o1, Point3f o2 ) {
+						return Float.compare( o2.z, o1.z );
+					}});
+				
 			// Process mismatches
 			for(final Point3f p : mismatches)
 			{
