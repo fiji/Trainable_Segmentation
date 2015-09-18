@@ -5635,6 +5635,15 @@ public class WekaSegmentation {
 					classificationResult = new double[numClasses][numInstances];
 				else
 					classificationResult = new double[1][numInstances];
+				
+				// auxiliary array to be filled for each instance
+				final int extra = fsa.useNeighborhood() ? 8 : 0;				
+				final double[] values = 
+						new double[ fsa.getNumOfFeatures() + 1 + extra ];
+				// create empty reusable instance
+				final ReusableDenseInstance ins = 
+						new ReusableDenseInstance( 1.0, values );
+				ins.setDataset(dataInfo);
 			
 				for (int i=0; i<numInstances; i++)
 				{
@@ -5653,8 +5662,8 @@ public class WekaSegmentation {
 						final int x = localPos % width;
 						final int y = localPos / width;
 						
-						final DenseInstance ins = fsa.get( slice ).createInstance(x, y, 0);
-						ins.setDataset(dataInfo);
+						// set the reusable instance with the right values
+						fsa.get( slice ).setInstance( x, y, 0, ins, values );
 						
 						if ( probabilityMaps )
 						{							
