@@ -3326,6 +3326,65 @@ public class FeatureStack
 	}
 	
 	/**
+	 * Set values to an instance (feature vector) of a specific coordinate.
+	 * The input instance needs to have a data set assigned.
+	 * 
+	 * @param x x- axis coordinate
+	 * @param y y- axis coordinate
+	 * @param classValue class value to be assigned
+	 * @param ins instance to be filled
+	 * @param auxArray auxiliary array to store feature values
+	 */
+	public void setInstance(
+			int x, 
+			int y, 
+			int classValue,
+			final ReusableDenseInstance ins, 
+			final double[] auxArray )
+	{		
+		int n = 0;
+		
+		// fill auxiliary array
+		if( colorFeatures == false || oldColorFormat == true )
+		{
+			for (int z=0; z<getSize(); z++, n++)		
+				auxArray[ z ] = this.wholeStack.getVoxel( x, y, z );
+		}
+		else
+		{
+			for (int z=0; z < getSize(); z++, n++)		
+			{
+				int c  = (int) wholeStack.getVoxel( x, y, z );
+				int r = (c&0xff0000)>>16;
+				int g = (c&0xff00)>>8;
+				int b = c&0xff;
+				auxArray[ z ] = (r + g + b) / 3.0;
+			}
+		}
+		
+		
+		// Test: add neighbors of original image
+		if(useNeighbors)
+		{
+			for(int i=-1;  i < 2; i++)
+				for(int j = -1; j < 2; j++)
+				{
+					if(i==0 && j==0)
+						continue;				
+					auxArray[n] = 
+							getPixelMirrorConditions(getProcessor(1), x+i, y+j);
+					n++;
+				}
+		}
+		// Assign class
+		auxArray[auxArray.length-1] = (double) classValue;
+		
+		// Set attribute values to input instance
+		ins.setValues( 1.0, auxArray );		
+		return;
+	}
+	
+	/**
 	 * Get pixel value from an ImageProcessor with mirror boundary conditions
 	 * @param ip input image
 	 * @param x x- pixel coordinate
