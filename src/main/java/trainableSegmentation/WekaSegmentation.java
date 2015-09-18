@@ -4833,6 +4833,15 @@ public class WekaSegmentation {
 										
 				IJ.log("Classifying slice " + slice.getTitle() + "...");
 				
+				// auxiliary array to be filled for each instance
+				final int extra = sliceFeatures.useNeighborhood() ? 8 : 0;
+				final double[] values =
+						new double[ sliceFeatures.getSize() + 1 + extra ];
+				// create empty reusable instance
+				final ReusableDenseInstance ins =
+						new ReusableDenseInstance( 1.0, values );
+				ins.setDataset( dataInfo );
+
 				for (int x=0; x<width; x++)
 					for(int y=0; y<height; y++)
 					{
@@ -4845,8 +4854,7 @@ public class WekaSegmentation {
 								counter.addAndGet(4000);
 							}
 							
-							final DenseInstance ins = sliceFeatures.createInstance(x, y, 0);
-							ins.setDataset(dataInfo);
+							sliceFeatures.setInstance( x, y, 0, ins, values );
 
 							if (probabilityMaps)
 							{							
@@ -4942,6 +4950,17 @@ public class WekaSegmentation {
 
 					IJ.log("Classifying slice " + image.getTitle() + "...");
 
+					// auxiliary array to be filled for each instance
+					final int extra = sliceFeatures.useNeighborhood() ? 8 : 0;
+					final double[] values =
+							new double[ sliceFeatures.getSize() + 1 + extra ];
+					// create empty reusable instance
+					final ReusableDenseInstance ins =
+							new ReusableDenseInstance( 1.0, values );
+					ins.setDataset( dataInfo );
+
+					for (int i=0; i<numInstances; i++)
+
 					for (int x=0; x<width; x++)
 						for(int y=0; y<height; y++)
 						{
@@ -4954,8 +4973,8 @@ public class WekaSegmentation {
 									counter.addAndGet(4000);
 								}
 
-								final DenseInstance ins = sliceFeatures.createInstance(x, y, 0);
-								ins.setDataset(dataInfo);
+								sliceFeatures.setInstance(
+										x, y, 0, ins, values );
 
 								if (probabilityMaps)
 								{							
