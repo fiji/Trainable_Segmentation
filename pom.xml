@@ -19,10 +19,10 @@
 		<developer>
 			<id>iarganda</id>
 			<name>Ignacio Arganda-Carreras</name>
-			<email>ignacio.arganda@gmail.com</email>
-			<url>http://biocomp.cnb.csic.es/~iarganda/index_EN.html</url>
-			<organization>INRA</organization>
-			<organizationUrl>http://www-ijpb.versailles.inra.fr/en/bc/equipes/modelisation-imagerie/</organizationUrl>
+			<email>iargandacarreras@gmail.com</email>
+			<url>https://sites.google.com/site/iargandacarreras/</url>
+			<organization>Ikerbasque</organization>
+			<organizationUrl>http://www.ikerbasque.net/</organizationUrl>
 			<roles>
 				<role>architect</role>
 				<role>developer</role>
