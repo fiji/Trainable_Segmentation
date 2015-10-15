@@ -1886,7 +1886,7 @@ public class RandError extends Metrics
 	
 	
     /**
-     * Main method for calcualting the Rand error metrics 
+     * Main method for calculating the Rand error metrics 
      * from the command line
      *
      * @param args arguments to decide the action
