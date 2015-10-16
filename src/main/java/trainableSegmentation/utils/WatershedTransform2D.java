@@ -58,7 +58,7 @@ public class WatershedTransform2D {
 	
 	/** flag to output the transform steps and their 
 	 * execution times in the log window */
-	protected boolean verbose = true;
+	protected boolean verbose = false;
 	
 	
 	/**
@@ -175,7 +175,7 @@ public class WatershedTransform2D {
 	    final long t2 = System.currentTimeMillis();
 	    if( verbose ) IJ.log("  Sorting took " + (t2-t1) + " ms.");
 	    
-	    IJ.log( "  Flooding..." );
+	    if( verbose ) IJ.log( "  Flooding..." );
 	    IJ.showStatus( "Flooding..." );
 	    final long start = System.currentTimeMillis();
 	    
