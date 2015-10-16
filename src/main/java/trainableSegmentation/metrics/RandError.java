@@ -37,6 +37,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import trainableSegmentation.utils.Utils;
+import trainableSegmentation.utils.WatershedTransform2D;
 
 /**
  * This class implements the Rand error metric.
@@ -328,6 +329,78 @@ public class RandError extends Metrics
 	}
 	
 	/**
+	 * Calculate the foreground-restricted Rand score (N^2 normalization) and 
+	 * its derived statistics in 2D between some original labels and the 
+	 * corresponding proposed labels after border thinning. Both images are 
+	 * binarized.
+	 * NOTE: the metric value returned in the classification statistics is the 
+	 * foreground-restricted Rand index averaged per slice.
+	 * 
+	 * @param binaryThreshold threshold value to binarize proposal (larger than 0 and smaller than 1)
+	 * @param perSliceAverage flag to return F-score value averaged per slice
+	 * @return foreground-restricted Rand index value and derived statistics after thinning
+	 */
+	public ClassificationStatistics getForegroundRestrictedRandAfterThinningStats( 
+			double binaryThreshold,
+			final boolean perSliceAverage )
+	{
+		final ImageStack labelSlices = originalLabels.getImageStack();
+		final ImageStack proposalSlices = proposedLabels.getImageStack();
+
+		double randIndex = 0;
+		double tp = 0;
+		double tn = 0;
+		double fp = 0;
+		double fn = 0;
+		double fScore = 0;
+
+		// Executor service to produce concurrent threads
+		final ExecutorService exe 
+			= Executors.newFixedThreadPool(Prefs.getThreads());
+
+		final ArrayList< Future<ClassificationStatistics> > futures 
+					= new ArrayList< Future<ClassificationStatistics> >();
+
+		try{
+			for(int i = 1; i <= labelSlices.getSize(); i++)
+			{
+				futures.add( exe.submit(
+						getForegroundRestrictedRandAfterThinningStatsConcurrent(
+								labelSlices.getProcessor(i).convertToFloat(),
+								proposalSlices.getProcessor(i).convertToFloat(),										
+								binaryThreshold ) ) );
+			}
+
+			// Wait for the jobs to be done
+			for(Future<ClassificationStatistics> f : futures)
+			{
+				ClassificationStatistics cs = f.get();
+				randIndex += cs.metricValue;
+				tp += cs.truePositives;
+				tn += cs.trueNegatives;
+				fp += cs.falsePositives;
+				fn += cs.falseNegatives;
+				fScore += cs.fScore;
+			}			
+		}
+		catch(Exception ex)
+		{
+			IJ.log( "Error when calculating foreground-restricted Rand score "
+					+ "stats after thinning in a concurrent way." );
+			ex.printStackTrace();
+		}
+		finally{
+			exe.shutdown();
+		}
+
+		ClassificationStatistics cs	= new ClassificationStatistics( tp, tn, fp, 
+				fn,	randIndex / labelSlices.getSize() );
+		if( perSliceAverage )
+			cs.fScore = fScore / labelSlices.getSize();			
+		return cs;
+	}
+	
+	/**
 	 * Calculate the foreground-restricted Rand index (N^2 normalization) and 
 	 * its derived statistics in 2D between some original labels and the 
 	 * corresponding proposed labels. Both images are binarized. Individual 
@@ -501,6 +574,64 @@ public class RandError extends Metrics
 	}
 	
 	/**
+	 * Calculate the precision-recall values based on the foreground-restricted
+	 * Rand score between some 2D original labels and the corresponding 
+	 * proposed labels (after border thinning). 
+	 * 
+	 * 
+	 * @param minThreshold minimum threshold value to binarize the input images
+	 * @param maxThreshold maximum threshold value to binarize the input images
+	 * @param stepThreshold threshold step value to use during binarization
+	 * @param perSliceAverage flag to return values averaging per slice
+	 * @return Rand score value after thinning and derived statistics for each threshold
+	 */
+	public ArrayList< ClassificationStatistics > 
+		getForegroundRestrictedRandAfterThinningStats(
+			double minThreshold,
+			double maxThreshold,
+			double stepThreshold,
+			final boolean perSliceAverage )
+	{
+		
+		if( minThreshold < 0 || minThreshold > maxThreshold || maxThreshold > 1)
+		{
+			IJ.log("Error: unvalid threshold values.");
+			return null;
+		}
+		
+		ArrayList< ClassificationStatistics > cs = new ArrayList<ClassificationStatistics>();
+		
+		double bestFscore = 0;
+		double bestTh = minThreshold;
+		
+		for(double th = minThreshold; th <= maxThreshold; th += stepThreshold)
+		{
+			if( verbose ) 
+				IJ.log("  Calculating Rand score statistics after border "
+						+ "thinning for threshold value " + 
+						String.format("%.3f", th) + "...");
+			cs.add( getForegroundRestrictedRandAfterThinningStats(
+													th , perSliceAverage ) );
+			final double fScore = cs.get( cs.size()-1 ).fScore;
+			
+			if( fScore > bestFscore )
+			{
+				bestFscore = fScore;
+				bestTh = th;
+			}
+			if( verbose )
+				IJ.log("    V_Rand = " + fScore);
+		}
+		
+		if( verbose )
+			IJ.log(" ** Best V_Rand = " + bestFscore + ", "
+					+ "with threshold = " + bestTh + " **\n");
+		
+		return cs;
+	}
+	
+	
+	/**
 	 * Get standard Rand error between two images in a concurrent way 
 	 * (to be submitted to an Executor Service). Both images
 	 * are binarized.
@@ -624,6 +755,34 @@ public class RandError extends Metrics
 			public ClassificationStatistics call()
 			{				
 				return getForegroundRestrictedRandIndexStatsN2( 
+						image1, image2, binaryThreshold );
+			}
+		};
+	}
+	
+	/**
+	 * Get foreground-restricted Rand score value and derived statistics 
+	 * between two images in a concurrent way (to be submitted to an Executor 
+	 * Service).
+	 * Both images are binarized and the borders of the second image are 
+	 * thinned to 1-pixel width.
+	 * 
+	 * @param image1 ground-truth image
+	 * @param image2 proposed labels image
+	 * @param binaryThreshold threshold to apply to both images
+	 * @return foreground-restricted Rand score after thinning value and derived statistics
+	 */
+	public  Callable<ClassificationStatistics> 
+		getForegroundRestrictedRandAfterThinningStatsConcurrent(
+			final ImageProcessor image1, 
+			final ImageProcessor image2,
+			final double binaryThreshold ) 
+	{
+		return new Callable<ClassificationStatistics>()
+		{
+			public ClassificationStatistics call()
+			{				
+				return getForegroundRestrictedRandAfterThinningStatsN2( 
 						image1, image2, binaryThreshold );
 			}
 		};
@@ -824,6 +983,53 @@ public class RandError extends Metrics
 				new ImagePlus("proposal labels", binaryProposal), 4).allRegions.getProcessor();
 		
 		return getForegroundRestrictedRandIndexStatsN2( components1, components2 );		
+	}
+	
+	/**
+	 * Calculate the foreground-restricted Rand precision and recall between 
+	 * some 2D original labels and the corresponding proposed labels with N^2 
+	 * normalization. Both input images are binarized based on the input
+	 * threshold value and the proposal labels are thinned to 1-pixel width.
+	 * NOTE: the returned metric value is the foreground-restricted Rand score 
+	 * 
+	 * @param label 2D image with the original (ground truth) binary labels
+	 * @param proposal 2D image with the proposed label probabilities
+	 * @param binaryThreshold threshold value to binarize the input images
+	 * @return foreground-restricted Rand score statistics after thinning
+	 */
+	public ClassificationStatistics getForegroundRestrictedRandAfterThinningStatsN2(
+			ImageProcessor label,
+			ImageProcessor proposal,
+			double binaryThreshold )
+	{
+		// Binarize inputs
+		ByteProcessor binaryLabel = 
+				new ByteProcessor( label.getWidth(), label.getHeight() );
+		ByteProcessor binaryProposal = 
+				new ByteProcessor( label.getWidth(), label.getHeight() );
+		
+		for(int x=0; x<label.getWidth(); x++)
+			for(int y=0; y<label.getHeight(); y++)
+			{
+				binaryLabel.set(   x, y,    
+					label.getPixelValue( x, y ) > binaryThreshold ? 255 : 0);
+				// get inverse thresholded image for the proposal, so borders
+				// are white (to later apply watershed)
+				binaryProposal.set(x, y, 
+					proposal.getPixelValue( x, y ) > binaryThreshold ? 0 : 255);
+			}
+		
+		// Find components of ground truth
+		ShortProcessor components1 
+			= ( ShortProcessor ) Utils.connectedComponents(
+				new ImagePlus("binary labels", binaryLabel), 
+								4).allRegions.getProcessor();
+		// Thin proposal with watershed transform
+		WatershedTransform2D wt = new WatershedTransform2D( binaryProposal, 4 );
+		ShortProcessor components2 = wt.apply().convertToShortProcessor(false);
+		
+		return getForegroundRestrictedRandIndexStatsN2( components1, 
+														components2 );		
 	}
 	
 	/**
@@ -1884,6 +2090,39 @@ public class RandError extends Metrics
 	    return maxFScore;
 	}
 	
+	
+	/**
+	 * Get the best V_Rand after thinning over a set of thresholds.
+	 * Note: the background pixels of the ground truth are pruned out in the 
+	 * calculations and the background pixels of the proposal are thinned to
+	 * a 1-pixel width line using the classic watershed algorithm. 
+	 * 
+	 * @param minThreshold minimum threshold value to binarize the input images
+	 * @param maxThreshold maximum threshold value to binarize the input images
+	 * @param stepThreshold threshold step value to use during binarization
+	 * @param perSliceAverage flag to calculate average Rand score per slice 
+	 * @return maximal V_Rand after thinning
+	 */
+	public double getMaximalVRandAfterThinning(
+			double minThreshold,
+			double maxThreshold,
+			double stepThreshold,
+			final boolean perSliceAverage )
+	{
+		ArrayList<ClassificationStatistics> stats = 
+				getForegroundRestrictedRandAfterThinningStats( 
+						minThreshold, maxThreshold, stepThreshold, 
+						perSliceAverage );
+	    // trainableSegmentation.utils.Utils.plotPrecisionRecall( stats );    
+	    double maxFScore = 0;
+
+	    for(ClassificationStatistics stat : stats)
+	    {
+	    	if (stat.fScore > maxFScore)
+	    		maxFScore = stat.fScore;
+	    }	    
+	    return maxFScore;
+	}
 	
     /**
      * Main method for calculating the Rand error metrics 
