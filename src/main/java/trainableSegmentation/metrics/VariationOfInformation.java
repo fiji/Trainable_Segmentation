@@ -37,6 +37,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import trainableSegmentation.utils.Utils;
+import trainableSegmentation.utils.WatershedTransform2D;
 
 /**
  * This class implements the variation of information metric, used
@@ -678,6 +679,35 @@ public class VariationOfInformation extends Metrics
 	}
 	
 	/**
+	 * Get the best V_Info after thinning over a set of thresholds.
+	 * Note: the background pixels of the ground truth are pruned out in the
+	 * calculations and the background pixels of the proposal are thinned to
+	 * a 1-pixel width line using the classic watershed algorithm.
+	 *
+	 * @param minThreshold minimum threshold value to binarize the input images
+	 * @param maxThreshold maximum threshold value to binarize the input images
+	 * @param stepThreshold threshold step value to use during binarization
+	 * @return maximal Information theoretic score after thinning
+	 */
+	public double getVInfoAfterThinningMaximalFScore(
+			double minThreshold,
+			double maxThreshold,
+			double stepThreshold )
+	{
+		ArrayList< Double > scores
+			= getForegroundRestrictedScoresAfterThinning( minThreshold,
+								maxThreshold, stepThreshold );
+	    double maxScore = 0;
+
+	    for(double f : scores)
+	    {
+	    	if ( f > maxScore)
+	    		maxScore = f;
+	    }
+	    return maxScore;
+	}
+
+	/**
 	 * Get the best F-score of the variation of information 
 	 * over a set of thresholds 
 	 * 
@@ -746,6 +776,58 @@ public class VariationOfInformation extends Metrics
 		
 		if( verbose )
 			IJ.log(" ** Best F-score = " + bestFscore + ", with threshold = " + bestTh + " **\n");
+		
+		return fscores;
+		
+	}
+	
+	/**
+	 * Get foreground-restricted information theoretic score after thinning
+	 * over a set of thresholds
+	 * 
+	 * @param minThreshold minimum threshold value to check (included)
+	 * @param maxThreshold maximum threshold value to check (included)
+	 * @param stepThreshold step threshold value
+	 * @return list with the F-score value of each threshold
+	 */
+	public ArrayList< Double > getForegroundRestrictedScoresAfterThinning(
+			double minThreshold,
+			double maxThreshold, 
+			double stepThreshold ) 
+	{
+		if( minThreshold < 0 || minThreshold > maxThreshold || maxThreshold > 1)
+		{
+			IJ.log("Error: unvalid threshold values.");
+			return null;
+		}
+		
+		double bestFscore = 0;
+		double bestTh = minThreshold;
+		
+		final ArrayList< Double > fscores = new ArrayList< Double >();
+		
+		for(double th = minThreshold; th <= maxThreshold; th += stepThreshold)
+		{
+			if( verbose ) 
+				IJ.log("  Calculating foreground-restricted information "
+						+ "theoretic score after border thinning "
+						+ "for threshold value " 
+						+ String.format("%.3f", th) + "...");
+			final double fScore 
+							= getForegroundRestrictedScoreAfterThinning( th );
+			fscores.add( fScore );
+			if( fScore > bestFscore )
+			{
+				bestFscore = fScore;
+				bestTh = th;
+			}
+			if( verbose )
+				IJ.log("    V_info = " + fScore);
+		}
+		
+		if( verbose )
+			IJ.log(" ** Best V_info = " + bestFscore 
+					+ ", with threshold = " + bestTh + " **\n");
 		
 		return fscores;
 		
@@ -843,6 +925,58 @@ public class VariationOfInformation extends Metrics
 
 		return fScore / labelSlices.getSize();
 	}
+	
+	/**
+	 * Get foreground-restricted information theoretic score after border
+	 * thinning for a given threshold of the proposal labels. Done in 2d, 
+	 * for stacks, the per-slice average score is calculated.
+	 *  
+	 * @param th threshold value to binarize proposal
+	 * @return foreground-restricted information theoretic score after thinning
+	 */
+	public double getForegroundRestrictedScoreAfterThinning( double th ) 
+	{
+		final ImageStack labelSlices = originalLabels.getImageStack();
+		final ImageStack proposalSlices = proposedLabels.getImageStack();
+
+		double fScore = 0;
+
+		// Executor service to produce concurrent threads
+		final ExecutorService exe = Executors.newFixedThreadPool( 
+								Runtime.getRuntime().availableProcessors() );
+
+		final ArrayList< Future<Double> > futures 
+										= new ArrayList< Future<Double> >();
+
+		try{
+			for(int i = 1; i <= labelSlices.getSize(); i++)
+			{
+				futures.add(exe.submit( 
+						getforegroundRestrictedScoreAfterThinningConcurrent(
+								labelSlices.getProcessor(i).convertToFloat(),
+								proposalSlices.getProcessor(i).convertToFloat(),										
+								th ) ) );
+			}
+
+			// Wait for the jobs to be done
+			for(Future<Double> f : futures)
+			{
+				fScore += f.get();				
+			}			
+		}
+		catch(Exception ex)
+		{
+			IJ.log("Error when calculating the foreground-restricted information"
+					+ "theoretic score after thinning in a concurrent way.");
+			ex.printStackTrace();
+		}
+		finally{
+			exe.shutdown();
+		}
+
+		return fScore / labelSlices.getSize();
+	}
+	
 	/**
 	 * Get the foreground-restricted variation of information 
 	 * statistics (entropy values, F-score, etc) per slice and
@@ -1025,6 +1159,29 @@ public class VariationOfInformation extends Metrics
 		};
 	}
 	
+	/**
+	 * Get foreground-restricted information theoretic score after border
+	 * thinning in a concurrent way. To be submitted to an ExecutorService.
+	 * 
+	 * @param image1 ground truth (usually binary labels)
+	 * @param image2 proposed labels (usually a probability map to binarize) 
+	 * @param binaryThreshold threshold value to binarize proposal
+	 * @return information theoretic score (foreground-restricted, proposal border thinning and N^2 normalization)
+	 */
+	public Callable<Double> getforegroundRestrictedScoreAfterThinningConcurrent(
+			final ImageProcessor image1, 
+			final ImageProcessor image2,
+			final double binaryThreshold) 
+	{
+		return new Callable<Double>()
+		{
+			public Double call()
+			{				
+				return foregroundRestrictedScoreAfterThinningN2 ( image1, 
+													image2, binaryThreshold );
+			}
+		};
+	}	
 
 	/**
 	 * Calculate F-score of variation of information with N^2 normalization
@@ -1092,6 +1249,47 @@ public class VariationOfInformation extends Metrics
 		
 		ShortProcessor components2 = ( ShortProcessor ) Utils.connectedComponents(
 				new ImagePlus("proposal labels", binaryProposal), 4).allRegions.getProcessor();
+		
+		return foregroundRestrictedFscore( components1, components2 );
+		
+	}
+	
+	/**
+	 * Calculate foreground-restricted information theoretic score with N^2 
+	 * normalization after border thinning
+	 *  
+	 * @param label original labels
+	 * @param proposal proposed labels (usually a probability image to be thresholded)
+	 * @param binaryThreshold threshold value to binarize proposal
+	 * @return information theoretic score between original labels and the binarized proposal
+	 */
+	public double foregroundRestrictedScoreAfterThinningN2(
+			ImageProcessor label,
+			ImageProcessor proposal,
+			double binaryThreshold )
+	{
+		// Binarize inputs
+		ByteProcessor binaryLabel = new ByteProcessor( label.getWidth(), label.getHeight() );
+		ByteProcessor binaryProposal = new ByteProcessor( label.getWidth(), label.getHeight() );
+		
+		for(int x=0; x<label.getWidth(); x++)
+			for(int y=0; y<label.getHeight(); y++)
+			{
+				binaryLabel.set( x, y, 
+					label.getPixelValue( x, y ) > binaryThreshold ? 255 : 0);
+				// set background to white to use later classic watershed
+				binaryProposal.set( x, y, 
+					proposal.getPixelValue( x, y ) > binaryThreshold ?	0 : 255);
+			}
+		
+		// Find components of ground truth using connected components
+		ShortProcessor components1 
+			= ( ShortProcessor ) Utils.connectedComponents(
+									new ImagePlus("binary labels", binaryLabel), 
+													4).allRegions.getProcessor();
+		// Thin proposal with watershed transform
+		WatershedTransform2D wt = new WatershedTransform2D( binaryProposal, 4 );
+		ShortProcessor components2 = wt.apply().convertToShortProcessor(false);
 		
 		return foregroundRestrictedFscore( components1, components2 );
 		
