@@ -337,7 +337,7 @@ public class RandError extends Metrics
 	 * foreground-restricted Rand index averaged per slice.
 	 * 
 	 * @param binaryThreshold threshold value to binarize proposal (larger than 0 and smaller than 1)
-	 * @param perSliceAverage flag to return F-score value averaged per slice
+	 * @param perSliceAverage flag to return F-score value averaged per slice (macro-averaged F-score)
 	 * @return foreground-restricted Rand index value and derived statistics after thinning
 	 */
 	public ClassificationStatistics getForegroundRestrictedRandAfterThinningStats( 
@@ -582,7 +582,7 @@ public class RandError extends Metrics
 	 * @param minThreshold minimum threshold value to binarize the input images
 	 * @param maxThreshold maximum threshold value to binarize the input images
 	 * @param stepThreshold threshold step value to use during binarization
-	 * @param perSliceAverage flag to return values averaging per slice
+	 * @param perSliceAverage flag to return values averaging per slice (macro-average)
 	 * @return Rand score value after thinning and derived statistics for each threshold
 	 */
 	public ArrayList< ClassificationStatistics > 
@@ -2095,12 +2095,19 @@ public class RandError extends Metrics
 	 * Get the best V_Rand after thinning over a set of thresholds.
 	 * Note: the background pixels of the ground truth are pruned out in the 
 	 * calculations and the background pixels of the proposal are thinned to
-	 * a 1-pixel width line using the classic watershed algorithm. 
+	 * a 1-pixel width line using the classic watershed algorithm.
+	 * A flag is used to apply the macro- or micro-averaged score.
+	 * 
+	 * Note: In the micro-average method, you sum up the individual true 
+	 * positives, false positives, and false negatives of the classification 
+	 * of different slices and the apply them to get the statistics. In the 
+	 * macro-average method we take the average of the score on the different 
+	 * slices.
 	 * 
 	 * @param minThreshold minimum threshold value to binarize the input images
 	 * @param maxThreshold maximum threshold value to binarize the input images
 	 * @param stepThreshold threshold step value to use during binarization
-	 * @param perSliceAverage flag to calculate average Rand score per slice 
+	 * @param perSliceAverage flag to calculate macro- or micro-averaged Rand score
 	 * @return maximal V_Rand after thinning
 	 */
 	public double getMaximalVRandAfterThinning(
