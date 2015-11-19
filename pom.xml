@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>sc.fiji</groupId>
 		<artifactId>pom-fiji</artifactId>
-		<version>16.0.0</version>
+		<version>18.1.0</version>
 		<relativePath />
 	</parent>
 
@@ -113,6 +113,10 @@
 		<url>http://jenkins.imagej.net/job/Trainable_Segmentation/</url>
 	</ciManagement>
 
+	<properties>
+		<scijava.jvm.version>1.7</scijava.jvm.version>
+	</properties>
+
 	<repositories>
 		<repository>
 			<id>imagej.public</id>
@@ -160,6 +164,12 @@
 			<artifactId>ij</artifactId>
 		</dependency>
 
+		<!-- Java3D dependencies -->
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>vecmath</artifactId>
+		</dependency>
+
 		<!-- Third party dependencies -->
 		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
@@ -170,23 +180,6 @@
 			<artifactId>commons-math3</artifactId>
 		</dependency>
 
-		<!-- Java3D dependencies -->
-		<dependency>
-			<groupId>java3d</groupId>
-			<artifactId>j3d-core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>java3d</groupId>
-			<artifactId>j3d-core-utils</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>java3d</groupId>
-			<artifactId>vecmath</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
 		<!-- Test scope dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -194,5 +187,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 </project>

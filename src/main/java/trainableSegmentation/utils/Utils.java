@@ -36,7 +36,7 @@ import ij.process.ImageStatistics;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Point3f;
 
 import trainableSegmentation.metrics.ClassificationStatistics;
 import util.FindConnectedRegions;
