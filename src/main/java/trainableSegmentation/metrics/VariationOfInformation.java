@@ -689,7 +689,7 @@ public class VariationOfInformation extends Metrics
 	 * @param stepThreshold threshold step value to use during binarization
 	 * @return maximal Information theoretic score after thinning
 	 */
-	public double getVInfoAfterThinningMaximalFScore(
+	public double getMaximalVInfoAfterThinning(
 			double minThreshold,
 			double maxThreshold,
 			double stepThreshold )
