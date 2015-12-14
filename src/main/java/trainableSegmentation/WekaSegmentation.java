@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Point3f;
 
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
