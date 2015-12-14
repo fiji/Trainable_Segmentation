@@ -827,7 +827,8 @@ public class VariationOfInformation extends Metrics
 		
 		if( verbose )
 			IJ.log(" ** Best V_info = " + bestFscore 
-					+ ", with threshold = " + bestTh + " **\n");
+					+ ", with threshold = " + String.format( "%.3f", bestTh ) 
+					+ " **\n");
 		
 		return fscores;
 		

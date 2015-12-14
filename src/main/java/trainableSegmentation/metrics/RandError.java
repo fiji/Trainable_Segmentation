@@ -625,7 +625,8 @@ public class RandError extends Metrics
 		
 		if( verbose )
 			IJ.log(" ** Best V_Rand = " + bestFscore + ", "
-					+ "with threshold = " + bestTh + " **\n");
+					+ "with threshold = " + String.format( "%.3f", bestTh ) 
+					+ " **\n");
 		
 		return cs;
 	}
