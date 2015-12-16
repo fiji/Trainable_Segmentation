@@ -19,20 +19,87 @@
 		<developer>
 			<id>iarganda</id>
 			<name>Ignacio Arganda-Carreras</name>
-			<email>iargandacarreras@gmail.com</email>
+			<email>ignacio.arganda@gmail.com</email>
 			<url>https://sites.google.com/site/iargandacarreras/</url>
-			<organization>Ikerbasque</organization>
-			<organizationUrl>http://www.ikerbasque.net/</organizationUrl>
 			<roles>
-				<role>architect</role>
+				<role>lead</role>
 				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+		<developer>
+			<id>ctrueden</id>
+			<name>Curtis Rueden</name>
+			<email>ctrueden@wisc.edu</email>
+			<url>http://loci.wisc.edu/people/curtis-rueden</url>
+			<organization>UW-Madison LOCI</organization>
+			<organizationUrl>http://loci.wisc.edu/</organizationUrl>
+			<roles>
+				<role>maintainer</role>
+			</roles>
+			<timezone>-6</timezone>
+		</developer>
+		<developer>
+			<id>hinerm</id>
+			<name>Mark Hiner</name>
+			<email>hiner@wisc.edu</email>
+			<url>http://loci.wisc.edu/people/mark-hiner</url>
+			<organization>UW-Madison LOCI</organization>
+			<organizationUrl>http://loci.wisc.edu/</organizationUrl>
+			<roles>
 				<role>maintainer</role>
 			</roles>
 			<timezone>-6</timezone>
 		</developer>
 	</developers>
 	<contributors>
-		<contributor><name>Verena Kaynig</name></contributor>
+		<contributor>
+			<name>Verena Kaynig</name>
+			<roles><role>founder</role></roles>
+			<properties><id>vkaynig</id></properties>
+		</contributor>
+		<contributor>
+			<name>Johannes Schindelin</name>
+			<url>http://imagej.net/User:Schindelin</url>
+			<roles><role>founder</role></roles>
+			<properties><id>dscho</id></properties>
+		</contributor>
+		<contributor>
+			<name>Albert Cardona</name>
+			<url>http://imagej.net/User:Albertcardona</url>
+			<properties><id>acardona</id></properties>
+		</contributor>
+		<contributor>
+			<name>Jan Eglinger</name>
+			<url>http://imagej.net/User:Eglinger</url>
+			<properties><id>imagejan</id></properties>
+		</contributor>
+		<contributor>
+			<name>Jan Funke</name>
+			<url>http://imagej.net/User:Funke</url>
+			<properties><id>funkey</id></properties>
+		</contributor>
+		<contributor>
+			<name>Patrice Freydiere</name>
+			<properties><id>frett27</id></properties>
+		</contributor>
+		<contributor>
+			<name>Larry Lindsey</name>
+			<url>http://imagej.net/User:Lindsey</url>
+			<properties><id>larrylindsey</id></properties>
+		</contributor>
+		<contributor><name>Christian Tischer</name></contributor>
+		<contributor><name>Eibe Frank </name></contributor>
+		<contributor><name>Fran Supek</name></contributor>
+		<contributor><name>Julien Prados</name></contributor>
+		<contributor><name>Len Trigg </name></contributor>
+		<contributor><name>Richard Kirkby </name></contributor>
+		<contributor><name>Santi Villalba</name></contributor>
+		<contributor><name>Yong Wang</name></contributor>
 	</contributors>
 
 	<scm>
