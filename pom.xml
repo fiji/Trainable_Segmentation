@@ -109,6 +109,10 @@
 		<tag>HEAD</tag>
 		<url>https://github.com/fiji/Trainable_Segmentation</url>
 	</scm>
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/fiji/Trainable_Segmentation/issues</url>
+	</issueManagement>
 	<ciManagement>
 		<system>Jenkins</system>
 		<url>http://jenkins.imagej.net/job/Trainable_Segmentation/</url>
