@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>Trainable_Segmentation</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
+	<version>3.0.0</version>
 
 	<name>plugins/Trainable_Segmentation.jar</name>
 	<description />
@@ -106,7 +106,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/fiji/Trainable_Segmentation</connection>
 		<developerConnection>scm:git:git@github.com:fiji/Trainable_Segmentation</developerConnection>
-		<tag>HEAD</tag>
+		<tag>Trainable_Segmentation-3.0.0</tag>
 		<url>https://github.com/fiji/Trainable_Segmentation</url>
 	</scm>
 	<issueManagement>
