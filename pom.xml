@@ -19,8 +19,7 @@
 		<developer>
 			<id>iarganda</id>
 			<name>Ignacio Arganda-Carreras</name>
-			<email>ignacio.arganda@gmail.com</email>
-			<url>https://sites.google.com/site/iargandacarreras/</url>
+			<url>http://imagej.net/User:Iarganda</url>
 			<roles>
 				<role>lead</role>
 				<role>developer</role>
@@ -29,7 +28,6 @@
 				<role>support</role>
 				<role>maintainer</role>
 			</roles>
-			<timezone>+1</timezone>
 		</developer>
 		<developer>
 			<id>ctrueden</id>
@@ -85,12 +83,15 @@
 			<url>http://imagej.net/User:Lindsey</url>
 			<properties><id>larrylindsey</id></properties>
 		</contributor>
-		<contributor><name>Christian Tischer</name></contributor>
-		<contributor><name>Eibe Frank </name></contributor>
+		<contributor>
+			<name>Christian Tischer</name>
+			<properties><id>tischi</id></properties>
+		</contributor>
+		<contributor><name>Eibe Frank</name></contributor>
 		<contributor><name>Fran Supek</name></contributor>
 		<contributor><name>Julien Prados</name></contributor>
-		<contributor><name>Len Trigg </name></contributor>
-		<contributor><name>Richard Kirkby </name></contributor>
+		<contributor><name>Len Trigg</name></contributor>
+		<contributor><name>Richard Kirkby</name></contributor>
 		<contributor><name>Santi Villalba</name></contributor>
 		<contributor><name>Yong Wang</name></contributor>
 	</contributors>
