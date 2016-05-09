@@ -217,13 +217,13 @@ public class FeatureStack
 	private int maxDerivativeOrder = 5;
 	
 	/** flag to specify the use of color features */
-	final boolean colorFeatures;
+	private final boolean colorFeatures;
 	
 	/** flag to specify the use of the old color format (using directly the RGB values as float) */
 	private boolean oldColorFormat = false; 
 	
 	/** executor service to produce concurrent threads */
-	ExecutorService exe = Executors.newFixedThreadPool( Prefs.getThreads() );
+	private ExecutorService exe = Executors.newFixedThreadPool( Prefs.getThreads() );
 	
 	/**
 	 * Construct object to store stack of image features. The input image

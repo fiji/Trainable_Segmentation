@@ -109,7 +109,7 @@ public class FastRandomForest
              AdditionalMeasureProducer, TechnicalInformationHandler{
 
   /** for serialization */
-  static final long serialVersionUID = 4216839470751428700L;
+  private static final long serialVersionUID = 4216839470751428700L;
 
   /** Number of trees in forest. */
   protected int m_numTrees = 100;

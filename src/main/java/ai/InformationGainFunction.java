@@ -14,9 +14,9 @@ public class InformationGainFunction extends SplitFunction
 	/** generated serial version id */
 	private static final long serialVersionUID = 1L;
 	/** number of random features to use */
-	int numOfFeatures;
+	private int numOfFeatures;
 	/** random number generator */
-	final Random random;
+	private final Random random;
 	
 	// Attribute-class pair comparator (by attribute value)
 	private static final Comparator<AttributeClassPair> comp = new Comparator<AttributeClassPair>(){

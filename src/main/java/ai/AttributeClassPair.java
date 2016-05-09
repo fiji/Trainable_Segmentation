@@ -7,9 +7,9 @@ package ai;
 public class AttributeClassPair
 {
 	/** real value of the corresponding attribute */
-	double attributeValue;
+	protected double attributeValue;
 	/** index of the class associated to this pair */
-	int classValue;
+	protected int classValue;
 	/**
 	 * Create pair attribute-class
 	 * 

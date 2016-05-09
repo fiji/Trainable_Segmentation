@@ -113,7 +113,7 @@ public class WekaSegmentation {
 	/** current classifier */
 	private AbstractClassifier classifier = null;
 	/** train header */
-	Instances trainHeader = null;
+	private Instances trainHeader = null;
 
 	/** default classifier (Fast Random Forest) */
 	private FastRandomForest rf;
@@ -140,7 +140,7 @@ public class WekaSegmentation {
 	/** maximum depth per tree in the fast random forest classifier */
 	private int maxDepth = 0;
 	/** list of class names on the loaded data */
-	ArrayList<String> loadedClassNames = null;
+	private ArrayList<String> loadedClassNames = null;
 
 	/** expected membrane thickness */
 	private int membraneThickness = 1;
@@ -546,8 +546,8 @@ public class WekaSegmentation {
 	 * bag class for getting the result of the loaded classifier
 	 */
 	private static class LoadedClassifier {
-		AbstractClassifier newClassifier = null;
-		Instances newHeader = null;
+		private AbstractClassifier newClassifier = null;
+		private Instances newHeader = null;
 	}
 
 	/**
@@ -4390,10 +4390,10 @@ public class WekaSegmentation {
 		class ApplyClassifierThread extends Thread
 		{
 
-			final int startSlice;
-			final int numSlices;
-			final int numFurtherThreads;
-			final ArrayList<String> classNames;
+			private final int startSlice;
+			private final int numSlices;
+			private final int numFurtherThreads;
+			private final ArrayList<String> classNames;
 
 			public ApplyClassifierThread(
 					int startSlice,
@@ -5085,11 +5085,11 @@ public class WekaSegmentation {
 		class ApplyClassifierThread extends Thread
 		{
 
-			final int startSlice;
-			final int numSlices;
-			final int numFurtherThreads;
-			final ArrayList<String> classNames;
-			final FeatureStackArray fsa;
+			private final int startSlice;
+			private final int numSlices;
+			private final int numFurtherThreads;
+			private final ArrayList<String> classNames;
+			private final FeatureStackArray fsa;
 
 			public ApplyClassifierThread(
 					int startSlice,

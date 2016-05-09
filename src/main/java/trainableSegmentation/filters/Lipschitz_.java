@@ -48,25 +48,25 @@ import java.util.Date;
 
 public class Lipschitz_ implements PlugInFilter 
 {
-	static final String Lipschitz_Version = "0.1";
-	static final String Lipschitz_Date = "2006/02/03";
+	private static final String Lipschitz_Version = "0.1";
+	private static final String Lipschitz_Date = "2006/02/03";
 	// the following are the input parameters, with default values assigned to them
-	boolean m_Down    = true;     //  
-	boolean m_TopHat    = false;  // lower Lipschitz cover  
+	private boolean m_Down    = true;     //  
+	private boolean m_TopHat    = false;  // lower Lipschitz cover  
 	public double m_Slope = 10;                 // slope
 
 	protected ImagePlus m_imp;
-	int m_scount;                      // number of stacks
+	private int m_scount;                      // number of stacks
 	protected ImageStack m_stack, m_stack_out;
 
 	protected Rectangle m_roi;
-	int ImageHeight = -1;
-	int ImageWidth = -1;
-	int m_channels = 0;
+	private int ImageHeight = -1;
+	private int ImageWidth = -1;
+	private int m_channels = 0;
 	boolean m_short = false;
 	boolean breaked = false;
-	ImageProcessor iptmp;
-	int [] pixel;
+	private ImageProcessor iptmp;
+	private int [] pixel;
 
 	//-----------------------------------------------------------------------------------
 	

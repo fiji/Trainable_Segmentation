@@ -100,19 +100,19 @@ public class BalancedRandomForest extends AbstractClassifier implements Randomiz
 	private static final long serialVersionUID = "BalancedRandomForest".hashCode();
 
 	/** random seed */
-	int seed = 1;
+	private int seed = 1;
 	
 	/** number of trees */
-	int numTrees = 10;
+	private int numTrees = 10;
 		
 	/** number of features used on each node of the trees */
-	int numFeatures = 0;
+	private int numFeatures = 0;
 	
 	/** array of random trees that form the forest */
-	BalancedRandomTree[] tree = null;
+	private BalancedRandomTree[] tree = null;
 
 	/** the out of bag error which has been calculated */
-	double outOfBagError = 0;
+	private double outOfBagError = 0;
 	
 	/**
 	 * Returns a string describing classifier

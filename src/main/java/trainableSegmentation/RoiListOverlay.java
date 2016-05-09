@@ -44,9 +44,9 @@ import java.util.ArrayList;
  */
 public class RoiListOverlay implements Overlay 
 {
-	ArrayList<Roi> roi = null;
-	Color color = Roi.getColor();
-	Composite composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+	private ArrayList<Roi> roi = null;
+	private Color color = Roi.getColor();
+	private Composite composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
 	/**
 	 * Empty constructor
 	 */

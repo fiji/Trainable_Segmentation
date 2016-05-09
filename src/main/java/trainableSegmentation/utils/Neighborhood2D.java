@@ -2,7 +2,7 @@ package trainableSegmentation.utils;
 
 public abstract class Neighborhood2D {
 	
-	Cursor2D cursor;
+	protected Cursor2D cursor;
 	
 	public abstract Iterable<Cursor2D> getNeighbors(  );
 	

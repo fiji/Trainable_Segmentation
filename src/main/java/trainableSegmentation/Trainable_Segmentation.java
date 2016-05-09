@@ -119,11 +119,11 @@ import weka.core.Instances;
 @Deprecated
 public class Trainable_Segmentation implements PlugIn 
 {
-	final Composite transparency050 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50f );
-	final Composite transparency025 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f );
-	
-	int overlayOpacity = 33;
-	Composite overlayAlpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, overlayOpacity / 100f);
+	private final Composite transparency050 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50f );
+	private final Composite transparency025 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f );
+
+	private int overlayOpacity = 33;
+	private Composite overlayAlpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, overlayOpacity / 100f);
 	
 	/** maximum number of classes (labels) allowed on the GUI*/
 	private static final int MAX_NUM_CLASSES = 5;
@@ -155,36 +155,36 @@ public class Trainable_Segmentation implements PlugIn
 	private boolean updateWholeData = true;
 	
 	/** train classifier button */
-	JButton trainButton;
+	private JButton trainButton;
 	/** toggle overlay button */
-	JButton overlayButton;
+	private JButton overlayButton;
 	/** create result button */
-	JButton resultButton;
+	private JButton resultButton;
 	/** apply classifier button */
-	JButton applyButton;
+	private JButton applyButton;
 	/** create probability image button */
-	JButton probimgButton;
+	private JButton probimgButton;
 	/** load data button */
-	JButton loadDataButton;
+	private JButton loadDataButton;
 	/** save data button */
-	JButton saveDataButton;
+	private JButton saveDataButton;
 	/** settings button */
-	JButton settingsButton;
+	private JButton settingsButton;
 	/** create new class button */
-	JButton addClassButton;
+	private JButton addClassButton;
 	
 	/** array of roi list overlays to paint the transparent rois of each class */
-	RoiListOverlay [] roiOverlay;
+	private RoiListOverlay [] roiOverlay;
 	/** current segmentation result overlay */
-	ImageOverlay resultOverlay;
+	private ImageOverlay resultOverlay;
 	
 	/** available colors for available classes*/
-	final Color[] colors = new Color[]{Color.red, Color.green, Color.blue,
+	private final Color[] colors = new Color[]{Color.red, Color.green, Color.blue,
 			Color.cyan, Color.magenta};
 	/** names of the current classes */
-	String[] classLabels = new String[]{"class 1", "class 2", "class 3", "class 4", "class 5"};
-	
-	LUT overlayLUT;
+	private String[] classLabels = new String[]{"class 1", "class 2", "class 3", "class 4", "class 5"};
+
+	private LUT overlayLUT;
 	
 	/** current number of classes */
 	private int numOfClasses = 2;
@@ -199,9 +199,9 @@ public class Trainable_Segmentation implements PlugIn
 	/** current number of random features per tree in the fast random forest classifier */
 	private int randomFeatures = 2;
 	/** list of class names on the loaded data */
-	ArrayList<String> loadedClassNames = null;
+	private ArrayList<String> loadedClassNames = null;
 	/** executor service to launch threads for the plugin methods and events */
-	final ExecutorService exec = Executors.newFixedThreadPool(1);
+	private final ExecutorService exec = Executors.newFixedThreadPool(1);
 
 	/** GUI/no GUI flag */
 	private boolean useGUI = true;
@@ -429,18 +429,18 @@ public class Trainable_Segmentation implements PlugIn
 	private class CustomWindow extends ImageWindow 
 	{
 		/** layout for annotation panel */
-		GridBagLayout boxAnnotation = new GridBagLayout();
+		private GridBagLayout boxAnnotation = new GridBagLayout();
 		/** constraints for annotation panel */
-		GridBagConstraints annotationsConstraints = new GridBagConstraints();
+		private GridBagConstraints annotationsConstraints = new GridBagConstraints();
 		/** Panel with class radio buttons and lists */
-		JPanel annotationsPanel = new JPanel();
-		
-		JPanel buttonsPanel = new JPanel();
-		
-		JPanel trainingJPanel = new JPanel();
-		JPanel optionsJPanel = new JPanel();						
-		
-		Panel all = new Panel();
+		private JPanel annotationsPanel = new JPanel();
+
+		private JPanel buttonsPanel = new JPanel();
+
+		private JPanel trainingJPanel = new JPanel();
+		private JPanel optionsJPanel = new JPanel();
+
+		private Panel all = new Panel();
 		
 		CustomWindow(ImagePlus imp) 
 		{
@@ -1499,12 +1499,12 @@ public class Trainable_Segmentation implements PlugIn
 
 		class ImageProcessingThread extends Thread {
 
-			final int     numThread;
-			final int     numProcessors;
-			final int     numFurtherThreads;
-			final File[]  imageFiles;
-			final boolean storeResults;
-			final boolean showResults;
+			private final int     numThread;
+			private final int     numProcessors;
+			private final int     numFurtherThreads;
+			private final File[]  imageFiles;
+			private final boolean storeResults;
+			private final boolean showResults;
 
 			public ImageProcessingThread(int numThread, int numProcessors, int numFurtherThreads,
 			                             File[] imageFiles,
@@ -1607,12 +1607,12 @@ public class Trainable_Segmentation implements PlugIn
 
 		class ImageProcessingThread extends Thread {
 
-			final int     numThread;
-			final int     numProcessors;
-			final int     numFurtherThreads;
-			final File[]  imageFiles;
-			final boolean storeResults;
-			final boolean showResults;
+			private final int     numThread;
+			private final int     numProcessors;
+			private final int     numFurtherThreads;
+			private final File[]  imageFiles;
+			private final boolean storeResults;
+			private final boolean showResults;
 
 			public ImageProcessingThread(int numThread, int numProcessors, int numFurtherThreads,
 			                             File[] imageFiles,
@@ -1695,10 +1695,10 @@ public class Trainable_Segmentation implements PlugIn
 		
 		class ApplyClassifierThread extends Thread {
 
-			final int startSlice;
-			final int numSlices;
-			final int numFurtherThreads;
-			final ArrayList<String> classNames;
+			private final int startSlice;
+			private final int numSlices;
+			private final int numFurtherThreads;
+			private final ArrayList<String> classNames;
 
 			public ApplyClassifierThread(int startSlice, int numSlices, int numFurtherThreads, ArrayList<String> classNames) {
 
@@ -1795,10 +1795,10 @@ public class Trainable_Segmentation implements PlugIn
 		
 		class ProbImageThread extends Thread {
 
-			final int startSlice;
-			final int numSlices;
-			final int numFurtherThreads;
-			final ArrayList<String> classNames;
+			private final int startSlice;
+			private final int numSlices;
+			private final int numFurtherThreads;
+			private final ArrayList<String> classNames;
 
 			public ProbImageThread(int startSlice, int numSlices, int numFurtherThreads, ArrayList<String> classNames) {
 
@@ -2120,9 +2120,9 @@ public class Trainable_Segmentation implements PlugIn
 	 */
 	static class ButtonListener implements ActionListener 
 	{
-		String title;
-		TextField text;
-		FeatureStack featureStack;
+		private String title;
+		private TextField text;
+		private FeatureStack featureStack;
 
 		public ButtonListener(String title, FeatureStack featureStack) 
 		{

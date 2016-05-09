@@ -118,7 +118,7 @@ public class BalancedRandomTree implements Serializable
 		/** serial version ID */
 		private static final long serialVersionUID = 2019873470157L;
 		/** class probabilites */
-		double[] probability;
+		private double[] probability;
 
 		@Override
 		public double[] eval(Instance instance) 
@@ -166,13 +166,13 @@ public class BalancedRandomTree implements Serializable
 		/** serial version ID */
 		private static final long serialVersionUID = 9972970234021L;
 		/** left son */
-		BaseNode left;
+		private BaseNode left;
 		/** right son */
-		BaseNode right;
+		private BaseNode right;
 		/** node depth */
-		final int depth;
+		private final int depth;
 		/** split function that divides the samples into left and right sons */
-		final SplitFunction splitFn;
+		private final SplitFunction splitFn;
 
 		/**
 		 * Constructs an interior node of the random tree

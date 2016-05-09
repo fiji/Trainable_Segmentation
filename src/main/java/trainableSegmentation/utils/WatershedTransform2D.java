@@ -42,19 +42,19 @@ import ij.process.ImageProcessor;
 public class WatershedTransform2D {
 	
 	/** input image (usually a gradient image) */
-	ImageProcessor inputImage = null;
+	private ImageProcessor inputImage = null;
 		
 	/** pixel connectivity (expected 4 or 8) */
-	int connectivity = 4;
+	private int connectivity = 4;
 	
 	/** initial value of a threshold level */
-	static final int MASK = -2;
+	private static final int MASK = -2;
 	/** value of pixels belonging to watersheds */
-	static final int WSHED = 0;
+	private static final int WSHED = 0;
 	/** initial value of output pixels */
-	static final int INIT = -1;	
+	private static final int INIT = -1;	
 	/** value assigned to pixels put into the queue */
-	static final int INQUEUE = -3;
+	private static final int INQUEUE = -3;
 	
 	/** flag to output the transform steps and their 
 	 * execution times in the log window */
