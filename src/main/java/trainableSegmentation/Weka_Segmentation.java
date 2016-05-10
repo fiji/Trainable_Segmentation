@@ -122,7 +122,7 @@ public class Weka_Segmentation implements PlugIn
 		Weka_Segmentation.class.getPackage().getImplementationVersion();
 	
 	/** reference to the segmentation backend */
-	final WekaSegmentation wekaSegmentation;
+	private final WekaSegmentation wekaSegmentation;
 	
 	/** image to display on the GUI */
 	private ImagePlus displayImage;
@@ -139,44 +139,44 @@ public class Weka_Segmentation implements PlugIn
 	/** flag to display the overlay image */
 	private boolean showColorOverlay;
 	/** executor service to launch threads for the plugin methods and events */
-	final ExecutorService exec = Executors.newFixedThreadPool(1);
+	private final ExecutorService exec = Executors.newFixedThreadPool(1);
 
 	/** train classifier button */
-	JButton trainButton;
+	private JButton trainButton;
 	/** toggle overlay button */
-	JButton overlayButton;
+	private JButton overlayButton;
 	/** create result button */
-	JButton resultButton;
+	private JButton resultButton;
 	/** get probability maps button */
-	JButton probabilityButton;
+	private JButton probabilityButton;
 	/** plot result button */
-	JButton plotButton;
+	private JButton plotButton;
 	/** apply classifier button */
-	JButton applyButton;
+	private JButton applyButton;
 	/** load classifier button */
-	JButton loadClassifierButton;
+	private JButton loadClassifierButton;
 	/** save classifier button */
-	JButton saveClassifierButton;
+	private JButton saveClassifierButton;
 	/** load data button */
-	JButton loadDataButton;
+	private JButton loadDataButton;
 	/** save data button */
-	JButton saveDataButton;
+	private JButton saveDataButton;
 	/** settings button */
-	JButton settingsButton;
+	private JButton settingsButton;
 	/** Weka button */
-	JButton wekaButton;
+	private JButton wekaButton;
 	/** create new class button */
-	JButton addClassButton;
+	private JButton addClassButton;
 
 	/** array of roi list overlays to paint the transparent rois of each class */
-	RoiListOverlay [] roiOverlay;
+	private RoiListOverlay [] roiOverlay;
 	
 	/** available colors for available classes */
-	Color[] colors = new Color[]{Color.red, Color.green, Color.blue,
+	private Color[] colors = new Color[]{Color.red, Color.green, Color.blue,
 			Color.cyan, Color.magenta};
 
 	/** Lookup table for the result overlay image */
-	LUT overlayLUT;
+	private LUT overlayLUT;
 
 	/** array of trace lists for every class */
 	private java.awt.List exampleList[];
@@ -234,7 +234,7 @@ public class Weka_Segmentation implements PlugIn
 	/** name of the macro method to set the overlay opacity */
 	public static final String SET_OPACITY = "setOpacity";
 	/** boolean flag set to true while training */
-	boolean trainingFlag = false;
+	private boolean trainingFlag = false;
 		
 	/**
 	 * Basic constructor for graphical user interface use
@@ -537,41 +537,41 @@ public class Weka_Segmentation implements PlugIn
 		/** default serial version UID */
 		private static final long serialVersionUID = 1L;
 		/** layout for annotation panel */
-		GridBagLayout boxAnnotation = new GridBagLayout();
+		private GridBagLayout boxAnnotation = new GridBagLayout();
 		/** constraints for annotation panel */
-		GridBagConstraints annotationsConstraints = new GridBagConstraints();
+		private GridBagConstraints annotationsConstraints = new GridBagConstraints();
 		
 		/** scroll panel for the label/annotation panel */
-		JScrollPane scrollPanel = null;
+		private JScrollPane scrollPanel = null;
 		
 		/** panel containing the annotations panel (right side of the GUI) */
-		JPanel labelsJPanel = new JPanel();
+		private JPanel labelsJPanel = new JPanel();
 		/** Panel with class radio buttons and lists */
-		JPanel annotationsPanel = new JPanel();
+		private JPanel annotationsPanel = new JPanel();
 		
 		/** buttons panel (left side of the GUI) */
-		JPanel buttonsPanel = new JPanel();
+		private JPanel buttonsPanel = new JPanel();
 		/** training panel (included in the left side of the GUI) */
-		JPanel trainingJPanel = new JPanel();
+		private JPanel trainingJPanel = new JPanel();
 		/** options panel (included in the left side of the GUI) */
-		JPanel optionsJPanel = new JPanel();
+		private JPanel optionsJPanel = new JPanel();
 		/** main GUI panel (containing the buttons panel on the left,
 		 *  the image in the center and the annotations panel on the right */
-		Panel all = new Panel();
+		private Panel all = new Panel();
 		
 		/** 50% alpha composite */
-		final Composite transparency050 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50f );
+		private final Composite transparency050 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50f );
 		/** 25% alpha composite */
 		//final Composite transparency025 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f );
 		/** opacity (in %) of the result overlay image */
-		int overlayOpacity = 33;
+		private int overlayOpacity = 33;
 		/** alpha composite for the result overlay image */
-		Composite overlayAlpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, overlayOpacity / 100f);
+		private Composite overlayAlpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, overlayOpacity / 100f);
 		/** current segmentation result overlay */
-		ImageOverlay resultOverlay;
+		private ImageOverlay resultOverlay;
 		
 		/** boolean flag set to true when training is complete */
-		boolean trainingComplete = false;
+		private boolean trainingComplete = false;
 
 		/**
 		 * Construct the plugin window
@@ -1713,12 +1713,12 @@ public class Weka_Segmentation implements PlugIn
 
 		class ImageProcessingThread extends Thread {
 
-			final int     numThread;
-			final int     numThreads;
-			final File[]  imageFiles;
-			final boolean storeResults;
-			final boolean showResults;
-			final String  storeDir;
+			private final int     numThread;
+			private final int     numThreads;
+			private final File[]  imageFiles;
+			private final boolean storeResults;
+			private final boolean showResults;
+			private final String  storeDir;
 
 			public ImageProcessingThread(int numThread, int numThreads,
 			                             File[] imageFiles,
@@ -2380,9 +2380,9 @@ public class Weka_Segmentation implements PlugIn
 	 */
 	static class SaveFeatureStackButtonListener implements ActionListener
 	{
-		String title;
-		TextField text;
-		FeatureStackArray featureStackArray;
+		private String title;
+		private TextField text;
+		private FeatureStackArray featureStackArray;
 
 		/**
 		 * Construct a listener for the save feature stack button

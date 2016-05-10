@@ -30,9 +30,9 @@ public abstract class Metrics
 {
 	
 	/** original labels (single 2D image or stack) */
-	ImagePlus originalLabels;
+	protected ImagePlus originalLabels;
 	/** proposed new labels (single 2D image or stack of the same as as the original labels) */
-	ImagePlus proposedLabels;
+	protected ImagePlus proposedLabels;
 	
 	/** boolean flag to set the level of detail on the standard output messages */
 	protected boolean verbose = true;

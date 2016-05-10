@@ -85,7 +85,7 @@ class FastRfBagging extends RandomizableIteratedSingleClassifierEnhancer
   /**
    * for serialization
    */
-  static final long serialVersionUID = -505879962237199702L;
+  private static final long serialVersionUID = -505879962237199702L;
 
   /**
    * Bagging method. Produces DataCache objects with bootstrap samples of

@@ -58,7 +58,7 @@ class FastRandomTree
         implements OptionHandler, WeightedInstancesHandler, Runnable {
 
   /** for serialization */
-  static final long serialVersionUID = 8934314652175299375L;
+  private static final long serialVersionUID = 8934314652175299375L;
   
   /** The subtrees appended to this tree (node). */
   protected FastRandomTree[] m_Successors;

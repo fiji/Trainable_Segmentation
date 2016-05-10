@@ -13,7 +13,7 @@ import weka.core.DenseInstance;
 public class ReusableDenseInstance extends DenseInstance{
 
 	/** for serialization */
-	static final long serialVersionUID = -2322621365960366756L;
+	private static final long serialVersionUID = -2322621365960366756L;
 
 	/**
 	 * Construct reusable dense instance

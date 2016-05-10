@@ -85,9 +85,9 @@ public class WarpingError extends Metrics {
 	public static final int DEFAULT_FLAGS = MERGE + SPLIT + HOLE_ADDITION + OBJECT_DELETION + OBJECT_ADDITION + HOLE_DELETION;
 	
 	/** image mask containing in white the areas where warping is allowed (null for not geometric constraints) */
-	ImagePlus mask = null;
+	private ImagePlus mask = null;
 	/** flags to select which error should be taken into account and which not */
-	int flags = DEFAULT_FLAGS;
+	private int flags = DEFAULT_FLAGS;
 	
 	/**
 	 * Initialize warping error metric

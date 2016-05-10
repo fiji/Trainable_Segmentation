@@ -39,15 +39,15 @@ public class GiniFunction extends SplitFunction
 	/** Servial version ID */
 	private static final long serialVersionUID = 9707184791345L;
 	/** index of the splitting attribute */
-	int index;
+	private int index;
 	/** threshold value of the splitting point */
-	double threshold;
+	private double threshold;
 	/** flag to identify when all samples belong to the same class */
-	boolean allSame;
+	private boolean allSame;
 	/** number of random features to use */
-	int numOfFeatures;
+	private int numOfFeatures;
 	/** random number generator */
-	final Random random;
+	private final Random random;
 		
 	/**
 	 * Constructs a Gini function (initialize it)

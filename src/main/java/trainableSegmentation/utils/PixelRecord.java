@@ -31,10 +31,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class PixelRecord implements Comparable<PixelRecord>{
 
-	Cursor2D cursor = null;
-	double value = 0;
-	final static AtomicLong seq = new AtomicLong();
-	final long seqNum;
+	private Cursor2D cursor = null;
+	private double value = 0;
+	private final static AtomicLong seq = new AtomicLong();
+	private final long seqNum;
 	
 	public PixelRecord(
 			final Cursor2D cursor,

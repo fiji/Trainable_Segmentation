@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Neighborhood2DC4 extends Neighborhood2D {
 
-	ArrayList<Cursor2D> neighbors = new ArrayList<Cursor2D>();
+	private ArrayList<Cursor2D> neighbors = new ArrayList<Cursor2D>();
 	
 	@Override
 	public Iterable<Cursor2D> getNeighbors() 

@@ -28,7 +28,7 @@ public class Kuwahara  implements PlugInFilter
 	public static final int VARIANCE_DIV_MEAN = 1;
 	public static final int VARIANCE_DIV_MEAN_SQUARE = 2;
 	
-	int criterionMethod = VARIANCE_DIV_MEAN;	
+	private int criterionMethod = VARIANCE_DIV_MEAN;	
 
 	public int setup(String arg, ImagePlus imp) {
 		if (imp==null)

@@ -16,11 +16,11 @@ import ij.process.ImageProcessor;
 public class Entropy_Filter implements PlugInFilter
 {
 	/** original image */
-	ImagePlus origImg = null;
+	private ImagePlus origImg = null;
 	/** radius to use (in pixels) */
-	int radius = 2;
+	private int radius = 2;
 	/** number of bins to use in the histogram */
-	int numBins = 256;
+	private int numBins = 256;
 	
 	/**
 	 * Main method when called as a plugin filter
