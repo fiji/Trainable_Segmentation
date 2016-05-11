@@ -2145,7 +2145,7 @@ public class Trainable_Segmentation implements PlugIn
 			if(null == dir || null == filename)
 				return;
 								
-			if(false == this.featureStack.saveStackAsTiff(dir + filename))
+			if(!this.featureStack.saveStackAsTiff(dir + filename))
 			{
 				IJ.error("Error", "Feature stack could not be saved");
 				return;

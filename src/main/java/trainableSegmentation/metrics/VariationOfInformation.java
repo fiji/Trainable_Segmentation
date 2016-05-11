@@ -568,12 +568,12 @@ public class VariationOfInformation extends Metrics
 			for(int i=1; i<pij.length; i++)
 			{
 				double aux = pij[ i ][ j ] * Math.log( pij[ i ][ j ] );
-				if( Double.isNaN(aux) == false)
+				if(!Double.isNaN(aux))
 					sum += aux;
 			}
 
 			double aux = bj[ j ] * Math.log( bj[ j ] );
-			if( Double.isNaN(aux) == false)
+			if(!Double.isNaN(aux))
 				dis[ j ] = aux - sum;
 		}
 
@@ -640,11 +640,11 @@ public class VariationOfInformation extends Metrics
 			for(int j=0; j<pij[0].length; j++)
 			{
 				double aux = pij[ i ][ j ] * Math.log( pij[ i ][ j ] );
-				if( Double.isNaN(aux) == false )
+				if(!Double.isNaN(aux))
 					sum += aux;
 			}
 			double aux = ai[ i ] * Math.log( ai[ i ] );
-			if( Double.isNaN(aux) == false )
+			if(!Double.isNaN(aux))
 				dis[ i ] = aux - sum;
 		}
 		

@@ -3231,7 +3231,7 @@ public class FeatureStack
 		final double[] values = new double[ getSize() + 1 + extra ];
 		int n = 0;
 		
-		if( colorFeatures == false || oldColorFormat == true)
+		if(!colorFeatures || oldColorFormat)
 		{
 			for (int z=0; z<getSize(); z++, n++)		
 				values[ z ] = this.wholeStack.getVoxel( x, y, z );
@@ -3290,7 +3290,7 @@ public class FeatureStack
 		
 		int n = 0;
 		
-		if( colorFeatures == false || oldColorFormat == true )
+		if(!colorFeatures || oldColorFormat)
 		{
 			for (int z=0; z<getSize(); z++, n++)		
 				ins.setValue( z, wholeStack.getVoxel( x, y, z ) );
@@ -3345,7 +3345,7 @@ public class FeatureStack
 		int n = 0;
 		
 		// fill auxiliary array
-		if( colorFeatures == false || oldColorFormat == true )
+		if(!colorFeatures || oldColorFormat)
 		{
 			for (int z=0; z<getSize(); z++, n++)		
 				auxArray[ z ] = this.wholeStack.getVoxel( x, y, z );

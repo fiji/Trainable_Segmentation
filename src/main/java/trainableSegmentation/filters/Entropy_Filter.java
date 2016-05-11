@@ -133,7 +133,7 @@ public class Entropy_Filter implements PlugInFilter
 		ImageProcessor ip2;
 		
 		// rescale to the corresponding number of bits
-		if (ip instanceof FloatProcessor == false) 
+		if (!(ip instanceof FloatProcessor))
 		{
 			if (ip instanceof ByteProcessor)	
 			{

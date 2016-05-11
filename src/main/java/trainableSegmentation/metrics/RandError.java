@@ -1241,8 +1241,8 @@ public class RandError extends Metrics
 		ImagePlus originalLabels,
 		ImagePlus proposedLabels)
 	{
-		if( originalLabels.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false 
-				|| proposedLabels.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false)
+		if(!(originalLabels.getImageStack().getProcessor(1) instanceof ShortProcessor)
+				|| !(proposedLabels.getImageStack().getProcessor(1) instanceof ShortProcessor))
 			return -1;
 		
 		int nSlices = originalLabels.getImageStackSize();
@@ -1371,8 +1371,8 @@ public class RandError extends Metrics
 			ImagePlus originalLabels,
 			ImagePlus proposedLabels)
 	{
-		if( originalLabels.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false 
-				|| proposedLabels.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false)
+		if(!(originalLabels.getImageStack().getProcessor(1) instanceof ShortProcessor)
+				|| !(proposedLabels.getImageStack().getProcessor(1) instanceof ShortProcessor))
 			return null;
 
 		//IJ.log( "Calculating adapted Rand index stats...");
@@ -1525,8 +1525,8 @@ public class RandError extends Metrics
 			ImagePlus segA,
 			ImagePlus segB)
 	{
-		if( segA.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false 
-				|| segB.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false)
+		if(!(segA.getImageStack().getProcessor(1) instanceof ShortProcessor)
+				|| !(segB.getImageStack().getProcessor(1) instanceof ShortProcessor))
 			return null;
 
 		//IJ.log( "Calculating adapted Rand index stats...");
@@ -1648,8 +1648,8 @@ public class RandError extends Metrics
 			ImagePlus originalLabels,
 			ImagePlus proposedLabels)
 	{
-		if( originalLabels.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false 
-				|| proposedLabels.getImageStack().getProcessor( 1 ) instanceof ShortProcessor == false)
+		if(!(originalLabels.getImageStack().getProcessor(1) instanceof ShortProcessor)
+				|| !(proposedLabels.getImageStack().getProcessor(1) instanceof ShortProcessor))
 			return -1;
 
 		double[] stats = adaptedRandIndexStats3DN2( originalLabels, proposedLabels );
