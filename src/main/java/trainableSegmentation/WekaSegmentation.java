@@ -314,16 +314,16 @@ public class WekaSegmentation {
 	 */
 	public void addExample(int classNum, Roi roi, int n)
 	{
-		if(featureStackToUpdateTrain[n-1] == false)
+		if(!featureStackToUpdateTrain[n - 1])
 		{
 			boolean updated = false;
 			for(final ArrayList<Roi> list : examples[n-1])
-				if(list.isEmpty() == false)
+				if(!list.isEmpty())
 				{
 					updated = true;
 					break;
 				}
-			if(updated == false && featureStackToUpdateTest[n-1] == true)
+			if(!updated && featureStackToUpdateTest[n - 1])
 			{
 				//IJ.log("Feature stack for slice " + n
 				//		+ " needs to be updated");
@@ -498,7 +498,7 @@ public class WekaSegmentation {
 
 		}
 
-		if (false == adjustSegmentationStateToData(loadedTrainingData) )
+		if (!adjustSegmentationStateToData(loadedTrainingData))
 			loadedTrainingData = null;
 		else
 			IJ.log("Loaded data: " + loadedTrainingData.numInstances() + " instances (" + loadedTrainingData.numAttributes() + " attributes)");
@@ -590,7 +590,7 @@ public class WekaSegmentation {
 				// of
 				// the segmentator
 				// (the attributes can be adjusted, but the classes must match)
-				if (false == adjustSegmentationStateToData(loadresult.newHeader)) {
+				if (!adjustSegmentationStateToData(loadresult.newHeader)) {
 					IJ.log("Error: current segmentator state could not be updated to loaded data requirements (attributes and classes)");
 					return false;
 				}
@@ -659,7 +659,7 @@ public class WekaSegmentation {
 		try{
 			// Check if the loaded information corresponds to current state of the segmentator
 			// (the attributes can be adjusted, but the classes must match)
-			if(false == adjustSegmentationStateToData(newHeader))
+			if(!adjustSegmentationStateToData(newHeader))
 			{
 				IJ.log("Error: current segmentator state could not be updated to loaded data requirements (attributes and classes)");
 				return false;
@@ -748,7 +748,7 @@ public class WekaSegmentation {
 		if(featureStackArray.isEmpty() || updateFeatures)
 		{
 			IJ.log("Creating feature stack...");
-			if ( false == featureStackArray.updateFeaturesMT(featureStackToUpdateTrain) )
+			if (!featureStackArray.updateFeaturesMT(featureStackToUpdateTrain))
 				return false;
 			Arrays.fill(featureStackToUpdateTrain, false);
 			filterFeatureStackByList();
@@ -758,7 +758,7 @@ public class WekaSegmentation {
 
 		Instances data = null;
 
-		if(examplesEmpty == false)
+		if(!examplesEmpty)
 		{
 			data = createTrainingInstances();
 			data.setClassIndex(data.numAttributes() - 1);
@@ -2089,7 +2089,7 @@ public class WekaSegmentation {
 		if(featureStackArray.isEmpty() || updateFeatures)
 		{
 			IJ.log("Creating feature stack...");
-			if ( false == featureStackArray.updateFeaturesMT(featureStackToUpdateTrain) )
+			if (!featureStackArray.updateFeaturesMT(featureStackToUpdateTrain))
 				return false;
 			Arrays.fill(featureStackToUpdateTrain, false);
 			filterFeatureStackByList();
@@ -2207,7 +2207,7 @@ public class WekaSegmentation {
 		final ImagePlus whiteIP = new ImagePlus ("white", labelImage.getProcessor().duplicate());
 		IJ.run(whiteIP, "Skeletonize","");
 		// Add skeleton to white class
-		if( false == this.addBinaryData(whiteIP, featureStackArray.get(n), whiteClassName) )
+		if(!this.addBinaryData(whiteIP, featureStackArray.get(n), whiteClassName))
 		{
 			IJ.log("Error while loading white class center-lines data.");
 			return false;
@@ -2218,7 +2218,7 @@ public class WekaSegmentation {
 		IJ.run(blackIP, "Invert","");
 		IJ.run(blackIP, "Skeletonize","");
 		// Add skeleton to black class
-		if( false == this.addBinaryData(blackIP, featureStackArray.get(n), blackClassName))
+		if(!this.addBinaryData(blackIP, featureStackArray.get(n), blackClassName))
 		{
 			IJ.log("Error while loading black class center-lines data.");
 			return false;
@@ -2237,7 +2237,7 @@ public class WekaSegmentation {
 		for(int i=1; i<=this.featureStackArray.getNumOfFeatures(); i++)
 		{
 			final String featureName = this.featureStackArray.getLabel(i);
-			if(false == this.featureNames.contains( featureName ) )
+			if(!this.featureNames.contains(featureName))
 			{
 				// Remove feature
 				for(int j=0; j<this.featureStackArray.getSize(); j++)
@@ -2272,7 +2272,7 @@ public class WekaSegmentation {
 		{
 			final String featureName = featureStack.getSliceLabel(i);
 			//IJ.log(" " + featureName + "...");
-			if(false == featureNames.contains( featureName ) )
+			if(!featureNames.contains(featureName))
 			{
 				// Remove feature
 				featureStack.removeFeature( featureName );
@@ -2320,7 +2320,7 @@ public class WekaSegmentation {
 		// Make sure it's binary
 		labelIP.getProcessor().autoThreshold();
 
-		if( false == this.addBinaryData(labelIP, featureStackArray.get(n), whiteClassName, blackClassName) )
+		if(!this.addBinaryData(labelIP, featureStackArray.get(n), whiteClassName, blackClassName))
 		{
 			IJ.log("Error while loading binary label data.");
 			return false;
@@ -2378,7 +2378,7 @@ public class WekaSegmentation {
 
 			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
 
-			if( false == this.addBinaryData(labelIP, featureStack, whiteClassName, blackClassName) )
+			if(!this.addBinaryData(labelIP, featureStack, whiteClassName, blackClassName))
 			{
 				IJ.log("Error while loading binary label data from slice " + i);
 				return false;
@@ -2429,7 +2429,7 @@ public class WekaSegmentation {
 
 			featureStack.setUseNeighbors( this.featureStackArray.useNeighborhood() );
 
-			if( false == this.addLabeledData( labelIP, featureStack ) )
+			if(!this.addLabeledData(labelIP, featureStack))
 			{
 				IJ.log("Error while loading labeled data from slice " + i);
 				return false;
@@ -2492,7 +2492,7 @@ public class WekaSegmentation {
 
 			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
 
-			if( false == addRandomBalancedBinaryData(labelIP.getProcessor(), featureStack, whiteClassName, blackClassName, numSamples) )
+			if(!addRandomBalancedBinaryData(labelIP.getProcessor(), featureStack, whiteClassName, blackClassName, numSamples))
 			{
 				IJ.log("Error while loading binary label data from slice " + i);
 				return false;
@@ -2547,7 +2547,7 @@ public class WekaSegmentation {
 			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
 
 			// add labeled data based on the labeled image
-			if( false == addRandomBalancedLabeledData( labelSlices.getProcessor(i), featureStack, numSamples ) )
+			if(!addRandomBalancedLabeledData(labelSlices.getProcessor(i), featureStack, numSamples))
 			{
 				IJ.log("Error while loading binary label data from slice " + i);
 				return false;
@@ -2613,9 +2613,9 @@ public class WekaSegmentation {
 
 			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
 
-			if( false == addRandomBalancedBinaryData(labelIP.getProcessor(),
+			if(!addRandomBalancedBinaryData(labelIP.getProcessor(),
 					null == mask ? null : mask.getImageStack().getProcessor(i),
-					featureStack, whiteClassName, blackClassName, numSamples) )
+					featureStack, whiteClassName, blackClassName, numSamples))
 			{
 				IJ.log("Error while loading binary label data from slice " + i);
 				return false;
@@ -2682,10 +2682,10 @@ public class WekaSegmentation {
 
 			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
 
-			if( false == addRandomBalancedBinaryData(labelIP.getProcessor(),
+			if(!addRandomBalancedBinaryData(labelIP.getProcessor(),
 					null == mask ? null : mask.getImageStack().getProcessor(i),
-					weights.getImageStack().getProcessor( i ),
-					featureStack, whiteClassName, blackClassName, numSamples) )
+					weights.getImageStack().getProcessor(i),
+					featureStack, whiteClassName, blackClassName, numSamples))
 			{
 				IJ.log("Error while loading binary label data from slice " + i);
 				return false;
@@ -2746,7 +2746,7 @@ public class WekaSegmentation {
 
 			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
 
-			if( false == addRandomData(labelIP, featureStack, whiteClassName, numSamples) )
+			if(!addRandomData(labelIP, featureStack, whiteClassName, numSamples))
 			{
 				IJ.log("Error while loading binary label data from slice " + i);
 				return false;
@@ -2804,7 +2804,7 @@ public class WekaSegmentation {
 			featureStack.addFeaturesMT( filters );
 
 
-			if( false == addRandomBalancedBinaryData(labelIP.getProcessor(), featureStack, whiteClassName, blackClassName, numSamples) )
+			if(!addRandomBalancedBinaryData(labelIP.getProcessor(), featureStack, whiteClassName, blackClassName, numSamples))
 			{
 				IJ.log("Error while loading binary label data from slice " + i);
 				return false;
@@ -2859,7 +2859,7 @@ public class WekaSegmentation {
 			featureStack.addFeaturesMT( filters );
 
 
-			if( false == this.addBinaryData(labelIP, featureStack, whiteClassName, blackClassName) )
+			if(!this.addBinaryData(labelIP, featureStack, whiteClassName, blackClassName))
 			{
 				IJ.log("Error while loading binary label data from slice " + i);
 				return false;
@@ -2904,7 +2904,7 @@ public class WekaSegmentation {
 		final ImagePlus whiteIP = new ImagePlus ("white", labelImage.getProcessor().duplicate());
 		IJ.run(whiteIP, "Erode","");
 		// Add skeleton to white class
-		if( false == this.addBinaryData(whiteIP, featureStackArray.get(n), whiteClassName) )
+		if(!this.addBinaryData(whiteIP, featureStackArray.get(n), whiteClassName))
 		{
 			IJ.log("Error while loading white class center-lines data.");
 			return false;
@@ -2915,7 +2915,7 @@ public class WekaSegmentation {
 		IJ.run(blackIP, "Invert","");
 		IJ.run(blackIP, "Erode","");
 		// Add skeleton to white class
-		if( false == this.addBinaryData(blackIP, featureStackArray.get(n), blackClassName))
+		if(!this.addBinaryData(blackIP, featureStackArray.get(n), blackClassName))
 		{
 			IJ.log("Error while loading black class center-lines data.");
 			return false;
@@ -3882,7 +3882,7 @@ public class WekaSegmentation {
 			{
 				for(int n=0; n<trainingImage.getImageStackSize(); n++)
 				{
-					if(classes.contains(getClassLabels()[i]) == false)
+					if(!classes.contains(getClassLabels()[i]))
 						classes.add(getClassLabels()[i]);
 				}
 			}
@@ -4232,7 +4232,7 @@ public class WekaSegmentation {
 			// set the reference slice to one with traces
 			featureStackArray.setReference( sliceWithTraces );
 
-			if ( false == featureStackArray.updateFeaturesMT(featureStackToUpdateTrain) )
+			if (!featureStackArray.updateFeaturesMT(featureStackToUpdateTrain))
 			{
 				IJ.log("Feature stack was not updated.");
 				IJ.showStatus("Feature stack was not updated.");
@@ -4819,7 +4819,7 @@ public class WekaSegmentation {
 				sliceFeatures.setMinimumSigma(minimumSigma);
 				sliceFeatures.setMembranePatchSize(membranePatchSize);
 				sliceFeatures.setMembraneSize(membraneThickness);
-				if(false == sliceFeatures.updateFeaturesST())
+				if(!sliceFeatures.updateFeaturesST())
 				{
 					IJ.log("Classifier execution was interrupted.");
 					return null;
@@ -4937,7 +4937,7 @@ public class WekaSegmentation {
 					sliceFeatures.setMinimumSigma(minimumSigma);
 					sliceFeatures.setMembranePatchSize(membranePatchSize);
 					sliceFeatures.setMembraneSize(membraneThickness);
-					if(false == sliceFeatures.updateFeaturesST())
+					if(!sliceFeatures.updateFeaturesST())
 					{
 						IJ.log("Classifier execution was interrupted.");
 						return null;
@@ -5230,7 +5230,7 @@ public class WekaSegmentation {
 		// Check if all feature stacks were used during training
 		boolean allUsed = true;
 		for(int j=0; j<featureStackToUpdateTest.length; j++)
-			if(featureStackToUpdateTest[j] == true)
+			if(featureStackToUpdateTest[j])
 			{
 				allUsed = false;
 				break;
@@ -5242,7 +5242,7 @@ public class WekaSegmentation {
 			IJ.showStatus("Creating feature stack...");
 			IJ.log("Creating feature stack...");
 			long start = System.currentTimeMillis();
-			if ( false == featureStackArray.updateFeaturesMT(featureStackToUpdateTest) )
+			if (!featureStackArray.updateFeaturesMT(featureStackToUpdateTest))
 			{
 				IJ.log("Feature stack was not updated.");
 				IJ.showStatus("Feature stack was not updated.");
@@ -5295,7 +5295,7 @@ public class WekaSegmentation {
 			for(int j=0; j<trainingImage.getImageStackSize(); j++)
 				for(int i = 0; i < numOfClasses; i++)
 					if(examples[j].get(i).size() > 0)
-						if(false == classNames.contains(getClassLabels()[i]))
+						if(!classNames.contains(getClassLabels()[i]))
 							classNames.add(getClassLabels()[i]);
 		}
 
@@ -5508,7 +5508,7 @@ public class WekaSegmentation {
 			classNames = new ArrayList<String>();
 
 			for(int i = 0; i < numOfClasses; i++)
-				if(false == classNames.contains(getClassLabels()[i]))
+				if(!classNames.contains(getClassLabels()[i]))
 					classNames.add(getClassLabels()[i]);
 		}
 
@@ -6086,7 +6086,7 @@ public class WekaSegmentation {
 
 		final String fileName = dir + fileWithExt.substring(0, fileWithExt.length()-4)
 									+ String.format("%04d", slice) + ".tif";
-		if(false == featureStackArray.get(slice-1).saveStackAsTiff(fileName))
+		if(!featureStackArray.get(slice - 1).saveStackAsTiff(fileName))
 		{
 			IJ.error("Error", "Feature stack could not be saved");
 			return;
