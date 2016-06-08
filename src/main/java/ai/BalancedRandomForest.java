@@ -347,13 +347,13 @@ public class BalancedRandomForest extends AbstractClassifier implements Randomiz
 		result = new Vector();
 
 		result.add("-I");
-		result.add("" + getNumTrees());
+		result.add(String.valueOf(getNumTrees()));
 
 		result.add("-K");
-		result.add("" + getNumFeatures());
+		result.add(String.valueOf(getNumFeatures()));
 
 		result.add("-S");
-		result.add("" + getSeed());
+		result.add(String.valueOf(getSeed()));
 
 
 

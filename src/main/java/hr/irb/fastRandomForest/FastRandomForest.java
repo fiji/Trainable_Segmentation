@@ -456,22 +456,22 @@ public class FastRandomForest
     result = new Vector();
 
     result.add("-I");
-    result.add("" + getNumTrees());
+    result.add(String.valueOf(getNumTrees()));
 
     result.add("-K");
-    result.add("" + getNumFeatures());
+    result.add(String.valueOf(getNumFeatures()));
 
     result.add("-S");
-    result.add("" + getSeed());
+    result.add(String.valueOf(getSeed()));
 
     if(getMaxDepth() > 0){
       result.add("-depth");
-      result.add("" + getMaxDepth());
+      result.add(String.valueOf(getMaxDepth()));
     }
 
     if(getNumThreads() > 0){
       result.add("-threads");
-      result.add("" + getNumThreads());
+      result.add(String.valueOf(getNumThreads()));
     }
     
     if (getComputeImportances()) {
