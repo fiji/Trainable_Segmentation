@@ -67,6 +67,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -759,7 +760,7 @@ public class FeatureStack
 		try{
 			BufferedWriter out = new BufferedWriter(
 					new OutputStreamWriter(
-							new FileOutputStream(filename) ) );
+							new FileOutputStream(filename), StandardCharsets.UTF_8) );
 			try{	
 				for (int i=1; i <= wholeStack.getSize(); i++)
 				{

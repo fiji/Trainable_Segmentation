@@ -86,9 +86,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -821,7 +823,7 @@ public class Trainable_Segmentation implements PlugIn
 		try{
 			BufferedWriter out = new BufferedWriter(
 					new OutputStreamWriter(
-							new FileOutputStream( filename) ) );
+							new FileOutputStream( filename), StandardCharsets.UTF_8) );
 			try{	
 				out.write(data.toString());
 				out.close();
@@ -840,7 +842,8 @@ public class Trainable_Segmentation implements PlugIn
 	public Instances readDataFromARFF(String filename){
 		try{
 			BufferedReader reader = new BufferedReader(
-					new FileReader(filename));
+					new InputStreamReader(
+							new FileInputStream(filename), StandardCharsets.UTF_8));
 			try{
 				Instances data = new Instances(reader);
 				// setting class attribute

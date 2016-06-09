@@ -8,13 +8,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -3644,7 +3645,8 @@ public class WekaSegmentation {
 	public Instances readDataFromARFF(String filename){
 		try{
 			BufferedReader reader = new BufferedReader(
-					new FileReader(filename));
+					new InputStreamReader(
+							new FileInputStream(filename), StandardCharsets.UTF_8));
 			try{
 				Instances data = new Instances(reader);
 				// setting class attribute
@@ -3669,7 +3671,7 @@ public class WekaSegmentation {
 		try{
 			out = new BufferedWriter(
 					new OutputStreamWriter(
-							new FileOutputStream( filename ) ) );
+							new FileOutputStream( filename ), StandardCharsets.UTF_8 ) );
 
 			final Instances header = new Instances(data, 0);
 			out.write(header.toString());
