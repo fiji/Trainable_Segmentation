@@ -2138,7 +2138,7 @@ public class RandError extends Metrics
      *
      * @param args arguments to decide the action
      */
-    public static void main(String args[]) 
+    public static void main(String[] args)
     {
        if (args.length<1) 
        {

@@ -140,7 +140,7 @@ public class Trainable_Segmentation implements PlugIn
 	/** GUI window */
 	private CustomWindow win;
 	/** array of number of traces per class */
-	private int traceCounter[] = new int[MAX_NUM_CLASSES];
+	private int[] traceCounter = new int[MAX_NUM_CLASSES];
 	/** flag to display the overlay image */
 	private boolean showColorOverlay;
 	/** set of instances for the whole training image */
@@ -189,7 +189,7 @@ public class Trainable_Segmentation implements PlugIn
 	/** current number of classes */
 	private int numOfClasses = 2;
 	/** array of trace lists for every class */
-	private java.awt.List exampleList[];
+	private java.awt.List[] exampleList;
 	/** array of buttons for adding each trace class */
 	private JButton [] addExampleButton;
 	
@@ -1139,7 +1139,7 @@ public class Trainable_Segmentation implements PlugIn
 		final double[][] results = new double[numThreads][];
 		final Instances[] partialData = new Instances[numThreads];
 		final int partialSize = data.numInstances() / numThreads;
-		Future<double[]> fu[] = new Future[numThreads];
+		Future<double[]>[] fu = new Future[numThreads];
 		
 		final AtomicInteger counter = new AtomicInteger();
 		
@@ -1227,7 +1227,7 @@ public class Trainable_Segmentation implements PlugIn
 		final double[][][] results = new double[numThreads][][];
 		final Instances[] partialData = new Instances[numThreads];
 		final int partialSize = data.numInstances() / numThreads;
-		Future<double[][]> fu[] = new Future[numThreads];
+		Future<double[][]>[] fu = new Future[numThreads];
 		
 		final AtomicInteger counter = new AtomicInteger();
 		

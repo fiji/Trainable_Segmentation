@@ -135,7 +135,7 @@ public class Weka_Segmentation implements PlugIn
 	/** number of classes in the GUI */
 	private int numOfClasses;
 	/** array of number of traces per class */
-	private int traceCounter[] = new int[WekaSegmentation.MAX_NUM_CLASSES];
+	private int[] traceCounter = new int[WekaSegmentation.MAX_NUM_CLASSES];
 	/** flag to display the overlay image */
 	private boolean showColorOverlay;
 	/** executor service to launch threads for the plugin methods and events */
@@ -179,7 +179,7 @@ public class Weka_Segmentation implements PlugIn
 	private LUT overlayLUT;
 
 	/** array of trace lists for every class */
-	private java.awt.List exampleList[];
+	private java.awt.List[] exampleList;
 	/** array of buttons for adding each trace class */
 	private JButton [] addExampleButton;
 	
