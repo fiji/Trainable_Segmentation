@@ -3132,6 +3132,28 @@ public class FeatureStack
 	}
 
 	/**
+	 * Enable/disable feature by name
+	 *
+	 * @param featureName  feature name
+	 * @param enable  flag to enable/diable feature
+	 * @return false if feature is not in the current list of features
+	 */
+	public boolean setEnabledFeature(
+			String featureName,
+			boolean enable )
+	{
+		for( int i = 0; i < availableFeatures.length; i++ )
+		{
+			if( featureName.equalsIgnoreCase( availableFeatures[ i ] ) )
+			{
+				enableFeatures[ i ] = enable;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get the list of enabled features flags
 	 * @return list of boolean flags (true means the feature is selected)
 	 */
