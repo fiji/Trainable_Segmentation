@@ -98,7 +98,7 @@ public class WekaSegmentation {
 
 	/** array of lists of Rois for each slice (vector index)
 	 * and each class (arraylist index) of the training image */
-	private Vector<ArrayList<Roi>> examples[];
+	private Vector<ArrayList<Roi>>[] examples;
 	/** image to be used in the training */
 	private ImagePlus trainingImage;
 	/** result image after classification */
@@ -122,10 +122,10 @@ public class WekaSegmentation {
 	private boolean updateFeatures = false;
 
 	/** array of boolean flags to update (or not) specific feature stacks during training */
-	private boolean featureStackToUpdateTrain[];
+	private boolean[] featureStackToUpdateTrain;
 
 	/** array of boolean flags to update (or not) specific feature stacks during test */
-	private boolean featureStackToUpdateTest[];
+	private boolean[] featureStackToUpdateTest;
 
 	/** current number of classes */
 	private int numOfClasses = 0;
@@ -4581,11 +4581,11 @@ public class WekaSegmentation {
 		int numOfRows = height * imp.getImageStackSize() / numThreads;
 
 		// set each slice in a thread
-		Future<ArrayList <ImagePlus> > fu[] = new Future [ numThreads ];
+		Future<ArrayList <ImagePlus> >[] fu = new Future [ numThreads ];
 
 		ArrayList<int[]> imagePad = new ArrayList<int[]>();
 
-		ArrayList <ImagePlus> list[] = new ArrayList [ numThreads ];
+		ArrayList <ImagePlus>[] list = new ArrayList [ numThreads ];
 
 		// Divide work among available threads
 		//IJ.log("Dividing image data among the " + numThreads + " available threads...");
@@ -5313,7 +5313,7 @@ public class WekaSegmentation {
 				futures.add( exe.submit( createInstances(classNames, featureStackArray.get(z-1))) );
 			}
 
-			Instances data[] = new Instances[ futures.size() ];
+			Instances[] data = new Instances[ futures.size() ];
 
 			for(int z = 1; z<=trainingImage.getImageStackSize(); z++)
 			{
@@ -5386,7 +5386,7 @@ public class WekaSegmentation {
 		final double[][][] results = new double[numThreads][][];
 		final Instances[] partialData = new Instances[numThreads];
 		final int partialSize = numInstances / numThreads;
-		Future<double[][]> fu[] = new Future[numThreads];
+		Future<double[][]>[] fu = new Future[numThreads];
 
 		final AtomicInteger counter = new AtomicInteger();
 
@@ -5547,7 +5547,7 @@ public class WekaSegmentation {
 		exe = Executors.newFixedThreadPool(numThreads);
 		final double[][][] results = new double[numThreads][][];
 		final int partialSize = numInstances / numThreads;
-		Future<double[][]> fu[] = new Future[numThreads];
+		Future<double[][]>[] fu = new Future[numThreads];
 
 		final AtomicInteger counter = new AtomicInteger();
 

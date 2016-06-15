@@ -1298,8 +1298,8 @@ public class WarpingError extends Metrics {
 			diff_before = diff;
 
 			// Count mismatches
-			float pixels[] = (float[]) missclass_points_image.getPixels();
-			float mask_pixels[] = (null != maskReal) ? (float[]) maskReal.getProcessor().getPixels() : new float[pixels.length];
+			float[] pixels = (float[]) missclass_points_image.getPixels();
+			float[] mask_pixels = (null != maskReal) ? (float[]) maskReal.getProcessor().getPixels() : new float[pixels.length];
 			if(null == maskReal)
 				Arrays.fill(mask_pixels, 1f);
 
@@ -2670,7 +2670,7 @@ public class WarpingError extends Metrics {
      *
      * @param args arguments to decide the action
      */
-    public static void main(String args[]) 
+    public static void main(String[] args)
     {
        if (args.length<1) 
        {

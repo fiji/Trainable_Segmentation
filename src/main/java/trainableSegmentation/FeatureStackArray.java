@@ -42,7 +42,7 @@ import java.util.concurrent.Future;
 public class FeatureStackArray 
 {
 	/** array of feature stacks */
-	private FeatureStack featureStackArray[];
+	private FeatureStack[] featureStackArray;
 	
 	/** index of the feature stack that is used as reference (to read attribute, etc.).
 	 * -1 if not definded yet. */
