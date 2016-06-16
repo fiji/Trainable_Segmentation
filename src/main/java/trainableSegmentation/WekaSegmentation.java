@@ -1302,6 +1302,121 @@ public class WekaSegmentation {
 	}
 
 	/**
+	 * Add instances reading the pixel classes from a label image in a random
+	 * and balanced way. The label image might contain more than 2 classes and
+	 * its values need to be consecutive integers starting at 0 (0, 1, 2...)
+	 * that correspond to the indexes of the class names provided by the user.
+	 * Label values that do not correspond with any class index are skipped.
+	 *
+	 * @param labelImage label image with a different labeling per class
+	 * @param featureStack corresponding feature stack
+	 * @param classNames array with the corresponding names of the classes
+	 * @param numSamples number of samples to add of each class
+	 * @return false if error
+	 */
+	public boolean addRandomBalancedLabeledData(
+			ImageProcessor labelImage,
+			FeatureStack featureStack,
+			String classNames[],
+			int numSamples)
+	{
+		// Update features if necessary
+		if( featureStack.getSize() < 2 )
+		{
+			IJ.log("Creating feature stack...");
+			featureStack.updateFeaturesMT();
+			filterFeatureStackByList(this.featureNames, featureStack);
+			updateFeatures = false;
+			IJ.log("Feature stack is now updated.");
+		}
+
+		// Detect class indexes (in case they differ from the indexes in
+		// getClassLabels()
+		int classIndex[] = new int[ classNames.length ];
+		for(int i = 0; i < classIndex.length; i++ )
+		{
+			for( classIndex[ i ] = 0 ; classIndex[ i ] < getClassLabels().length; classIndex[ i ]++ )
+				if( classNames[i].equalsIgnoreCase( getClassLabels()[ classIndex[i] ] ) )
+					break;
+			if( classIndex[i] == getClassLabels().length)
+			{
+				IJ.log("Error: class named '" + classNames[ i ] + "' not found.");
+				return false;
+			}
+		}
+
+		// Create loaded training data if it does not exist yet
+		if(null == loadedTrainingData)
+		{
+			IJ.log("Initializing loaded data...");
+			// Create instances
+			ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+			for (int i=1; i<=featureStack.getSize(); i++)
+			{
+				String attString = featureStack.getSliceLabel(i);
+				attributes.add(new Attribute(attString));
+			}
+
+			if(featureStack.useNeighborhood())
+				for (int i=0; i<8; i++)
+				{
+					IJ.log("Adding extra attribute original_neighbor_" + (i+1) + "...");
+					attributes.add(new Attribute(new String("original_neighbor_" + (i+1))));
+				}
+
+			// Update list of names of loaded classes
+			// (we assume the first two default class names)
+			loadedClassNames = new ArrayList<String>();
+			for(int i = 0; i < numOfClasses ; i ++)
+				loadedClassNames.add(getClassLabels()[i]);
+
+			attributes.add(new Attribute("class", loadedClassNames));
+			loadedTrainingData = new Instances("segment", attributes, 1);
+
+			loadedTrainingData.setClassIndex(loadedTrainingData.numAttributes()-1);
+		}
+
+		// Create lists of coordinates of pixels of all classes
+		ArrayList<Point> classCoordinates[] = new ArrayList[ classNames.length ];
+		final int width = labelImage.getWidth();
+		final int height = labelImage.getHeight();
+
+		for(int y = 0 ; y < height; y++)
+			for(int x = 0 ; x < width ; x++)
+			{
+				// Add coordinates to corresponding class
+				int val = (int) labelImage.getf( x, y );
+				if( val >= 0 && val < classNames.length )
+					classCoordinates[ val ].add( new Point( x, y ) );
+			}
+
+		// Select random samples from all classes
+		Random rand = new Random();
+		for( int i=0; i<numSamples; i++ )
+		{
+			for( int  j=0; j<classIndex.length; j++ )
+			{
+				int randomIndex = rand.nextInt( classCoordinates[ j ].size() );
+
+				loadedTrainingData.add(featureStack.createInstance(
+						classCoordinates[ j ].get( randomIndex ).x,
+						classCoordinates[ j ].get( randomIndex ).y,
+						classIndex[ j ] ) );
+			}
+		}
+
+		for( int i=0; i<classNames.length; i++ )
+			IJ.log( "Added " + numSamples + " instances of '"
+					+ classNames[i] +"'.");
+
+		IJ.log("Training dataset updated ("+ loadedTrainingData.numInstances() +
+				" instances, " + loadedTrainingData.numAttributes() +
+				" attributes, " + loadedTrainingData.numClasses() + " classes).");
+
+		return true;
+	}
+
+	/**
 	 * Add instances to two classes from a label (binary) image in a random
 	 * and balanced way (with repetition).
 	 * White pixels will be added to the corresponding class 1 and
@@ -2557,6 +2672,68 @@ public class WekaSegmentation {
 		return true;
 	}
 
+	/**
+	 * Add training data from input and labeled images in a
+	 * random and balanced way (same number of samples per class).
+	 * Input and labeled images can be 2D or stacks and their
+	 * sizes must match. The label values must correspond with the indexes
+	 * of the class names provided by the user.
+	 *
+	 * @param inputImage input grayscale image
+	 * @param labelImage labeled image (labeled values are positive integer or 0)
+	 * @param classNames array with the corresponding class names
+	 * @param numSamples number of samples to pick for each class
+	 * @return false if error
+	 */
+	public boolean addRandomBalancedLabeledData(
+			ImagePlus inputImage,
+			ImagePlus labelImage,
+			String classNames[],
+			int numSamples )
+	{
+
+		// Check sizes
+		if(labelImage.getWidth() != inputImage.getWidth()
+				|| labelImage.getHeight() != inputImage.getHeight()
+				|| labelImage.getImageStackSize() != inputImage.getImageStackSize())
+		{
+			IJ.log("Error: label and training image sizes do not fit.");
+			return false;
+		}
+
+		final ImageStack inputSlices = inputImage.getImageStack();
+		final ImageStack labelSlices = labelImage.getImageStack();
+
+		for(int i=1; i <= inputSlices.getSize(); i++)
+		{
+			// Create feature stack for the slice
+			final FeatureStack featureStack =
+					new FeatureStack( new ImagePlus( "slice " + i,
+							inputSlices.getProcessor( i ) ) );
+			featureStack.setEnabledFeatures(
+					this.featureStackArray.getEnabledFeatures() );
+			featureStack.setMembranePatchSize(membranePatchSize);
+			featureStack.setMembraneSize(this.membraneThickness);
+			featureStack.setMaximumSigma(this.maximumSigma);
+			featureStack.setMinimumSigma(this.minimumSigma);
+			IJ.log("Creating feature stack for slice "+i+"...");
+			featureStack.updateFeaturesMT();
+			filterFeatureStackByList(this.featureNames, featureStack);
+			IJ.log("Feature stack is now updated.");
+
+			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
+
+			// add labeled data based on the labeled image
+			if( !addRandomBalancedLabeledData(
+					labelSlices.getProcessor(i), featureStack, classNames,
+					numSamples ))
+			{
+				IJ.log( "Error while loading label data from slice " + i );
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * Add binary training data from input and label images in a
