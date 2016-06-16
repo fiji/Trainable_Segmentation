@@ -5296,9 +5296,9 @@ public class WekaSegmentation {
 
 			for(int j=0; j<trainingImage.getImageStackSize(); j++)
 				for(int i = 0; i < numOfClasses; i++)
-					if(examples[j].get(i).size() > 0)
-						if(!classNames.contains(getClassLabels()[i]))
-							classNames.add(getClassLabels()[i]);
+					if(examples[j].get(i).size() > 0 && !classNames.contains(getClassLabels()[i])) {
+                        classNames.add(getClassLabels()[i]);
+                    }
 		}
 
 		final int numProcessors = Prefs.getThreads();

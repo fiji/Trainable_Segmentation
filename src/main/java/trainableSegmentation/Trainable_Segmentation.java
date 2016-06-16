@@ -715,15 +715,16 @@ public class Trainable_Segmentation implements PlugIn
 		}
 		else 		
 			trainingImage = new ImagePlus("Trainable Segmentation",WindowManager.getCurrentImage().getProcessor().duplicate());
-		
 
-		if (Math.max(trainingImage.getWidth(), trainingImage.getHeight()) > 1024)
-			if (!IJ.showMessageWithCancel("Warning", "At least one dimension of the image \n" +
-					"is larger than 1024 pixels. \n" +
-					"Feature stack creation and classifier training \n" +
-					"might take some time depending on your computer.\n" +
-			"Proceed?"))
-				return;
+
+        if ( Math.max(trainingImage.getWidth(), trainingImage.getHeight()) > 1024 &&
+                        !IJ.showMessageWithCancel("Warning", "At least one dimension of the image \n" +
+                                "is larger than 1024 pixels. \n" +
+                                "Feature stack creation and classifier training \n" +
+                                "might take some time depending on your computer.\n" +
+                                "Proceed?") ) {
+            return;
+        }
 
 
 		trainingImage.setProcessor("Trainable Segmentation", trainingImage.getProcessor().duplicate().convertToByte(true));
