@@ -514,7 +514,7 @@ class FastRfBagging extends RandomizableIteratedSingleClassifierEnhancer
 
     int current = 0;
     options[current++] = "-P";
-    options[current++] = "" + getBagSizePercent();
+    options[current++] = String.valueOf(getBagSizePercent());
 
     if (getCalcOutOfBag()) {
       options[current++] = "-O";

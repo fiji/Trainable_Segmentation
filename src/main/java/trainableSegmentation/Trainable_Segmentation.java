@@ -86,9 +86,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -140,7 +142,7 @@ public class Trainable_Segmentation implements PlugIn
 	/** GUI window */
 	private CustomWindow win;
 	/** array of number of traces per class */
-	private int traceCounter[] = new int[MAX_NUM_CLASSES];
+	private int[] traceCounter = new int[MAX_NUM_CLASSES];
 	/** flag to display the overlay image */
 	private boolean showColorOverlay;
 	/** set of instances for the whole training image */
@@ -189,7 +191,7 @@ public class Trainable_Segmentation implements PlugIn
 	/** current number of classes */
 	private int numOfClasses = 2;
 	/** array of trace lists for every class */
-	private java.awt.List exampleList[];
+	private java.awt.List[] exampleList;
 	/** array of buttons for adding each trace class */
 	private JButton [] addExampleButton;
 	
@@ -821,7 +823,7 @@ public class Trainable_Segmentation implements PlugIn
 		try{
 			BufferedWriter out = new BufferedWriter(
 					new OutputStreamWriter(
-							new FileOutputStream( filename) ) );
+							new FileOutputStream( filename), StandardCharsets.UTF_8) );
 			try{	
 				out.write(data.toString());
 				out.close();
@@ -840,7 +842,8 @@ public class Trainable_Segmentation implements PlugIn
 	public Instances readDataFromARFF(String filename){
 		try{
 			BufferedReader reader = new BufferedReader(
-					new FileReader(filename));
+					new InputStreamReader(
+							new FileInputStream(filename), StandardCharsets.UTF_8));
 			try{
 				Instances data = new Instances(reader);
 				// setting class attribute
@@ -1139,7 +1142,7 @@ public class Trainable_Segmentation implements PlugIn
 		final double[][] results = new double[numThreads][];
 		final Instances[] partialData = new Instances[numThreads];
 		final int partialSize = data.numInstances() / numThreads;
-		Future<double[]> fu[] = new Future[numThreads];
+		Future<double[]>[] fu = new Future[numThreads];
 		
 		final AtomicInteger counter = new AtomicInteger();
 		
@@ -1227,7 +1230,7 @@ public class Trainable_Segmentation implements PlugIn
 		final double[][][] results = new double[numThreads][][];
 		final Instances[] partialData = new Instances[numThreads];
 		final int partialSize = data.numInstances() / numThreads;
-		Future<double[][]> fu[] = new Future[numThreads];
+		Future<double[][]>[] fu = new Future[numThreads];
 		
 		final AtomicInteger counter = new AtomicInteger();
 		
@@ -2145,7 +2148,7 @@ public class Trainable_Segmentation implements PlugIn
 			if(null == dir || null == filename)
 				return;
 								
-			if(false == this.featureStack.saveStackAsTiff(dir + filename))
+			if(!this.featureStack.saveStackAsTiff(dir + filename))
 			{
 				IJ.error("Error", "Feature stack could not be saved");
 				return;

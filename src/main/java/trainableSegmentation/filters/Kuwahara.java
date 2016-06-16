@@ -317,7 +317,7 @@ try{
 		
 		boolean b = c.convolveFloat(ip1, pixelsKernel, size, size);
 		
-		if(b == false)
+		if(!b)
 		{
 			IJ.error("Error while convolving first image with kernel!");
 			return;
@@ -327,7 +327,7 @@ try{
 		
 		final Convolver c2 = new Convolver();		
 		b = c2.convolveFloat(ip2, pixelsKernel, size, size);
-		if(b == false)
+		if(!b)
 		{
 			IJ.error("Error while convolving second image with kernel!");
 			return;

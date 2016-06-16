@@ -42,7 +42,7 @@ import java.util.concurrent.Future;
 public class FeatureStackArray 
 {
 	/** array of feature stacks */
-	private FeatureStack featureStackArray[];
+	private FeatureStack[] featureStackArray;
 	
 	/** index of the feature stack that is used as reference (to read attribute, etc.).
 	 * -1 if not definded yet. */
@@ -176,7 +176,7 @@ public class FeatureStackArray
 						featureStackArray[i].setUseNeighbors(useNeighbors);
 						if ( featureStackArray.length == 1 )
 						{
-							if(false == featureStackArray[i].updateFeaturesMT() )							
+							if(!featureStackArray[i].updateFeaturesMT())
 								return false;							
 						}
 						else
@@ -191,7 +191,7 @@ public class FeatureStackArray
 			for(Future<Boolean> f : futures)
 			{
 				final boolean result = f.get();
-				if(false == result)
+				if(!result)
 					return false;
 			}			
 		}
@@ -242,7 +242,7 @@ public class FeatureStackArray
 					featureStackArray[i].setUseNeighbors(useNeighbors);
 					if ( featureStackArray.length == 1 )
 					{
-						if(false == featureStackArray[i].updateFeaturesMT() )						
+						if(!featureStackArray[i].updateFeaturesMT())
 							return false;						
 					}
 					else
@@ -262,7 +262,7 @@ public class FeatureStackArray
 				currentIndex++;
 				IJ.showStatus("Updating features...");
 				IJ.showProgress(currentIndex, finalIndex);
-				if(false == result)
+				if(!result)
 					return false;
 			}			
 		

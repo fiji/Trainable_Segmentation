@@ -135,7 +135,7 @@ public class Weka_Segmentation implements PlugIn
 	/** number of classes in the GUI */
 	private int numOfClasses;
 	/** array of number of traces per class */
-	private int traceCounter[] = new int[WekaSegmentation.MAX_NUM_CLASSES];
+	private int[] traceCounter = new int[WekaSegmentation.MAX_NUM_CLASSES];
 	/** flag to display the overlay image */
 	private boolean showColorOverlay;
 	/** executor service to launch threads for the plugin methods and events */
@@ -179,7 +179,7 @@ public class Weka_Segmentation implements PlugIn
 	private LUT overlayLUT;
 
 	/** array of trace lists for every class */
-	private java.awt.List exampleList[];
+	private java.awt.List[] exampleList;
 	/** array of buttons for adding each trace class */
 	private JButton [] addExampleButton;
 	
@@ -1119,7 +1119,7 @@ public class Weka_Segmentation implements PlugIn
 		{
 			// While training, set disable all buttons except the train buttons, 
 			// which will be used to stop the training by the user. 
-			if( trainingFlag == true )
+			if( trainingFlag )
 			{
 				setButtonsEnabled( false );
 				trainButton.setEnabled( true );	
@@ -1752,7 +1752,7 @@ public class Weka_Segmentation implements PlugIn
 
 					if (showResults && null != segmentation) 
 					{
-						if ( false == probabilityMaps )
+						if ( !probabilityMaps )
 						{
 							// convert slices to 8-bit and apply overlay LUT
 							convertTo8bitNoScaling( segmentation );
@@ -1821,7 +1821,7 @@ public class Weka_Segmentation implements PlugIn
 
 
 		// Try to load Weka model (classifier and train header)
-		if( false == wekaSegmentation.loadClassifier(od.getDirectory() + od.getFileName()) )
+		if(  !wekaSegmentation.loadClassifier(od.getDirectory() + od.getFileName()) )
 		{
 			IJ.error("Error when loading Weka classifier from file");
 			IJ.log("Error: classifier could not be loaded.");
@@ -1879,7 +1879,7 @@ public class Weka_Segmentation implements PlugIn
 		String[] arg = new String[] { sd.getDirectory() + sd.getFileName() };
 		record(SAVE_CLASSIFIER, arg);
 		
-		if( false == wekaSegmentation.saveClassifier(sd.getDirectory() + sd.getFileName()) )
+		if( !wekaSegmentation.saveClassifier(sd.getDirectory() + sd.getFileName()) )
 		{
 			IJ.error("Error while writing classifier into a file");
 			return;
@@ -1965,7 +1965,7 @@ public class Weka_Segmentation implements PlugIn
 
 		ImagePlus newImage = new ImagePlus(od.getDirectory() + od.getFileName());
 
-		if( false == wekaSegmentation.loadNewImage( newImage ) )
+		if( !wekaSegmentation.loadNewImage( newImage ) )
 		{
 			IJ.error("Error while loading new image!");
 			win.updateButtonsEnabling();
@@ -2032,7 +2032,7 @@ public class Weka_Segmentation implements PlugIn
 		
 		win.setButtonsEnabled(false);
 		
-		if(false == wekaSegmentation.saveData(sd.getDirectory() + sd.getFileName()))
+		if( !wekaSegmentation.saveData(sd.getDirectory() + sd.getFileName()) )
 			IJ.showMessage("There is no data to save");
 		
 		win.updateButtonsEnabling();
@@ -2256,8 +2256,8 @@ public class Weka_Segmentation implements PlugIn
 	      options = Utils.joinOptions( optionsArray );
 	    }
 	    //System.out.println("Classifier after choosing: " + c.getClass().getName() + " " + options);
-	    if(originalClassifierName.equals( c.getClass().getName() ) == false
-	    		|| originalOptions.equals( options ) == false)
+	    if( !originalClassifierName.equals( c.getClass().getName() )
+	    		|| !originalOptions.equals( options ) )
 	    {
 	    	AbstractClassifier cls;
 	    	try{
@@ -2344,7 +2344,7 @@ public class Weka_Segmentation implements PlugIn
 			wekaSegmentation.setFeaturesDirty();
 		}
 		else	// This checks if the feature stacks were updated while using the save feature stack button
-			if(wekaSegmentation.getFeatureStackArray().isEmpty() == false 
+			if( !wekaSegmentation.getFeatureStackArray().isEmpty()
 					&& wekaSegmentation.getFeatureStackArray().getReferenceSliceIndex() != -1)
 				wekaSegmentation.setUpdateFeatures(false);
 
@@ -2419,7 +2419,7 @@ public class Weka_Segmentation implements PlugIn
 			{
 				final String fileName = dir + fileWithExt.substring(0, fileWithExt.length()-4) 
 										+ String.format("%04d", (i+1)) + ".tif";
-				if(false == this.featureStackArray.get(i).saveStackAsTiff(fileName))
+				if( !this.featureStackArray.get(i).saveStackAsTiff(fileName))
 				{
 					IJ.error("Error", "Feature stack could not be saved");
 					return;
@@ -2550,7 +2550,7 @@ public class Weka_Segmentation implements PlugIn
 			if( null == classifiedImage )
 			{
 				// check if the training is complete
-				if( win.trainingComplete == true )
+				if( win.trainingComplete )
 				{
 					// if not result image is there yet, calculate it
 					win.setButtonsEnabled( false );
@@ -2737,7 +2737,7 @@ public class Weka_Segmentation implements PlugIn
 			final AbstractClassifier oldClassifier = wekaSegmentation.getClassifier();
 
 			// Try to load Weka model (classifier and train header)
-			if( false == wekaSegmentation.loadClassifier(newClassifierPathName) )
+			if(  !wekaSegmentation.loadClassifier(newClassifierPathName) )
 			{
 				IJ.error("Error when loading Weka classifier from file");
 				win.updateButtonsEnabling();
@@ -2776,7 +2776,7 @@ public class Weka_Segmentation implements PlugIn
 		{
 			final CustomWindow win = (CustomWindow) iw;
 			final WekaSegmentation wekaSegmentation = win.getWekaSegmentation();
-			if( false == wekaSegmentation.saveClassifier( classifierPathName ) )
+			if( !wekaSegmentation.saveClassifier( classifierPathName ) )
 			{
 				IJ.error("Error while writing classifier into a file");
 				return;
@@ -2817,7 +2817,7 @@ public class Weka_Segmentation implements PlugIn
 			final CustomWindow win = (CustomWindow) iw;
 			final WekaSegmentation wekaSegmentation = win.getWekaSegmentation();
 
-			if(false == wekaSegmentation.saveData( arffFilePathName ))
+			if( !wekaSegmentation.saveData( arffFilePathName ))
 				IJ.showMessage("There is no data to save");
 		}
 	}
@@ -3019,7 +3019,7 @@ public class Weka_Segmentation implements PlugIn
 			{
 				final String fileName = dir + fileWithExt.substring(0, fileWithExt.length()-4) 
 				+ String.format("%04d", (i+1)) + ".tif";
-				if(false == featureStackArray.get(i).saveStackAsTiff(fileName))
+				if( !featureStackArray.get(i).saveStackAsTiff(fileName))
 				{
 					IJ.error("Error", "Feature stack could not be saved");
 					return;

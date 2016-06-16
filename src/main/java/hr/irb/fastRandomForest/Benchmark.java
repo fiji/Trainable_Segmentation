@@ -21,10 +21,12 @@
 package hr.irb.fastRandomForest;
 
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -247,8 +249,8 @@ public class Benchmark {
       result.add(myFile);
 
     } else {
-
-      BufferedReader bufRdr = new BufferedReader(new FileReader(fileOrDir));
+      FileInputStream fileInputStream = new FileInputStream(fileOrDir);
+      BufferedReader bufRdr = new BufferedReader(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8));
       String line = null;
       while ((line = bufRdr.readLine()) != null) {
         if (line.endsWith(myExt))
@@ -256,7 +258,8 @@ public class Benchmark {
         else
           result.add(new File(line + myExt));
       }
-
+      fileInputStream.close();
+      bufRdr.close();
     }
 
     return result;

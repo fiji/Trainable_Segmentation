@@ -37,14 +37,6 @@
 				<role>maintainer</role>
 			</roles>
 		</developer>
-		<developer>
-			<id>hinerm</id>
-			<name>Mark Hiner</name>
-			<url>http://imagej.net/User:Hinerm</url>
-			<roles>
-				<role>maintainer</role>
-			</roles>
-		</developer>
 	</developers>
 	<contributors>
 		<contributor>
@@ -70,13 +62,18 @@
 			<properties><id>imagejan</id></properties>
 		</contributor>
 		<contributor>
+			<name>Patrice Freydiere</name>
+			<properties><id>frett27</id></properties>
+		</contributor>
+		<contributor>
 			<name>Jan Funke</name>
 			<url>http://imagej.net/User:Funke</url>
 			<properties><id>funkey</id></properties>
 		</contributor>
 		<contributor>
-			<name>Patrice Freydiere</name>
-			<properties><id>frett27</id></properties>
+			<name>Mark Hiner</name>
+			<url>http://imagej.net/User:Hinerm</url>
+			<properties><id>hinerm</id></properties>
 		</contributor>
 		<contributor>
 			<name>Larry Lindsey</name>
@@ -88,10 +85,10 @@
 			<properties><id>tischi</id></properties>
 		</contributor>
 		<contributor><name>Eibe Frank</name></contributor>
-		<contributor><name>Fran Supek</name></contributor>
-		<contributor><name>Julien Prados</name></contributor>
-		<contributor><name>Len Trigg</name></contributor>
 		<contributor><name>Richard Kirkby</name></contributor>
+		<contributor><name>Julien Prados</name></contributor>
+		<contributor><name>Fran Supek</name></contributor>
+		<contributor><name>Len Trigg</name></contributor>
 		<contributor><name>Santi Villalba</name></contributor>
 		<contributor><name>Yong Wang</name></contributor>
 	</contributors>

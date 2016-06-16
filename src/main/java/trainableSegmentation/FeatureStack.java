@@ -67,6 +67,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -759,7 +760,7 @@ public class FeatureStack
 		try{
 			BufferedWriter out = new BufferedWriter(
 					new OutputStreamWriter(
-							new FileOutputStream(filename) ) );
+							new FileOutputStream(filename), StandardCharsets.UTF_8) );
 			try{	
 				for (int i=1; i <= wholeStack.getSize(); i++)
 				{
@@ -3253,7 +3254,7 @@ public class FeatureStack
 		final double[] values = new double[ getSize() + 1 + extra ];
 		int n = 0;
 		
-		if( colorFeatures == false || oldColorFormat == true)
+		if(!colorFeatures || oldColorFormat)
 		{
 			for (int z=0; z<getSize(); z++, n++)		
 				values[ z ] = this.wholeStack.getVoxel( x, y, z );
@@ -3312,7 +3313,7 @@ public class FeatureStack
 		
 		int n = 0;
 		
-		if( colorFeatures == false || oldColorFormat == true )
+		if(!colorFeatures || oldColorFormat)
 		{
 			for (int z=0; z<getSize(); z++, n++)		
 				ins.setValue( z, wholeStack.getVoxel( x, y, z ) );
@@ -3367,7 +3368,7 @@ public class FeatureStack
 		int n = 0;
 		
 		// fill auxiliary array
-		if( colorFeatures == false || oldColorFormat == true )
+		if(!colorFeatures || oldColorFormat)
 		{
 			for (int z=0; z<getSize(); z++, n++)		
 				auxArray[ z ] = this.wholeStack.getVoxel( x, y, z );

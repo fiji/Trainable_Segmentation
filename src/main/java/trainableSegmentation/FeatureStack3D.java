@@ -455,7 +455,7 @@ public class FeatureStack3D
 			public ArrayList< ImagePlus > call()
 			{
 				ImagePlus im = originalImage;
-				if( originalImage.getImageStack().isRGB() == false )
+				if(!originalImage.getImageStack().isRGB())
 				{
 					im = originalImage.duplicate();
 					IJ.run( im, "32-bit", "");
@@ -492,7 +492,7 @@ public class FeatureStack3D
 			public ArrayList< ImagePlus > call()
 			{
 				ImagePlus im = originalImage;
-				if( originalImage.getImageStack().isRGB() == false )
+				if(!originalImage.getImageStack().isRGB())
 				{
 					im = originalImage.duplicate();
 					IJ.run( im, "32-bit", "");
@@ -529,7 +529,7 @@ public class FeatureStack3D
 			public ArrayList< ImagePlus > call()
 			{
 				ImagePlus im = originalImage;
-				if( originalImage.getImageStack().isRGB() == false )
+				if(!originalImage.getImageStack().isRGB())
 				{
 					im = originalImage.duplicate();
 					IJ.run( im, "32-bit", "");
@@ -565,7 +565,7 @@ public class FeatureStack3D
 			public ArrayList< ImagePlus > call()
 			{
 				ImagePlus im = originalImage;
-				if( originalImage.getImageStack().isRGB() == false )
+				if(!originalImage.getImageStack().isRGB())
 				{
 					im = originalImage.duplicate();
 					IJ.run( im, "32-bit", "");
@@ -601,7 +601,7 @@ public class FeatureStack3D
 			public ArrayList< ImagePlus > call()
 			{
 				ImagePlus im = originalImage;
-				if( originalImage.getImageStack().isRGB() == false )
+				if(!originalImage.getImageStack().isRGB())
 				{
 					im = originalImage.duplicate();
 					IJ.run( im, "32-bit", "");

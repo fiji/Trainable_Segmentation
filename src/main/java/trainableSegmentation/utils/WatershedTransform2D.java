@@ -242,7 +242,7 @@ public class WatershedTransform2D {
 	    		}// end for	    	
 	    	}// end for
 
-	    	while( fifo.isEmpty() == false )
+	    	while( !fifo.isEmpty() )
 	    	{
 	    		// retrieve point p
 	    		final Cursor2D p = fifo.poll();	    		
@@ -262,7 +262,7 @@ public class WatershedTransform2D {
 	    			{
 	    				if ( tabLabels[ u ][ v ] > 0 ) // i.e. the pixel belongs to an already labeled basin
 	    				{
-	    					if ( tabLabels[ i ][ j ] == INQUEUE || (tabLabels[ i ][ j ] == WSHED && flag == true ) )
+	    					if ( tabLabels[ i ][ j ] == INQUEUE || (tabLabels[ i ][ j ] == WSHED && flag) )
 	    					{
 	    						tabLabels[ i ][ j ] = tabLabels[ u ][ v ];
 	    					}
@@ -312,7 +312,7 @@ public class WatershedTransform2D {
 	    			fifo.addLast( p );
 	    			tabLabels[ i ][ j ] = currentLabel;
 	    			
-	    			while( fifo.isEmpty() == false )
+	    			while( !fifo.isEmpty() )
 	    	    	{
 	    				final Cursor2D p2 = fifo.poll();
 
