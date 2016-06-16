@@ -38,8 +38,12 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
  * @author Ignacio Arganda-Carreras (iarganda at mit dot edu)
  *
  */
-public class PrincipalComponentAnalysis 
+public final class PrincipalComponentAnalysis 
 {
+
+    private PrincipalComponentAnalysis() throws InstantiationException {
+        throw new InstantiationException("This class is not created for instantiation");
+    }
 
 	public static ImagePlus getPrincipalComponents(
 			final ImagePlus inputImage,
