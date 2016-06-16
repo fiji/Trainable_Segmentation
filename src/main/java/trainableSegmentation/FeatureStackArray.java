@@ -45,10 +45,10 @@ public class FeatureStackArray
 	private FeatureStack[] featureStackArray;
 	
 	/** index of the feature stack that is used as reference (to read attribute, etc.).
-	 * -1 if not definded yet. */
+	 * -1 if not defined yet. */
 	private int referenceStackIndex = -1;
 	
-	/** minmum sigma/radius used in the filters */
+	/** minimum sigma/radius used in the filters */
 	private float minimumSigma = 1;
 	/** maximum sigma/radius used in the filters */
 	private float maximumSigma = 16;

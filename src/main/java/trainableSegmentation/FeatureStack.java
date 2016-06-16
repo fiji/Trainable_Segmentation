@@ -511,7 +511,7 @@ public class FeatureStack
 	}
 	
 	/**
-	 * Calculate 8 neighbors  concurrently
+	 * Calculate 8 neighbors concurrently
 	 * @param originalImage original input image
 	 * @return result image
 	 */
@@ -3136,7 +3136,7 @@ public class FeatureStack
 	 * Enable/disable feature by name
 	 *
 	 * @param featureName  feature name
-	 * @param enable  flag to enable/diable feature
+	 * @param enable  flag to enable/disable feature
 	 * @return false if feature is not in the current list of features
 	 */
 	public boolean setEnabledFeature(
