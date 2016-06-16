@@ -2665,7 +2665,7 @@ public class WekaSegmentation {
 			// add labeled data based on the labeled image
 			if(!addRandomBalancedLabeledData(labelSlices.getProcessor(i), featureStack, numSamples))
 			{
-				IJ.log("Error while loading binary label data from slice " + i);
+				IJ.log("Error while loading label data from slice " + i);
 				return false;
 			}
 		}
