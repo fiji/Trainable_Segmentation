@@ -45,8 +45,12 @@ import util.FindConnectedRegions.Results;
 /**
  * This class implements useful methods for the Weka Segmentation library.
  */
-public class Utils {
-	
+public final class Utils {
+
+    private Utils() throws InstantiationException {
+        throw new InstantiationException("This class is not created for instantiation");
+    }
+
 	/**
 	 * Connected components based on Find Connected Regions (from Mark Longair)
 	 * @param im input image

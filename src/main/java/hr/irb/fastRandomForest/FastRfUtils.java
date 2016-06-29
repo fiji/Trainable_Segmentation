@@ -38,8 +38,11 @@ import weka.core.Instances;
  * @author Julien Prados - original code
  * @author Fran Supek (fran.supek[AT]irb.hr) - adapted code
  */
-public class FastRfUtils {
+public final class FastRfUtils {
 
+  private FastRfUtils() throws InstantiationException {
+      throw new InstantiationException("This class is not created for instantiation");
+  }
 
   /**
    * Sorts a given array of floats in ascending order and returns an

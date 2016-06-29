@@ -32,9 +32,12 @@ package hr.irb.fastRandomForest;
  * @author Fran Supek (fran.supek[AT]irb.hr) - adapted code
  * @version 0.9
  */
-public class SplitCriteria {
-  
-  
+public final class SplitCriteria {
+
+  private SplitCriteria() throws InstantiationException {
+      throw new InstantiationException("This class is not created for instantiation");
+  }
+
   /**
    * Similar to weka.core.ContingencyTables.entropyConditionedOnRows.
    * 
