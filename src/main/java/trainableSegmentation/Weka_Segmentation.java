@@ -3072,15 +3072,12 @@ public class Weka_Segmentation implements PlugIn
 			boolean forceUpdate = false;
 			for(int i=0; i<enabledFeatures.length; i++)
 			{
-				if(FeatureStack.availableFeatures[i].contains( featureName ))
-				{	
-					if(featureValue != enabledFeatures[i])
-					{
-						enabledFeatures[i] = featureValue;
-						forceUpdate = true;
-					}
-				}
-			}
+                if (FeatureStack.availableFeatures[i].contains(featureName) && featureValue != enabledFeatures[i])
+                {
+                    enabledFeatures[i] = featureValue;
+                    forceUpdate = true;
+                }
+            }
 			wekaSegmentation.setEnabledFeatures(enabledFeatures);
 
 			if(forceUpdate)

@@ -1214,9 +1214,9 @@ public class WarpingError extends Metrics {
 		for(int i = 0; i < 3; i++)
 			for(int j = 0; j < 3; j++)
 			{
-				if(( t = components.get(i, j) ) != 0)
-					if(!uniqueId.contains(t))
-						uniqueId.add(t);
+				if(( t = components.get(i, j) ) != 0 && !uniqueId.contains(t)) {
+                    uniqueId.add(t);
+                }
 			}
 
 		return uniqueId.size();				
@@ -2418,9 +2418,9 @@ public class WarpingError extends Metrics {
 		for(int j = p.y - y_offset; j <= p.y + y_offset; j++)
 			for(int i = p.x - x_offset; i <= p.x + x_offset; i++)							
 			{
-				if(i!=p.x || j!= p.y)
-					if(j>=0 && j<image.getHeight() && i>=0 && i<image.getWidth())
-						neighborhood.add( image.get(i, j));
+				if( (i!=p.x || j!= p.y) && j>=0 && j<image.getHeight() && i>=0 && i<image.getWidth() ) {
+                    neighborhood.add(image.get(i, j));
+                }
 			}
 		
 		return neighborhood;
