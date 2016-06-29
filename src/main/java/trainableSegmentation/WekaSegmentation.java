@@ -735,7 +735,7 @@ public class WekaSegmentation {
 		for(int i = 0; i < numOfClasses; i ++)
 		{
 			for(int n=0; n<trainingImage.getImageStackSize(); n++)
-				if(examples[n].get(i).size() > 0)
+				if(!examples[n].get(i).isEmpty())
 				{
 					examplesEmpty = false;
 					break;
@@ -1159,7 +1159,7 @@ public class WekaSegmentation {
 		{
 			for( int j = 0; j < numOfClasses ; j ++ )
 			{
-				if( classCoordinates[ j ].size() > 0 )
+				if( !classCoordinates[ j ].isEmpty() )
 				{
 					int randomSample = rand.nextInt( classCoordinates[ j ].size() );
 
@@ -3287,7 +3287,7 @@ public class WekaSegmentation {
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				if(examples[0].get(i).size() > 0)
+				if(!examples[0].get(i).isEmpty())
 					classNames.add(getClassLabels()[i]);
 		}
 		else
@@ -3383,7 +3383,7 @@ public class WekaSegmentation {
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				if(examples[0].get(i).size() > 0)
+				if(!examples[0].get(i).isEmpty())
 					classNames.add(getClassLabels()[i]);
 		}
 		else
@@ -3559,7 +3559,7 @@ public class WekaSegmentation {
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				if(examples[0].get(i).size() > 0)
+				if(!examples[0].get(i).isEmpty())
 					classNames.add(getClassLabels()[i]);
 		}
 		else
@@ -3604,7 +3604,7 @@ public class WekaSegmentation {
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				if(examples[0].get(i).size() > 0)
+				if(!examples[0].get(i).isEmpty())
 					classNames.add(getClassLabels()[i]);
 		}
 		else
@@ -4387,7 +4387,7 @@ public class WekaSegmentation {
 		int sliceWithTraces = -1;
 		for(int i = 0; i < numOfClasses; i++)
 			for(int j=0; j<trainingImage.getImageStackSize(); j++)
-				if(examples[j].get(i).size() > 0)
+				if(!examples[j].get(i).isEmpty())
 				{
 					nonEmpty++;
 					sliceWithTraces = j; // store index of slice with traces
@@ -4555,7 +4555,7 @@ public class WekaSegmentation {
 		{
 			for(int i = 0; i < numOfClasses; i++)
 				for(int j=0; j<trainingImage.getImageStackSize(); j++)
-					if(examples[j].get(i).size() > 0)
+					if(!examples[j].get(i).isEmpty())
 					{
 						classNames.add(getClassLabels()[i]);
 						break;
@@ -4711,7 +4711,7 @@ public class WekaSegmentation {
 		{
 			for(int i = 0; i < numOfClasses; i++)
 				for(int j=0; j<trainingImage.getImageStackSize(); j++)
-					if(examples[j].get(i).size() > 0)
+					if(!examples[j].get(i).isEmpty())
 					{
 						classNames.add(getClassLabels()[i]);
 						break;
@@ -5250,7 +5250,7 @@ public class WekaSegmentation {
 		{
 			for(int i = 0; i < numOfClasses; i++)
 				for(int j=0; j<trainingImage.getImageStackSize(); j++)
-					if(examples[j].get(i).size() > 0)
+					if(!examples[j].get(i).isEmpty())
 					{
 						classNames.add(getClassLabels()[i]);
 						break;
@@ -5473,7 +5473,7 @@ public class WekaSegmentation {
 
 			for(int j=0; j<trainingImage.getImageStackSize(); j++)
 				for(int i = 0; i < numOfClasses; i++)
-					if(examples[j].get(i).size() > 0)
+					if(!examples[j].get(i).isEmpty())
 						if(!classNames.contains(getClassLabels()[i]))
 							classNames.add(getClassLabels()[i]);
 		}
@@ -6141,7 +6141,7 @@ public class WekaSegmentation {
 		for(int indexSlice=0; indexSlice<trainingImage.getImageStackSize(); indexSlice++)
 		{
 			for(int indexClass = 0; indexClass < numOfClasses; indexClass++)
-				if(examples[indexSlice].get(indexClass).size() > 0)
+				if(!examples[indexSlice].get(indexClass).isEmpty())
 				{
 					//IJ.log("feature stack for slice " + (indexSlice+1) + " needs to be updated for training");
 					featureStackToUpdateTrain[indexSlice] = true;

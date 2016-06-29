@@ -877,7 +877,7 @@ public class Trainable_Segmentation implements PlugIn
 		for(int i = 0; i < numOfClasses ; i ++)
 		{
 			// Do not add empty lists
-			if(examples[i].size() > 0)
+			if(!examples[i].isEmpty())
 				classes.add(classLabels[i]);
 			numOfInstances += examples[i].size();
 		}
@@ -1000,7 +1000,7 @@ public class Trainable_Segmentation implements PlugIn
 		// Two list of examples need to be non empty
 		int nonEmpty = 0;
 		for(int i = 0; i < numOfClasses; i++)
-			if(examples[i].size() > 0)
+			if(!examples[i].isEmpty())
 				nonEmpty++;
 		if (nonEmpty < 2 && loadedTrainingData==null){
 			IJ.showMessage("Cannot train without at least 2 sets of examples!");
@@ -1109,7 +1109,7 @@ public class Trainable_Segmentation implements PlugIn
 			classNames = new ArrayList<String>();
 
 			for(int i = 0; i < numOfClasses; i++)
-				if(examples[i].size() > 0)
+				if(!examples[i].isEmpty())
 					classNames.add(classLabels[i]);
 		}
 		wholeImageData = featureStack.createInstances(classNames);
@@ -1688,7 +1688,7 @@ public class Trainable_Segmentation implements PlugIn
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				if(examples[i].size() > 0)
+				if(!examples[i].isEmpty())
 					classNames.add(classLabels[i]);
 		}
 		else
@@ -1785,7 +1785,7 @@ public class Trainable_Segmentation implements PlugIn
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				if(examples[i].size() > 0)
+				if(!examples[i].isEmpty())
 					classNames.add(classLabels[i]);
 		}
 		else
@@ -1898,7 +1898,7 @@ public class Trainable_Segmentation implements PlugIn
 	{
 		boolean examplesEmpty = true;
 		for(int i = 0; i < numOfClasses; i ++)
-			if(examples[i].size() > 0)
+			if(!examples[i].isEmpty())
 			{
 				examplesEmpty = false;
 				break;

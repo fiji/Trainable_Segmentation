@@ -55,11 +55,15 @@ import weka.experiment.PairedStatsCorrected;
  * 
  * @author Fran Supek (fran.supek[AT]irb.hr)
  */
-public class Benchmark {
+public final class Benchmark {
 
   public static final int numRuns = 10;
 
   public static final int numFolds = 10;
+
+  private Benchmark() throws InstantiationException {
+      throw new InstantiationException("This class is not created for instantiation");
+  }
 
   public static void main(String[] args) throws Exception {
 
