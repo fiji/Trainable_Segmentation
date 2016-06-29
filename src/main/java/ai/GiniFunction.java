@@ -69,7 +69,7 @@ public class GiniFunction extends SplitFunction
 	 */	 
 	public void init(Instances data, ArrayList<Integer> indices) 
 	{
-		if(indices.size() == 0)
+		if(indices.isEmpty())
 		{
 			this.index = 0;
 			this.threshold = 0;
