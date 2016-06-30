@@ -941,10 +941,10 @@ public class FeatureStack
 					// Hessian module: sqrt (a^2 + b*c + d^2)
 					ip.setf(x,y, (float) Math.sqrt(s_xx*s_xx + s_xy*s_xy+ s_yy*s_yy));
 					// Trace: a + d
-					final float trace = (float) s_xx + s_yy;
+					final float trace = s_xx + s_yy;
 					ipTr.setf(x,y,  trace);
 					// Determinant: a*d - c*b
-					final float determinant = (float) s_xx*s_yy-s_xy*s_xy;
+					final float determinant = s_xx*s_yy-s_xy*s_xy;
 					ipDet.setf(x,y, determinant);
 					
 					// Ratio
@@ -1075,10 +1075,10 @@ public class FeatureStack
 							// Hessian module: sqrt (a^2 + b*c + d^2)
 							ip.setf(x,y, (float) Math.sqrt(s_xx*s_xx + s_xy*s_xy+ s_yy*s_yy));
 							// Trace: a + d
-							final float trace = (float) s_xx + s_yy;
+							final float trace = s_xx + s_yy;
 							ipTr.setf(x,y,  trace);
 							// Determinant: a*d - c*b
-							final float determinant = (float) s_xx*s_yy-s_xy*s_xy;
+							final float determinant = s_xx*s_yy-s_xy*s_xy;
 							ipDet.setf(x,y, determinant);
 							
 							// Ratio
@@ -1718,8 +1718,8 @@ public class FeatureStack
 				final int filterSizeX = 6 * largerSigma + 1;
 				final int filterSizeY = 6 * largerSigma + 1;
 				
-				final int middleX = (int) Math.round(filterSizeX / 2);
-				final int middleY = (int) Math.round(filterSizeY / 2);
+				final int middleX = Math.round(filterSizeX / 2);
+				final int middleY = Math.round(filterSizeY / 2);
 							
 				final ImageStack kernels = new ImageStack(filterSizeX, filterSizeY);
 
@@ -1838,8 +1838,8 @@ public class FeatureStack
 		final int filterSizeX = 6 * largerSigma + 1;
 		final int filterSizeY = 6 * largerSigma + 1;
 
-		final int middleX = (int) Math.round(filterSizeX / 2);
-		final int middleY = (int) Math.round(filterSizeY / 2);
+		final int middleX = Math.round(filterSizeX / 2);
+		final int middleY = Math.round(filterSizeY / 2);
 
 		final ImageStack kernels = new ImageStack(filterSizeX, filterSizeY);
 
