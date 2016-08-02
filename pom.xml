@@ -108,10 +108,6 @@
 		<url>http://jenkins.imagej.net/job/Trainable_Segmentation/</url>
 	</ciManagement>
 
-	<properties>
-		<scijava.jvm.version>1.7</scijava.jvm.version>
-	</properties>
-
 	<repositories>
 		<repository>
 			<id>imagej.public</id>
