@@ -1,4 +1,5 @@
 [![](http://jenkins.imagej.net/job/Trainable_Segmentation/lastBuild/badge/icon)](http://jenkins.imagej.net/job/Trainable_Segmentation/)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.59290.svg)](http://dx.doi.org/10.5281/zenodo.59290)
 
 Trainable_Segmentation
 ======================
