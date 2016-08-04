@@ -2381,7 +2381,6 @@ public class Weka_Segmentation implements PlugIn
 	static class SaveFeatureStackButtonListener implements ActionListener
 	{
 		private String title;
-		private TextField text;
 		private FeatureStackArray featureStackArray;
 
 		/**
