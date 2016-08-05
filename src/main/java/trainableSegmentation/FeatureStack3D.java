@@ -45,7 +45,6 @@ import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 
 import java.util.ArrayList;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -964,7 +963,9 @@ public class FeatureStack3D
 	public FeatureStackArray getFeatureStackArray()
 	{
 		// create empty feature stack array, with space for one stack per slice in the original image 
-		FeatureStackArray fsa = new FeatureStackArray( originalImage.getImageStackSize(), minimumSigma, maximumSigma, false, 0, 0, null);
+		FeatureStackArray fsa = new FeatureStackArray(
+				originalImage.getImageStackSize(), minimumSigma, maximumSigma,
+				false, 0, 0, enableFeatures );
 		
 		// Initialize each feature stack (one per slice)
 		for(int i=0; i<originalImage.getImageStackSize(); i++)
