@@ -153,7 +153,10 @@ public class WekaSegmentation {
 	/** maximum sigma to use on the filters */
 	private float maximumSigma = 16f;
 
-	/** flags of filters to be used */
+	private boolean isProcessing3D = false;
+	private FeatureStack3D fs3d = null;
+
+	/** flags of filters to be used in 2D */
 	private boolean[] enabledFeatures = new boolean[]{
 			true, 	/* Gaussian_blur */
 			true, 	/* Sobel_filter */
@@ -176,6 +179,23 @@ public class WekaSegmentation {
 			false,	/* Entropy */
 			false	/* Neighbors */
 	};
+
+	/** flags of features to be used in 3D */
+	private boolean[] enabledFeatures3d = new boolean[]{
+			true, 	/* Gaussian_blur */
+			true, 	/* Hessian */
+			true, 	/* Derivatives */
+			true, 	/* Laplacian */
+			true,	/* Structure */
+			true,	/* Edges */
+			true,	/* Difference of Gaussian */
+			true,	/* Minimum */
+			true,	/* Maximum */
+			true,	/* Mean */
+			true,	/* Median */
+			true	/* Variance */
+	};
+
 	/** use neighborhood flag */
 	private boolean useNeighbors = false;
 
@@ -273,6 +293,12 @@ public class WekaSegmentation {
 		addClass();
 	}
 
+	public WekaSegmentation( boolean isProcessing3D )
+	{
+		this();
+		this.isProcessing3D = isProcessing3D;
+	}
+
 	/**
 	 * Set the training image (single image or stack)
 	 *
@@ -285,7 +311,7 @@ public class WekaSegmentation {
 		// Initialize feature stack (no features yet)
 		featureStackArray = new FeatureStackArray(trainingImage.getImageStackSize(),
 				minimumSigma, maximumSigma, useNeighbors, membraneThickness, membranePatchSize,
-				enabledFeatures);
+				isProcessing3D ? enabledFeatures3d : enabledFeatures );
 
 		featureStackToUpdateTrain = new boolean[trainingImage.getImageStackSize()];
 		featureStackToUpdateTest = new boolean[trainingImage.getImageStackSize()];
@@ -300,9 +326,18 @@ public class WekaSegmentation {
 			for(int j=0; j<MAX_NUM_CLASSES; j++)
 				examples[i].add(new ArrayList<Roi>());
 
-			// Initialize each feature stack (one per slice)
-			featureStackArray.set(new FeatureStack(trainingImage.getImageStack().getProcessor(i+1)), i);
+			if ( !isProcessing3D )
+				// Initialize each feature stack (one per slice)
+				featureStackArray.set(
+						new FeatureStack(
+								trainingImage.getImageStack().getProcessor(i+1) ), i);
 		}
+
+		if( isProcessing3D )
+		{
+			fs3d = new FeatureStack3D( trainingImage );
+		}
+
 	}
 
 	/**
