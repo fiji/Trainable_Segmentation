@@ -125,63 +125,63 @@ public class Weka_Segmentation implements PlugIn
 	private final WekaSegmentation wekaSegmentation;
 	
 	/** image to display on the GUI */
-	private ImagePlus displayImage;
+	private ImagePlus displayImage = null;
 	/** image to be used in the training */
-	private ImagePlus trainingImage;
+	private ImagePlus trainingImage = null;
 	/** result image after classification */
-	private ImagePlus classifiedImage;
+	private ImagePlus classifiedImage = null;
 	/** GUI window */
-	private CustomWindow win;
+	private CustomWindow win = null;
 	/** number of classes in the GUI */
-	private int numOfClasses;
+	private int numOfClasses = 2;
 	/** array of number of traces per class */
 	private int[] traceCounter = new int[WekaSegmentation.MAX_NUM_CLASSES];
 	/** flag to display the overlay image */
-	private boolean showColorOverlay;
+	private boolean showColorOverlay = false;
 	/** executor service to launch threads for the plugin methods and events */
 	private final ExecutorService exec = Executors.newFixedThreadPool(1);
 
 	/** train classifier button */
-	private JButton trainButton;
+	private JButton trainButton = null;
 	/** toggle overlay button */
-	private JButton overlayButton;
+	private JButton overlayButton = null;
 	/** create result button */
-	private JButton resultButton;
+	private JButton resultButton = null;
 	/** get probability maps button */
-	private JButton probabilityButton;
+	private JButton probabilityButton = null;
 	/** plot result button */
-	private JButton plotButton;
+	private JButton plotButton = null;
 	/** apply classifier button */
-	private JButton applyButton;
+	private JButton applyButton = null;
 	/** load classifier button */
-	private JButton loadClassifierButton;
+	private JButton loadClassifierButton = null;
 	/** save classifier button */
-	private JButton saveClassifierButton;
+	private JButton saveClassifierButton = null;
 	/** load data button */
-	private JButton loadDataButton;
+	private JButton loadDataButton = null;
 	/** save data button */
-	private JButton saveDataButton;
+	private JButton saveDataButton = null;
 	/** settings button */
-	private JButton settingsButton;
+	private JButton settingsButton = null;
 	/** Weka button */
-	private JButton wekaButton;
+	private JButton wekaButton = null;
 	/** create new class button */
-	private JButton addClassButton;
+	private JButton addClassButton = null;
 
 	/** array of roi list overlays to paint the transparent rois of each class */
-	private RoiListOverlay [] roiOverlay;
+	private RoiListOverlay [] roiOverlay = null;
 	
 	/** available colors for available classes */
 	private Color[] colors = new Color[]{Color.red, Color.green, Color.blue,
 			Color.cyan, Color.magenta};
 
 	/** Lookup table for the result overlay image */
-	private LUT overlayLUT;
+	private LUT overlayLUT = null;
 
 	/** array of trace lists for every class */
-	private java.awt.List[] exampleList;
+	private java.awt.List[] exampleList = null;
 	/** array of buttons for adding each trace class */
-	private JButton [] addExampleButton;
+	private JButton [] addExampleButton = null;
 	
 	// Macro recording constants (corresponding to  
 	// static method names to be called)
