@@ -235,14 +235,16 @@ public class Weka_Segmentation implements PlugIn
 	public static final String SET_OPACITY = "setOpacity";
 	/** boolean flag set to true while training */
 	private boolean trainingFlag = false;
-		
+
+	private boolean isProcessing3D = false;
+
 	/**
 	 * Basic constructor for graphical user interface use
 	 */
 	public Weka_Segmentation()
 	{
 		// instantiate segmentation backend
-		wekaSegmentation = new WekaSegmentation();
+		wekaSegmentation = new WekaSegmentation( isProcessing3D );
 
 		// Create overlay LUT
 		final byte[] red = new byte[ 256 ];
@@ -1227,6 +1229,9 @@ public class Weka_Segmentation implements PlugIn
 	 */
 	public void run(String arg)
 	{
+		if( arg.equals( "3D" ) )
+			isProcessing3D = true;
+
 		//get current image
 		if (null == WindowManager.getCurrentImage())
 		{
