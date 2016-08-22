@@ -784,8 +784,16 @@ public class WekaSegmentation {
 		if(featureStackArray.isEmpty() || updateFeatures)
 		{
 			IJ.log("Creating feature stack...");
-			if (!featureStackArray.updateFeaturesMT(featureStackToUpdateTrain))
+			if ( !isProcessing3D &&
+				 !featureStackArray.updateFeaturesMT(
+						 featureStackToUpdateTrain ) )
 				return false;
+			else if ( isProcessing3D )
+			{
+				if( !fs3d.updateFeaturesMT() )
+					return false;
+				featureStackArray = fs3d.getFeatureStackArray();
+			}
 			Arrays.fill(featureStackToUpdateTrain, false);
 			filterFeatureStackByList();
 			updateFeatures = false;
