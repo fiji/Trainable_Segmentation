@@ -182,17 +182,17 @@ public class WekaSegmentation {
 
 	/** flags of features to be used in 3D */
 	private boolean[] enabledFeatures3d = new boolean[]{
-			true, 	/* Gaussian_blur */
-			true, 	/* Hessian */
-			true, 	/* Derivatives */
-			true, 	/* Laplacian */
-			true,	/* Structure */
-			true,	/* Edges */
-			true,	/* Difference of Gaussian */
-			true,	/* Minimum */
-			true,	/* Maximum */
+			false, 	/* Gaussian_blur */
+			false, 	/* Hessian */
+			false, 	/* Derivatives */
+			false, 	/* Laplacian */
+			false,	/* Structure */
+			false,	/* Edges */
+			false,	/* Difference of Gaussian */
+			false,	/* Minimum */
+			false,	/* Maximum */
 			true,	/* Mean */
-			true,	/* Median */
+			false,	/* Median */
 			true	/* Variance */
 	};
 
@@ -297,6 +297,10 @@ public class WekaSegmentation {
 	{
 		this();
 		this.isProcessing3D = isProcessing3D;
+		// when working in 3D, set maximum filter radius to 8 (otherwise the
+		// feature calculation is too slow)
+		if( isProcessing3D )
+			this.maximumSigma = 8f;
 	}
 
 	/**
@@ -336,6 +340,9 @@ public class WekaSegmentation {
 		if( isProcessing3D )
 		{
 			fs3d = new FeatureStack3D( trainingImage );
+			fs3d.setMaximumSigma( maximumSigma );
+			fs3d.setMinimumSigma( minimumSigma );
+			featureStackArray = fs3d.getFeatureStackArray();
 		}
 
 	}
@@ -350,7 +357,7 @@ public class WekaSegmentation {
 	 */
 	public void addExample(int classNum, Roi roi, int n)
 	{
-		if(!featureStackToUpdateTrain[n - 1])
+		if( !featureStackToUpdateTrain[n - 1] )
 		{
 			boolean updated = false;
 			for(final ArrayList<Roi> list : examples[n-1])
@@ -4454,12 +4461,24 @@ public class WekaSegmentation {
 			// set the reference slice to one with traces
 			featureStackArray.setReference( sliceWithTraces );
 
-			if (!featureStackArray.updateFeaturesMT(featureStackToUpdateTrain))
+			if ( !isProcessing3D &&
+				 !featureStackArray.updateFeaturesMT(featureStackToUpdateTrain))
 			{
 				IJ.log("Feature stack was not updated.");
 				IJ.showStatus("Feature stack was not updated.");
 				return false;
 			}
+			if ( isProcessing3D )
+			{
+				if( !fs3d.updateFeaturesMT() )
+				{
+					IJ.log("Feature stack 3D was not updated.");
+					IJ.showStatus("Feature stack 3D was not updated.");
+					return false;
+				}
+				featureStackArray = fs3d.getFeatureStackArray();
+			}
+			
 			Arrays.fill(featureStackToUpdateTrain, false);
 			filterFeatureStackByList();
 			updateFeatures = false;
@@ -5449,14 +5468,15 @@ public class WekaSegmentation {
 		if (numThreads == 0)
 			numThreads = Prefs.getThreads();
 
-		// Check if all feature stacks were used during training
+		// Check if all 2D feature stacks were used during training
 		boolean allUsed = true;
-		for(int j=0; j<featureStackToUpdateTest.length; j++)
-			if(featureStackToUpdateTest[j])
-			{
-				allUsed = false;
-				break;
-			}
+		if( !isProcessing3D )
+			for(int j=0; j<featureStackToUpdateTest.length; j++)
+				if(featureStackToUpdateTest[j])
+				{
+					allUsed = false;
+					break;
+				}
 
 		// Create feature stack if it was not created yet
 		if(!allUsed || featureStackArray.isEmpty() || updateFeatures)
@@ -5464,12 +5484,23 @@ public class WekaSegmentation {
 			IJ.showStatus("Creating feature stack...");
 			IJ.log("Creating feature stack...");
 			long start = System.currentTimeMillis();
-			if (!featureStackArray.updateFeaturesMT(featureStackToUpdateTest))
+			if ( !isProcessing3D && !featureStackArray.updateFeaturesMT(featureStackToUpdateTest))
 			{
 				IJ.log("Feature stack was not updated.");
 				IJ.showStatus("Feature stack was not updated.");
 				return;
 			}
+			if ( isProcessing3D )
+			{
+				if( !fs3d.updateFeaturesMT() )
+				{
+					IJ.log("Feature stack 3D was not updated.");
+					IJ.showStatus("Feature stack 3D was not updated.");
+					return;
+				}
+				featureStackArray = fs3d.getFeatureStackArray();
+			}
+
 			Arrays.fill(featureStackToUpdateTest, false);
 			filterFeatureStackByList();
 			updateFeatures = false;
@@ -6176,6 +6207,8 @@ public class WekaSegmentation {
 	public void setFeaturesDirty()
 	{
 		updateFeatures = true;
+		if( isProcessing3D )
+			return;
 		// Set feature stacks belonging to slices with traces
 		// to be updated during training and not test
 		Arrays.fill(featureStackToUpdateTrain, false);
@@ -6229,7 +6262,13 @@ public class WekaSegmentation {
 	 */
 	public void setEnabledFeatures(boolean[] newFeatures)
 	{
-		this.enabledFeatures = newFeatures;
+		if( isProcessing3D )
+		{
+			this.enabledFeatures3d = newFeatures;
+			this.fs3d.setEnableFeatures( newFeatures );
+		}
+		else
+			this.enabledFeatures = newFeatures;
 		featureStackArray.setEnabledFeatures(newFeatures);
 	}
 
@@ -6239,6 +6278,8 @@ public class WekaSegmentation {
 	 */
 	public boolean[] getEnabledFeatures()
 	{
+		if( isProcessing3D )
+			return this.enabledFeatures3d;
 		return this.enabledFeatures;
 	}
 
@@ -6299,7 +6340,13 @@ public class WekaSegmentation {
 
 		if(featureStackArray.isEmpty())
 		{
-			featureStackArray.updateFeaturesMT();
+			if( !isProcessing3D )
+				featureStackArray.updateFeaturesMT();
+			else
+			{
+				fs3d.updateFeaturesMT();
+				featureStackArray = fs3d.getFeatureStackArray();
+			}
 		}
 
 		if(null == dir || null == fileWithExt)
@@ -6334,6 +6381,10 @@ public class WekaSegmentation {
 	public String[] getClassLabels()
 	{
 		return classLabels;
+	}
+
+	public boolean isProcessing3D() {
+		return isProcessing3D;
 	}
 
 }
