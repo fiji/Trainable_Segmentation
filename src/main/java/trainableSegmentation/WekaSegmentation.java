@@ -357,15 +357,20 @@ public class WekaSegmentation {
 	 */
 	public void addExample(int classNum, Roi roi, int n)
 	{
-		if( !featureStackToUpdateTrain[n - 1] )
+		// In 2D: if the feature stack of that slice is not set
+		// to be updated during training
+		if( !isProcessing3D && !featureStackToUpdateTrain[n - 1] )
 		{
 			boolean updated = false;
+			// check if it has any trace yet of any class
 			for(final ArrayList<Roi> list : examples[n-1])
 				if(!list.isEmpty())
 				{
 					updated = true;
 					break;
 				}
+			// if it does not contain any trace yet, set it
+			// to be updated during training
 			if(!updated && featureStackToUpdateTest[n - 1])
 			{
 				//IJ.log("Feature stack for slice " + n
@@ -374,7 +379,6 @@ public class WekaSegmentation {
 				featureStackToUpdateTest[n-1] = false;
 				updateFeatures = true;
 			}
-
 		}
 
 		examples[n-1].get(classNum).add(roi);
