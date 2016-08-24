@@ -905,7 +905,7 @@ public class FeatureStack3D
 				// Mean
 				if(enableFeatures[ MEAN ])
 				{
-					IJ.log( "Calculating Mean filter ("+ i + ")" );
+					//IJ.log( "Calculating Mean filter ("+ i + ")" );
 					futures.add(exe.submit( getMean(originalImage, i)) );
 				}
 				
@@ -918,7 +918,7 @@ public class FeatureStack3D
 				// Variance
 				if(enableFeatures[ VARIANCE ])
 				{
-					IJ.log( "Calculating Variance filter ("+ i + ")" );
+					//IJ.log( "Calculating Variance filter ("+ i + ")" );
 					futures.add(exe.submit( getVariance(originalImage, i)) );
 				}
 					
