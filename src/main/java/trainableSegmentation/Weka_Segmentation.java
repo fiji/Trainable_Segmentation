@@ -122,7 +122,7 @@ public class Weka_Segmentation implements PlugIn
 		Weka_Segmentation.class.getPackage().getImplementationVersion();
 	
 	/** reference to the segmentation backend */
-	private final WekaSegmentation wekaSegmentation;
+	private WekaSegmentation wekaSegmentation = null;
 	
 	/** image to display on the GUI */
 	private ImagePlus displayImage = null;
@@ -243,9 +243,6 @@ public class Weka_Segmentation implements PlugIn
 	 */
 	public Weka_Segmentation()
 	{
-		// instantiate segmentation backend
-		wekaSegmentation = new WekaSegmentation( isProcessing3D );
-
 		// Create overlay LUT
 		final byte[] red = new byte[ 256 ];
 		final byte[] green = new byte[ 256 ];
@@ -335,13 +332,6 @@ public class Weka_Segmentation implements PlugIn
 		ImageIcon icon = new ImageIcon(Weka_Segmentation.class.getResource("/trainableSegmentation/images/weka.png"));
 		wekaButton = new JButton( icon );
 		wekaButton.setToolTipText("Launch Weka GUI chooser");
-
-		for(int i = 0; i < wekaSegmentation.getNumOfClasses() ; i++)
-		{
-			exampleList[i] = new java.awt.List(5);
-			exampleList[i].setForeground(colors[i]);
-		}
-		numOfClasses = wekaSegmentation.getNumOfClasses();
 
 		showColorOverlay = false;
 	}
@@ -1229,8 +1219,18 @@ public class Weka_Segmentation implements PlugIn
 	 */
 	public void run(String arg)
 	{
+		// check if the image should be process in 3D
 		if( arg.equals( "3D" ) )
 			isProcessing3D = true;
+
+		// instantiate segmentation backend
+		wekaSegmentation = new WekaSegmentation( isProcessing3D );
+		for(int i = 0; i < wekaSegmentation.getNumOfClasses() ; i++)
+		{
+			exampleList[i] = new java.awt.List(5);
+			exampleList[i].setForeground(colors[i]);
+		}
+		numOfClasses = wekaSegmentation.getNumOfClasses();
 
 		//get current image
 		if (null == WindowManager.getCurrentImage())
@@ -2126,8 +2126,14 @@ public class Weka_Segmentation implements PlugIn
 		final boolean[] oldEnableFeatures = wekaSegmentation.getEnabledFeatures();
 
 		gd.addMessage("Training features:");
-		final int rows = (int)Math.round(FeatureStack.availableFeatures.length/2.0);
-		gd.addCheckboxGroup(rows, 2, FeatureStack.availableFeatures, oldEnableFeatures);
+		final int rows = isProcessing3D ?
+				(int) Math.round( FeatureStack3D.availableFeatures.length/2.0 ) :
+				(int) Math.round( FeatureStack.availableFeatures.length/2.0 );
+
+		if( isProcessing3D )
+			gd.addCheckboxGroup( rows, 2, FeatureStack3D.availableFeatures, oldEnableFeatures);
+		else
+			gd.addCheckboxGroup( rows, 2, FeatureStack.availableFeatures, oldEnableFeatures);
 
 		disableMissingFeatures(gd);
 
@@ -2187,7 +2193,9 @@ public class Weka_Segmentation implements PlugIn
 		if (gd.wasCanceled())
 			return false;
 
-		final int numOfFeatures = FeatureStack.availableFeatures.length;
+		final int numOfFeatures = isProcessing3D ?
+				FeatureStack3D.availableFeatures.length :
+					FeatureStack.availableFeatures.length;
 
 		final boolean[] newEnableFeatures = new boolean[numOfFeatures];
 
@@ -2200,8 +2208,11 @@ public class Weka_Segmentation implements PlugIn
 			if (newEnableFeatures[i] != oldEnableFeatures[i])
 			{
 				featuresChanged = true;
+				final String featureName = isProcessing3D ?
+						FeatureStack3D.availableFeatures[ i ] :
+						FeatureStack.availableFeatures[ i ];
 				// Macro recording
-				record(SET_FEATURE, new String[]{ FeatureStack.availableFeatures[ i ] + "=" + newEnableFeatures[ i ] });
+				record(SET_FEATURE, new String[]{ featureName + "=" + newEnableFeatures[ i ] });
 			}
 		}
 		if(featuresChanged)
@@ -3068,6 +3079,7 @@ public class Weka_Segmentation implements PlugIn
 		{
 			final CustomWindow win = (CustomWindow) iw;
 			final WekaSegmentation wekaSegmentation = win.getWekaSegmentation();
+			final boolean isProcessing3D = wekaSegmentation.isProcessing3D();
 
 			int index = feature.indexOf("=");
 			String featureName = feature.substring(0, index);
@@ -3077,7 +3089,10 @@ public class Weka_Segmentation implements PlugIn
 			boolean forceUpdate = false;
 			for(int i=0; i<enabledFeatures.length; i++)
 			{
-                if (FeatureStack.availableFeatures[i].contains(featureName) && featureValue != enabledFeatures[i])
+				final String availableFeature = isProcessing3D ?
+						FeatureStack3D.availableFeatures[i] :
+							FeatureStack.availableFeatures[i];
+                if ( availableFeature.contains(featureName) && featureValue != enabledFeatures[i])
                 {
                     enabledFeatures[i] = featureValue;
                     forceUpdate = true;
