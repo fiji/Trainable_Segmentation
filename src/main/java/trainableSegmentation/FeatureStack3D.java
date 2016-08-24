@@ -67,7 +67,7 @@ public class FeatureStack3D
 	/** minmum sigma/radius used in the filters */
 	private float minimumSigma = 1;
 	/** maximum sigma/radius used in the filters */
-	private float maximumSigma = 16;
+	private float maximumSigma = 8;
 	
 	/** Gaussian filter flag index */
 	public static final int GAUSSIAN 				=  0;
@@ -118,17 +118,17 @@ public class FeatureStack3D
 
 	/** flags of filters to be used */	
 	private boolean[] enableFeatures = new boolean[]{
-			true, 	/* Gaussian_blur */
-			true, 	/* Hessian */
-			true, 	/* Derivatives */
-			true, 	/* Laplacian */
-			true,	/* Structure */
-			true,	/* Edges */
-			true,	/* Difference of Gaussian */
-			true,	/* Minimum */
-			true,	/* Maximum */
+			false, 	/* Gaussian_blur */
+			false, 	/* Hessian */
+			false, 	/* Derivatives */
+			false, 	/* Laplacian */
+			false,	/* Structure */
+			false,	/* Edges */
+			false,	/* Difference of Gaussian */
+			false,	/* Minimum */
+			false,	/* Maximum */
 			true,	/* Mean */
-			true,	/* Median */
+			false,	/* Median */
 			true	/* Variance */
 	};
 	
@@ -843,7 +843,7 @@ public class FeatureStack3D
 				// Gaussian blur
 				if(enableFeatures[GAUSSIAN])
 				{
-					//IJ.log( n++ +": Calculating Gaussian filter ("+ i + ")");
+					//IJ.log( "Calculating Gaussian filter ("+ i + ")" );
 					futures.add(exe.submit( getDerivatives(originalImage, scaledSigma, 0, 0, 0)) );
 				}
 				
@@ -852,7 +852,7 @@ public class FeatureStack3D
 				{
 					for (float j=minimumSigma; j<i; j*=2)
 					{
-						//IJ.log( n++ +": Calculating DoG filter ("+ i + ", " + j + ")");
+						//IJ.log( "Calculating DoG filter ("+ i + ", " + j + ")" );
 						futures.add(exe.submit( getDoG( originalImage, scaledSigma, j * pixelWidth) ) );
 					}
 				}
@@ -860,7 +860,7 @@ public class FeatureStack3D
 				// Hessian
 				if(enableFeatures[HESSIAN])
 				{
-					//IJ.log("Calculating Hessian filter ("+ i + ")");
+					//IJ.log( "Calculating Hessian filter ("+ i + ")" );
 					futures.add(exe.submit( getHessian(originalImage, scaledSigma, true)) );
 				}
 							
@@ -905,6 +905,7 @@ public class FeatureStack3D
 				// Mean
 				if(enableFeatures[ MEAN ])
 				{
+					IJ.log( "Calculating Mean filter ("+ i + ")" );
 					futures.add(exe.submit( getMean(originalImage, i)) );
 				}
 				
@@ -917,6 +918,7 @@ public class FeatureStack3D
 				// Variance
 				if(enableFeatures[ VARIANCE ])
 				{
+					IJ.log( "Calculating Variance filter ("+ i + ")" );
 					futures.add(exe.submit( getVariance(originalImage, i)) );
 				}
 					
@@ -997,4 +999,8 @@ public class FeatureStack3D
 		this.maximumSigma = maximumSigma;
 	}
 
+	public void setEnableFeatures( boolean[] enableFeatures )
+	{
+		this.enableFeatures = enableFeatures;
+	}
 }
