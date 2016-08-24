@@ -4609,6 +4609,22 @@ public class WekaSegmentation {
 		if (numThreads == 0)
 			numThreads = Prefs.getThreads();
 
+		if( isProcessing3D )
+		{
+			long start = System.currentTimeMillis();
+			FeatureStack3D fs3d = new FeatureStack3D( imp );
+			fs3d.setMaximumSigma( maximumSigma );
+			fs3d.setMinimumSigma( minimumSigma );
+			fs3d.updateFeaturesMT();
+			FeatureStackArray fsa = fs3d.getFeatureStackArray();
+			long end = System.currentTimeMillis();
+			IJ.log( "Feature stack array is now updated ("
+					+ imp.getImageStackSize()
+					+ " slice(s) with " + fsa.getNumOfFeatures()
+					+ " feature(s), took " + (end-start) + "ms)." );
+			return applyClassifier(	fsa, numThreads, probabilityMaps );
+		}
+
 		final int numSliceThreads = Math.min(imp.getStackSize(), numThreads);
 		final int numClasses      = numOfClasses;
 		final int numChannels     = (probabilityMaps ? numClasses : 1);
