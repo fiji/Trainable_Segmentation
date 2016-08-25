@@ -460,7 +460,7 @@ public class FeatureStack3D
 					IJ.run( im, "32-bit", "");
 				}
 				
-				ArrayList<ImagePlus> result = new ArrayList();
+				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 				
 				final ImageStack is = Filters3D.filter(im.getImageStack(),Filters3D.MIN, (float)sigma, (float)sigma, (float)sigma);
 				final ImagePlus ip = new ImagePlus( availableFeatures[ MINIMUM ] +"_" + sigma, is );							
@@ -497,7 +497,7 @@ public class FeatureStack3D
 					IJ.run( im, "32-bit", "");
 				}
 				
-				ArrayList<ImagePlus> result = new ArrayList();
+				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 				
 				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.MAX, (float)sigma, (float)sigma, (float)sigma);
 				final ImagePlus ip = new ImagePlus( availableFeatures[ MAXIMUM ] +"_" + sigma, is );
@@ -534,7 +534,7 @@ public class FeatureStack3D
 					IJ.run( im, "32-bit", "");
 				}
 				
-				ArrayList<ImagePlus> result = new ArrayList();
+				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 				
 				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.MEAN, (float)sigma, (float)sigma, (float)sigma);
 				final ImagePlus ip = new ImagePlus( availableFeatures[ MEAN ] +"_" + sigma, is );
@@ -570,7 +570,7 @@ public class FeatureStack3D
 					IJ.run( im, "32-bit", "");
 				}
 				
-				ArrayList<ImagePlus> result = new ArrayList();
+				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 				
 				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.MEDIAN, (float)sigma, (float)sigma, (float)sigma);
 				final ImagePlus ip = new ImagePlus( availableFeatures[ MEDIAN ] +"_" + sigma, is );
@@ -606,7 +606,7 @@ public class FeatureStack3D
 					IJ.run( im, "32-bit", "");
 				}
 				
-				ArrayList<ImagePlus> result = new ArrayList();
+				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 				
 				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.VAR, (float)sigma, (float)sigma, (float)sigma);
 				final ImagePlus ip = new ImagePlus( availableFeatures[ VARIANCE ] +"_" + sigma, is );								
