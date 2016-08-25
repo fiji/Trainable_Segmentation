@@ -988,17 +988,26 @@ public class FeatureStack3D
 		return fsa;
 	}
 	
-	
+	/**
+	 * Set the minimum sigma (or filter radius) of the features
+	 * @param minimumSigma minimum sigma to use
+	 */
 	public void setMinimumSigma( float minimumSigma )
 	{
 		this.minimumSigma = minimumSigma;
 	}
-	
+	/**
+	 * Set the maximum sigma (or filter radius) of the features
+	 * @param maximumSigma maximum sigma to use
+	 */
 	public void setMaximumSigma( float maximumSigma )
 	{
 		this.maximumSigma = maximumSigma;
 	}
-
+	/**
+	 * Set the boolean flags to enable/disable features
+	 * @param enableFeatures array of flags
+	 */
 	public void setEnableFeatures( boolean[] enableFeatures )
 	{
 		this.enableFeatures = enableFeatures;
