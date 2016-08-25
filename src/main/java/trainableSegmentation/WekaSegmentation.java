@@ -180,22 +180,6 @@ public class WekaSegmentation {
 			false	/* Neighbors */
 	};
 
-	/** flags of features to be used in 3D */
-	private boolean[] enabledFeatures3d = new boolean[]{
-			false, 	/* Gaussian_blur */
-			false, 	/* Hessian */
-			false, 	/* Derivatives */
-			false, 	/* Laplacian */
-			false,	/* Structure */
-			false,	/* Edges */
-			false,	/* Difference of Gaussian */
-			false,	/* Minimum */
-			false,	/* Maximum */
-			true,	/* Mean */
-			false,	/* Median */
-			true	/* Variance */
-	};
-
 	/** use neighborhood flag */
 	private boolean useNeighbors = false;
 
@@ -315,7 +299,7 @@ public class WekaSegmentation {
 		// Initialize feature stack (no features yet)
 		featureStackArray = new FeatureStackArray(trainingImage.getImageStackSize(),
 				minimumSigma, maximumSigma, useNeighbors, membraneThickness, membranePatchSize,
-				isProcessing3D ? enabledFeatures3d : enabledFeatures );
+				enabledFeatures );
 
 		featureStackToUpdateTrain = new boolean[trainingImage.getImageStackSize()];
 		featureStackToUpdateTest = new boolean[trainingImage.getImageStackSize()];
@@ -6283,10 +6267,7 @@ public class WekaSegmentation {
 	public void setEnabledFeatures(boolean[] newFeatures)
 	{
 		if( isProcessing3D )
-		{
-			this.enabledFeatures3d = newFeatures;
 			this.fs3d.setEnableFeatures( newFeatures );
-		}
 		else
 			this.enabledFeatures = newFeatures;
 		featureStackArray.setEnabledFeatures(newFeatures);
@@ -6299,7 +6280,7 @@ public class WekaSegmentation {
 	public boolean[] getEnabledFeatures()
 	{
 		if( isProcessing3D )
-			return this.enabledFeatures3d;
+			return this.fs3d.getEnabledFeatures();
 		return this.enabledFeatures;
 	}
 
