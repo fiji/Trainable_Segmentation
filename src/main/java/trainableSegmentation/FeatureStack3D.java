@@ -1012,4 +1012,12 @@ public class FeatureStack3D
 	{
 		this.enableFeatures = enableFeatures;
 	}
+	/**
+	 * Get the boolean flags of enabled features
+	 * @return array of flags with enabled/disabled features
+	 */
+	public boolean[] getEnabledFeatures()
+	{
+		return this.enableFeatures;
+	}
 }
