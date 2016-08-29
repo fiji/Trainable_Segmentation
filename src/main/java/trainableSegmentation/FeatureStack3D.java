@@ -43,6 +43,15 @@ import ij.plugin.Filters3D;
 import ij.plugin.ImageCalculator;
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
+import ij.process.ImageProcessor;
+import net.imglib2.RandomAccessible;
+import net.imglib2.algorithm.gauss3.Gauss3;
+import net.imglib2.exception.IncompatibleTypeException;
+import net.imglib2.img.ImagePlusAdapter;
+import net.imglib2.img.Img;
+import net.imglib2.img.display.imagej.ImageJFunctions;
+import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.view.Views;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -470,8 +479,55 @@ public class FeatureStack3D
 			}
 		};
 	}
-		
-	
+
+	/**
+	 * Get Gaussian features (to be submitted to an ExecutorService)
+	 *
+	 * @param originalImage input image
+	 * @param sigma filter radius
+	 * @return filter Gaussian filtered image
+	 */
+	public Callable<ArrayList< ImagePlus >> getGaussian(
+			final ImagePlus originalImage,
+			final double sigma )
+	{
+		if (Thread.currentThread().isInterrupted())
+			return null;
+
+		return new Callable<ArrayList< ImagePlus >>()
+		{
+			public ArrayList< ImagePlus > call()
+			{
+				ImagePlus im = originalImage;
+				if(!originalImage.getImageStack().isRGB())
+				{
+					im = originalImage.duplicate();
+					IJ.run( im, "32-bit", "");
+				}
+
+				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
+
+				final Img<FloatType> image2 = ImagePlusAdapter.wrap( im );
+
+				// first extend the image with mirror
+				RandomAccessible< FloatType > mirrorImg = Views.extendMirrorSingle( image2 );
+
+				try {
+					Gauss3.gauss( sigma, mirrorImg, image2 );
+				} catch (IncompatibleTypeException e) {
+					IJ.log( "Error when calculating Gaussian feature." );
+					e.printStackTrace();
+					return null;
+				}
+
+				final ImagePlus ip = ImageJFunctions.wrapFloat(
+						image2, availableFeatures[ GAUSSIAN ] +"_" + sigma );
+				result.add( ip );
+				return result;
+			}
+		};
+	}
+
 	/**
 	 * Get Maximum features (to be submitted to an ExecutorService)
 	 *
@@ -844,7 +900,7 @@ public class FeatureStack3D
 				if(enableFeatures[GAUSSIAN])
 				{
 					//IJ.log( "Calculating Gaussian filter ("+ i + ")" );
-					futures.add(exe.submit( getDerivatives(originalImage, scaledSigma, 0, 0, 0)) );
+					futures.add( exe.submit( getGaussian( originalImage, i ) ) );
 				}
 				
 				// Difference of Gaussian
@@ -981,8 +1037,10 @@ public class FeatureStack3D
 		{
 			//IJ.log(" Adding feature '"+ ip.getTitle() + "' from 3D stack to feature stack array... ");
 			for(int n=1; n<=ip.getImageStackSize(); n++)
-				fsa.get(n-1).getStack().addSlice(ip.getTitle(), ip.getImageStack().getProcessor(n));
-			
+			{
+				final ImageProcessor slice = ip.getImageStack().getProcessor( n ).duplicate();
+				fsa.get( n-1 ).getStack().addSlice( ip.getTitle(), slice );
+			}
 		}
 		
 		return fsa;
