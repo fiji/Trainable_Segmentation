@@ -40,11 +40,11 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Prefs;
 import ij.plugin.Filters3D;
-import ij.plugin.ImageCalculator;
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import net.imglib2.RandomAccessible;
+import net.imglib2.algorithm.dog.DifferenceOfGaussian;
 import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.ImagePlusAdapter;
@@ -117,7 +117,7 @@ public class FeatureStack3D
 		true,  // Laplacian
 		true,  // Structure
 		true,  // Edges
-		true,  // Difference of Gaussian
+		false,  // Difference of Gaussian
 		false, // Minimum
 		false, // Maximum
 		false, // Mean
@@ -144,7 +144,9 @@ public class FeatureStack3D
 	
 	private int minDerivativeOrder = 1;
 	private int maxDerivativeOrder = 5;
-		
+
+	private ExecutorService exe;
+
 	/**
 	 * Construct object to store stack of image features
 	 * @param image original image
@@ -263,25 +265,29 @@ public class FeatureStack3D
 				{
 					results[ ch ] = new ArrayList<ImagePlus>();
 					
-					// pad image on the back and the front
 					final ImagePlus channel = channels [ ch ].duplicate();
-					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
-					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
+					final Img<FloatType> image2 = ImagePlusAdapter.wrap( channel );
+
+					// first extend the image with mirror
+					RandomAccessible< FloatType > mirrorImg = Views.extendMirrorSingle( image2 );
+
+					// define the first sigma for each dimension
+					final double[] isoSigma1 = new double[ mirrorImg.numDimensions() ];
+					for ( int d = 0; d < isoSigma1.length; ++d )
+						isoSigma1[ d ] = sigma1;
+					// define the second sigma for each dimension
+					final double[] isoSigma2 = new double[ mirrorImg.numDimensions() ];
+					for ( int d = 0; d < isoSigma2.length; ++d )
+						isoSigma2[ d ] = sigma2;
+
+					DifferenceOfGaussian.DoG( isoSigma1, isoSigma2, mirrorImg, image2, exe );
+
+					final ImagePlus ip = ImageJFunctions.wrapFloat(
+							image2, availableFeatures[ DOG ] +"_" + sigma1 +
+							"_" + sigma2 );
+
+					results[ch].add( ip );
 					
-					final ImagePlus ip = ImageScience.computeDifferentialImage(sigma1, 0, 0, 0, channel);
-					final ImagePlus ip2 = ImageScience.computeDifferentialImage(sigma2, 0, 0, 0, channel);
-					
-					ImageCalculator ic = new ImageCalculator();
-					final ImagePlus res = ic.run("Difference create stack", ip2, ip );
-					
-					
-					res.setTitle( availableFeatures[ DOG ] +"_" + sigma1 + "_" + sigma2 );
-										
-					// remove pad				
-					res.getImageStack().deleteLastSlice();
-					res.getImageStack().deleteSlice(1);				
-					
-					results[ch].add( res );		
 				}
 						
 				return mergeResultChannels(results);				
@@ -855,7 +861,7 @@ public class FeatureStack3D
 		if (Thread.currentThread().isInterrupted() )
 			return false;
 		
-		ExecutorService exe = Executors.newFixedThreadPool( Prefs.getThreads() );
+		exe = Executors.newFixedThreadPool( Prefs.getThreads() );
 		
 		wholeStack = new ArrayList<ImagePlus>();
 		
@@ -912,8 +918,8 @@ public class FeatureStack3D
 				{
 					for (float j=minimumSigma; j<i; j*=2)
 					{
-						//IJ.log( "Calculating DoG filter ("+ i + ", " + j + ")" );
-						futures.add(exe.submit( getDoG( originalImage, scaledSigma, j * pixelWidth) ) );
+						//IJ.log( "Calculating DoG filter ("+ j + ", " + i + ")" );
+						futures.add(exe.submit( getDoG( originalImage, j, i ) ) );
 					}
 				}
 			
