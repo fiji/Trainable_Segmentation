@@ -498,32 +498,36 @@ public class FeatureStack3D
 		{
 			public ArrayList< ImagePlus > call()
 			{
-				ImagePlus im = originalImage;
-				if(!originalImage.getImageStack().isRGB())
+				// Get channel(s) to process
+				ImagePlus[] channels = extractChannels(originalImage);
+
+				ArrayList<ImagePlus>[] results = new ArrayList[ channels.length ];
+
+				for(int ch=0; ch < channels.length; ch++)
 				{
-					im = originalImage.duplicate();
-					IJ.run( im, "32-bit", "");
+					results[ ch ] = new ArrayList<ImagePlus>();
+
+					final ImagePlus im = channels [ ch ].duplicate();
+					final Img<FloatType> image2 = ImagePlusAdapter.wrap( im );
+
+					// first extend the image with mirror
+					RandomAccessible< FloatType > mirrorImg = Views.extendMirrorSingle( image2 );
+
+					try {
+						Gauss3.gauss( sigma, mirrorImg, image2 );
+					} catch (IncompatibleTypeException e) {
+						IJ.log( "Error when calculating Gaussian feature." );
+						e.printStackTrace();
+						return null;
+					}
+
+					final ImagePlus ip = ImageJFunctions.wrapFloat(
+							image2, availableFeatures[ GAUSSIAN ] +"_" + sigma );
+
+					results[ch].add( ip );
 				}
 
-				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
-
-				final Img<FloatType> image2 = ImagePlusAdapter.wrap( im );
-
-				// first extend the image with mirror
-				RandomAccessible< FloatType > mirrorImg = Views.extendMirrorSingle( image2 );
-
-				try {
-					Gauss3.gauss( sigma, mirrorImg, image2 );
-				} catch (IncompatibleTypeException e) {
-					IJ.log( "Error when calculating Gaussian feature." );
-					e.printStackTrace();
-					return null;
-				}
-
-				final ImagePlus ip = ImageJFunctions.wrapFloat(
-						image2, availableFeatures[ GAUSSIAN ] +"_" + sigma );
-				result.add( ip );
-				return result;
+				return mergeResultChannels(results);
 			}
 		};
 	}
