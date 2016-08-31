@@ -927,20 +927,20 @@ public class FeatureStack3D
 				if(enableFeatures[HESSIAN])
 				{
 					//IJ.log( "Calculating Hessian filter ("+ i + ")" );
-					futures.add(exe.submit( getHessian(originalImage, scaledSigma, true)) );
+					futures.add(exe.submit( getHessian(originalImage, i, true)) );
 				}
 							
 				// Derivatives
 				if(enableFeatures[DERIVATIVES])
 				{					
 					for(int order = minDerivativeOrder; order<=maxDerivativeOrder; order++)
-						futures.add(exe.submit( getDerivatives(originalImage, scaledSigma, order, order, order)) );
+						futures.add(exe.submit( getDerivatives(originalImage, i, order, order, order)) );
 				}
 				
 				// Laplacian
 				if(enableFeatures[LAPLACIAN])
 				{
-					futures.add(exe.submit( getLaplacian(originalImage, scaledSigma)) );
+					futures.add(exe.submit( getLaplacian(originalImage, i)) );
 				}
 				
 				// Edges
@@ -953,7 +953,7 @@ public class FeatureStack3D
 				if(enableFeatures[ STRUCTURE ])
 				{					
 					for(int integrationScale = 1; integrationScale <= 3; integrationScale+=2)
-						futures.add(exe.submit( getStructure(originalImage, scaledSigma, integrationScale )) );
+						futures.add(exe.submit( getStructure(originalImage, i, integrationScale )) );
 				}
 				
 				// Maximum
