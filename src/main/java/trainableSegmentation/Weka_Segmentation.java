@@ -2184,7 +2184,8 @@ public class Weka_Segmentation implements PlugIn
 
 		gd.addMessage("Advanced options:");
 		gd.addCheckbox("Homogenize classes", wekaSegmentation.doHomogenizeClasses());
-		gd.addButton("Save feature stack", new SaveFeatureStackButtonListener("Select location to save feature stack", wekaSegmentation.getFeatureStackArray()));
+		gd.addButton("Save feature stack", new SaveFeatureStackButtonListener(
+				"Select location to save feature stack", wekaSegmentation ) );
 		gd.addSlider("Result overlay opacity", 0, 100, win.overlayOpacity);
 		gd.addHelp("http://fiji.sc/Trainable_Weka_Segmentation");
 
@@ -2398,18 +2399,20 @@ public class Weka_Segmentation implements PlugIn
 	{
 		private String title;
 		private TextField text;
-		private FeatureStackArray featureStackArray;
+		private WekaSegmentation wekaSegmentation;
 
 		/**
 		 * Construct a listener for the save feature stack button
 		 * 
 		 * @param title save dialog title
-		 * @param featureStackArray array of feature stacks to save
+		 * @param wekaSegmentation reference to the segmentation backend
 		 */
-		public SaveFeatureStackButtonListener(String title, FeatureStackArray featureStackArray)
+		public SaveFeatureStackButtonListener(
+				String title,
+				WekaSegmentation wekaSegmentation )
 		{
 			this.title = title;
-			this.featureStackArray = featureStackArray;
+			this.wekaSegmentation = wekaSegmentation;
 		}
 
 		/**
@@ -2423,29 +2426,13 @@ public class Weka_Segmentation implements PlugIn
 
 			if(null == dir || null == fileWithExt)
 				return;
-
-			if(featureStackArray.isEmpty() || featureStackArray.getReferenceSliceIndex() == -1)
-			{
-				IJ.showStatus("Creating feature stack...");
-				IJ.log("Creating feature stack...");
-				featureStackArray.updateFeaturesMT();
-			}
-			
+			final FeatureStackArray featureStackArray
+								= wekaSegmentation.getFeatureStackArray();
 			for(int i=0; i<featureStackArray.getSize(); i++)
-			{
-				final String fileName = dir + fileWithExt.substring(0, fileWithExt.length()-4) 
-										+ String.format("%04d", (i+1)) + ".tif";
-				if( !this.featureStackArray.get(i).saveStackAsTiff(fileName))
-				{
-					IJ.error("Error", "Feature stack could not be saved");
-					return;
-				}
-
-				IJ.log("Saved feature stack for slice " + (i+1) + " as " + fileName);
-			}
+				wekaSegmentation.saveFeatureStack( i+1, dir, fileWithExt );
 			
 			// macro recording
-			record(SAVE_FEATURE_STACK, new String[]{ dir, fileWithExt });
+			record( SAVE_FEATURE_STACK, new String[]{ dir, fileWithExt } );
 		}
 	}	
 

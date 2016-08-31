@@ -6343,8 +6343,11 @@ public class WekaSegmentation {
 	public void saveFeatureStack(int slice, String dir, String fileWithExt)
 	{
 
-		if(featureStackArray.isEmpty())
+		if( featureStackArray.isEmpty() ||
+				featureStackArray.getReferenceSliceIndex() == -1)
 		{
+			IJ.showStatus("Creating feature stack...");
+			IJ.log("Creating feature stack...");
 			if( !isProcessing3D )
 				featureStackArray.updateFeaturesMT();
 			else
