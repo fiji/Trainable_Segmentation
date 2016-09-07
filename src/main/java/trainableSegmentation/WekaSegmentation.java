@@ -3926,7 +3926,10 @@ public class WekaSegmentation {
 		// Check the features that were used in the loaded data
 		boolean featuresChanged = false;
 		Enumeration<Attribute> attributes = data.enumerateAttributes();
-		final int numFeatures = FeatureStack.availableFeatures.length;
+		final String[] availableFeatures = isProcessing3D ?
+				FeatureStack3D.availableFeatures :
+					FeatureStack.availableFeatures; 
+		final int numFeatures = availableFeatures.length; 
 		boolean[] usedFeatures = new boolean[numFeatures];
 
 		// Initialize list of names for the features to use
@@ -3941,7 +3944,7 @@ public class WekaSegmentation {
 			this.featureNames.add(a.name());
 			for(int i = 0 ; i < numFeatures; i++)
 			{
-				if(a.name().startsWith(FeatureStack.availableFeatures[i]))
+				if(a.name().startsWith( availableFeatures[i] ))
 				{
 					usedFeatures[i] = true;
 					String[] tokens;
@@ -4018,7 +4021,9 @@ public class WekaSegmentation {
 		}
 
 		IJ.log("Field of view: max sigma = " + maxSigma + ", min sigma = " + minSigma);
-		IJ.log("Membrane thickness: " + membraneThickness + ", patch size: " + membranePatchSize);
+		if( !isProcessing3D )
+			IJ.log("Membrane thickness: " + membraneThickness + ", patch size: "
+					+ membranePatchSize);
 		if(minSigma != this.minimumSigma && minSigma != 0)
 		{
 			this.minimumSigma = minSigma;
@@ -4057,7 +4062,9 @@ public class WekaSegmentation {
 			j++;
 		}
 
-		final boolean[] oldEnableFeatures = this.featureStackArray.getEnabledFeatures();
+		final boolean[] oldEnableFeatures = isProcessing3D ?
+				fs3d.getEnabledFeatures() :
+					this.featureStackArray.getEnabledFeatures();
 		// Read checked features and check if any of them changed
 		for(int i = 0; i < numFeatures; i++)
 		{
