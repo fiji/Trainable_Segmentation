@@ -4613,7 +4613,17 @@ public class WekaSegmentation {
 					+ imp.getImageStackSize()
 					+ " slice(s) with " + fsa.getNumOfFeatures()
 					+ " feature(s), took " + (end-start) + "ms)." );
-			return applyClassifier(	fsa, numThreads, probabilityMaps );
+			final ImagePlus result =
+					applyClassifier(	fsa, numThreads, probabilityMaps );
+			if (probabilityMaps)
+			{
+				result.setDimensions(
+						numOfClasses, imp.getNSlices(), imp.getNFrames());
+				if( imp.getNSlices() * imp.getNFrames() > 1)
+					result.setOpenAsHyperStack( true );
+			}
+			result.setCalibration( trainingImage.getCalibration() );
+			return result;
 		}
 
 		final int numSliceThreads = Math.min(imp.getStackSize(), numThreads);
