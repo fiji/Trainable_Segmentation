@@ -4606,6 +4606,7 @@ public class WekaSegmentation {
 			FeatureStack3D fs3d = new FeatureStack3D( imp );
 			fs3d.setMaximumSigma( maximumSigma );
 			fs3d.setMinimumSigma( minimumSigma );
+			fs3d.setEnableFeatures( this.fs3d.getEnabledFeatures() );
 			fs3d.updateFeaturesMT();
 			FeatureStackArray fsa = fs3d.getFeatureStackArray();
 			long end = System.currentTimeMillis();
