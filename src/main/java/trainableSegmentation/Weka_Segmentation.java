@@ -1141,13 +1141,15 @@ public class Weka_Segmentation implements PlugIn
 				settingsButton.setEnabled(true);
 				wekaButton.setEnabled(true);
 
+				// Check if there are samples in any slice
 				boolean examplesEmpty = true;
-				for(int i = 0; i < wekaSegmentation.getNumOfClasses(); i ++)
-					if(exampleList[i].getItemCount() > 0)
-					{
-						examplesEmpty = false;
-						break;
-					}
+				for( int n = 1; n <= displayImage.getImageStackSize(); n++ )
+					for(int i = 0; i < wekaSegmentation.getNumOfClasses(); i ++)
+						if( wekaSegmentation.getExamples( i, n ).size() > 0)
+						{
+							examplesEmpty = false;
+							break;
+						}
 				boolean loadedTrainingData = null != wekaSegmentation.getLoadedTrainingData();
 
 				saveDataButton.setEnabled(!examplesEmpty || loadedTrainingData);
@@ -2677,12 +2679,15 @@ public class Weka_Segmentation implements PlugIn
 			IJ.log( "Processing image " + dir + File.separator + fileName );
 
 			ImagePlus segmentation = wekaSegmentation.applyClassifier(testImage, 0, probabilityMaps);
-			
-			// apply LUT to result image
-			convertTo8bitNoScaling( segmentation );			
-			segmentation.getProcessor().setColorModel( win.getOverlayLUT() );
-			segmentation.getImageStack().setColorModel( win.getOverlayLUT() );
-			segmentation.updateAndDraw();
+
+			if( !probabilityMaps )
+			{
+				// apply LUT to result image
+				convertTo8bitNoScaling( segmentation );
+				segmentation.getProcessor().setColorModel( win.getOverlayLUT() );
+				segmentation.getImageStack().setColorModel( win.getOverlayLUT() );
+				segmentation.updateAndDraw();
+			}
 
 			if (showResults) 
 			{
