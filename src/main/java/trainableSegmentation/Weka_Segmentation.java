@@ -1149,13 +1149,15 @@ public class Weka_Segmentation implements PlugIn
 				settingsButton.setEnabled(true);
 				wekaButton.setEnabled(true);
 
+				// Check if there are samples in any slice
 				boolean examplesEmpty = true;
-				for(int i = 0; i < wekaSegmentation.getNumOfClasses(); i ++)
-					if(exampleList[i].getItemCount() > 0)
-					{
-						examplesEmpty = false;
-						break;
-					}
+				for( int n = 1; n <= displayImage.getImageStackSize(); n++ )
+					for(int i = 0; i < wekaSegmentation.getNumOfClasses(); i ++)
+						if( wekaSegmentation.getExamples( i, n ).size() > 0)
+						{
+							examplesEmpty = false;
+							break;
+						}
 				boolean loadedTrainingData = null != wekaSegmentation.getLoadedTrainingData();
 
 				saveDataButton.setEnabled(!examplesEmpty || loadedTrainingData);
