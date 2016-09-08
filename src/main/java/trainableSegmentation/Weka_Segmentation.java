@@ -2124,16 +2124,14 @@ public class Weka_Segmentation implements PlugIn
 		GenericDialogPlus gd = new GenericDialogPlus("Segmentation settings");
 
 		final boolean[] oldEnableFeatures = wekaSegmentation.getEnabledFeatures();
+		final String[] availableFeatures = isProcessing3D ?
+				FeatureStack3D.availableFeatures :
+					FeatureStack.availableFeatures;
 
 		gd.addMessage("Training features:");
-		final int rows = isProcessing3D ?
-				(int) Math.round( FeatureStack3D.availableFeatures.length/2.0 ) :
-				(int) Math.round( FeatureStack.availableFeatures.length/2.0 );
+		final int rows = (int) Math.round( availableFeatures.length/2.0 );
 
-		if( isProcessing3D )
-			gd.addCheckboxGroup( rows, 2, FeatureStack3D.availableFeatures, oldEnableFeatures);
-		else
-			gd.addCheckboxGroup( rows, 2, FeatureStack.availableFeatures, oldEnableFeatures);
+		gd.addCheckboxGroup( rows, 2, availableFeatures, oldEnableFeatures );
 
 		disableMissingFeatures(gd);
 
@@ -2194,9 +2192,7 @@ public class Weka_Segmentation implements PlugIn
 		if (gd.wasCanceled())
 			return false;
 
-		final int numOfFeatures = isProcessing3D ?
-				FeatureStack3D.availableFeatures.length :
-					FeatureStack.availableFeatures.length;
+		final int numOfFeatures = availableFeatures.length;
 
 		final boolean[] newEnableFeatures = new boolean[numOfFeatures];
 
@@ -2209,9 +2205,7 @@ public class Weka_Segmentation implements PlugIn
 			if (newEnableFeatures[i] != oldEnableFeatures[i])
 			{
 				featuresChanged = true;
-				final String featureName = isProcessing3D ?
-						FeatureStack3D.availableFeatures[ i ] :
-						FeatureStack.availableFeatures[ i ];
+				final String featureName = availableFeatures[ i ];
 				// Macro recording
 				record(SET_FEATURE, new String[]{ featureName + "=" + newEnableFeatures[ i ] });
 			}
