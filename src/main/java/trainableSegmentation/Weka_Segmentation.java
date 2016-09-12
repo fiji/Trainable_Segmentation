@@ -80,10 +80,10 @@ import weka.core.Instances;
 import weka.core.OptionHandler;
 import weka.core.SerializationHelper;
 import weka.core.Utils;
-import weka.gui.GUIChooser;
+import weka.gui.GUIChooserApp;
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyPanel;
-import weka.gui.beans.PluginManager;
+import weka.core.PluginManager;
 import weka.gui.visualize.PlotData2D;
 import weka.gui.visualize.ThresholdVisualizePanel;
 
@@ -2108,7 +2108,7 @@ public class Weka_Segmentation implements PlugIn
 	 */
 	public static void launchWeka()
 	{
-		GUIChooser chooser = new GUIChooser();
+		GUIChooserApp chooser = new GUIChooserApp();
 		for (WindowListener wl : chooser.getWindowListeners())
 		{
 			chooser.removeWindowListener(wl);
