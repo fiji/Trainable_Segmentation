@@ -182,8 +182,11 @@ public class WekaSegmentation {
 	/** list of the names of features to use */
 	private ArrayList<String> featureNames = null;
 
-	/** flag to set the resampling of the training data in order to guarantee the same number of instances per class */
-	private boolean homogenizeClasses = false;
+	/**
+	 * flag to set the resampling of the training data in order to guarantee
+	 * the same number of instances per class (class balance)
+	 * */
+	private boolean balanceClasses = false;
 
 	/** Project folder name. It is used to stored temporary data if different from null */
 	private String projectFolder = null;
@@ -365,10 +368,21 @@ public class WekaSegmentation {
 	 * Set flag to homogenize classes before training
 	 *
 	 * @param homogenizeClasses true to resample the classes before training
+	 * @deprecated use setClassBalance
 	 */
 	public void setHomogenizeClasses(boolean homogenizeClasses)
 	{
-		this.homogenizeClasses = homogenizeClasses;
+		this.balanceClasses = homogenizeClasses;
+	}
+
+	/**
+	 * Set flag to balance classes before training
+	 *
+	 * @param balanceClasses true to resample the classes before training
+	 */
+	public void setClassBalance( boolean balanceClasses )
+	{
+		this.balanceClasses = balanceClasses;
 	}
 
 	/**
@@ -3130,14 +3144,25 @@ public class WekaSegmentation {
 		this.projectFolder = projectFolder;
 	}
 
-
 	/**
 	 * Homogenize number of instances per class
 	 *
 	 * @param data input set of instances
 	 * @return resampled set of instances
+	 * @deprecated use balanceTrainingData
 	 */
 	public static Instances homogenizeTrainingData(Instances data)
+	{
+		return WekaSegmentation.balanceTrainingData( data );
+	}
+
+	/**
+	 * Balance number of instances per class
+	 *
+	 * @param data input set of instances
+	 * @return resampled set of instances
+	 */
+	public static Instances balanceTrainingData( Instances data )
 	{
 		final Resample filter = new Resample();
 		Instances filteredIns = null;
@@ -3157,8 +3182,17 @@ public class WekaSegmentation {
 
 	/**
 	 * Homogenize number of instances per class (in the loaded training data)
+	 * @deprecated use balanceTrainingData
 	 */
 	public void homogenizeTrainingData()
+	{
+		balanceTrainingData();
+	}
+
+	/**
+	 * Balance number of instances per class (in the loaded training data)
+	 */
+	public void balanceTrainingData()
 	{
 		final Resample filter = new Resample();
 		Instances filteredIns = null;
@@ -4462,14 +4496,14 @@ public class WekaSegmentation {
 		this.trainHeader = new Instances(data, 0);
 
 		// Resample data if necessary
-		if(homogenizeClasses)
+		if(balanceClasses)
 		{
 			final long start = System.currentTimeMillis();
-			IJ.showStatus("Homogenizing classes distribution...");
-			IJ.log("Homogenizing classes distribution...");
-			data = homogenizeTrainingData(data);
+			IJ.showStatus("Balancing classes distribution...");
+			IJ.log("Balancing classes distribution...");
+			data = balanceTrainingData(data);
 			final long end = System.currentTimeMillis();
-			IJ.log("Done. Homogenizing classes distribution took: " + (end-start) + "ms");
+			IJ.log("Done. Balancing classes distribution took: " + (end-start) + "ms");
 		}
 
 		IJ.showStatus("Training classifier...");
@@ -6103,21 +6137,40 @@ public class WekaSegmentation {
 	/**
 	 * Set the flag to balance the class distributions
 	 * @param homogenizeClasses boolean flag to enable/disable the class balance
+	 * @deprecated use setDoClassBalance
 	 */
 	public void setDoHomogenizeClasses(boolean homogenizeClasses)
 	{
-		this.homogenizeClasses = homogenizeClasses;
+		this.balanceClasses = homogenizeClasses;
+	}
+
+	/**
+	 * Get the boolean flag to enable/disable the class balance
+	 * @return flag to enable/disable the class balance
+	 * @deprecated use doClassBalance
+	 */
+	public boolean doHomogenizeClasses()
+	{
+		return balanceClasses;
+	}
+
+	/**
+	 * Set the flag to balance the class distributions
+	 * @param balanceClasses boolean flag to enable/disable the class balance
+	 */
+	public void setDoClassBalance( boolean balanceClasses )
+	{
+		this.balanceClasses = balanceClasses;
 	}
 
 	/**
 	 * Get the boolean flag to enable/disable the class balance
 	 * @return flag to enable/disable the class balance
 	 */
-	public boolean doHomogenizeClasses()
+	public boolean doClassBalance()
 	{
-		return homogenizeClasses;
+		return balanceClasses;
 	}
-
 	/**
 	 * Set feature update flag
 	 * @param updateFeatures new feature update flag
