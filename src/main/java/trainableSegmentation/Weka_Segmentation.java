@@ -223,8 +223,13 @@ public class Weka_Segmentation implements PlugIn
 	public static final String SET_MINIMUM_SIGMA = "setMinimumSigma";
 	/** name of the macro method to set the maximum kernel radius */
 	public static final String SET_MAXIMUM_SIGMA = "setMaximumSigma";
-	/** name of the macro method to enable/disable the class homogenization */
+	/**
+	 * name of the macro method to enable/disable the class homogenization
+	 * @deprecated use SET_BALANCE instead
+	 **/
 	public static final String SET_HOMOGENIZATION = "setClassHomogenization";
+	/** name of the macro method to enable/disable the class balance */
+	public static final String SET_BALANCE = "setClassBalance";
 	/** name of the macro method to set a new classifier */
 	public static final String SET_CLASSIFIER = "setClassifier";
 	/** name of the macro method to save the feature stack into a file or files */
@@ -1568,11 +1573,11 @@ public class Weka_Segmentation implements PlugIn
 		final ImagePlus probImage = wekaSegmentation.getClassifiedImage();
 		if(null != probImage)
 		{
+			probImage.setDimensions( numOfClasses, displayImage.getNSlices(),
+					displayImage.getNFrames());
+			if ( displayImage.getNSlices() * displayImage.getNFrames() > 1 )
+				probImage.setOpenAsHyperStack( true );
 			probImage.show();
-			IJ.run(probImage, "Stack to Hyperstack...", 
-					"order=xyczt(default) channels=" + numOfClasses + 
-					" slices=" + displayImage.getImageStackSize() + 
-					" frames=1 display=Grayscale");
 		}
 		win.updateButtonsEnabling();
 		IJ.showStatus("Done.");
@@ -2183,7 +2188,8 @@ public class Weka_Segmentation implements PlugIn
 			gd.addStringField("Class "+(i+1), wekaSegmentation.getClassLabel(i), 15);
 
 		gd.addMessage("Advanced options:");
-		gd.addCheckbox("Homogenize classes", wekaSegmentation.doHomogenizeClasses());
+
+		gd.addCheckbox( "Balance classes", wekaSegmentation.doClassBalance() );
 		gd.addButton("Save feature stack", new SaveFeatureStackButtonListener(
 				"Select location to save feature stack", wekaSegmentation ) );
 		gd.addSlider("Result overlay opacity", 0, 100, win.overlayOpacity);
@@ -2317,13 +2323,13 @@ public class Weka_Segmentation implements PlugIn
 			}
 		}
 
-		// Update flag to homogenize number of class instances		
-		final boolean homogenizeClasses = gd.getNextBoolean();
-		if( wekaSegmentation.doHomogenizeClasses() != homogenizeClasses )
+		// Update flag to balance number of class instances
+		final boolean balanceClasses = gd.getNextBoolean();
+		if( wekaSegmentation.doClassBalance() != balanceClasses )
 		{
-			wekaSegmentation.setDoHomogenizeClasses( homogenizeClasses );
+			wekaSegmentation.setClassBalance( balanceClasses );
 			// Macro recording
-			record(SET_HOMOGENIZATION, new String[] { Boolean.toString( homogenizeClasses )});
+			record( SET_BALANCE, new String[] { Boolean.toString( balanceClasses )});
 		}
 		
 		// Update result overlay alpha
@@ -2967,7 +2973,7 @@ public class Weka_Segmentation implements PlugIn
 			final CustomWindow win = (CustomWindow) iw;
 			boolean flag = Boolean.parseBoolean(flagStr);
 			final WekaSegmentation wekaSegmentation = win.getWekaSegmentation();
-			wekaSegmentation.setHomogenizeClasses(flag);
+			wekaSegmentation.setClassBalance( flag );
 		}
 	}
 	
