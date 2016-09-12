@@ -83,7 +83,7 @@ import weka.core.Utils;
 import weka.gui.GUIChooserApp;
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyPanel;
-import weka.gui.beans.PluginManager;
+import weka.core.PluginManager;
 import weka.gui.visualize.PlotData2D;
 import weka.gui.visualize.ThresholdVisualizePanel;
 
