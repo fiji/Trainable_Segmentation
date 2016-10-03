@@ -2149,11 +2149,15 @@ public class Weka_Segmentation implements PlugIn
 				c.setEnabled(false);
 			gd.addMessage("WARNING: no features are selectable while using loaded data");
 		}
-
-		// Expected membrane thickness
-		gd.addNumericField("Membrane thickness:", wekaSegmentation.getMembraneThickness(), 0);
-		// Membrane patch size
-		gd.addNumericField("Membrane patch size:", wekaSegmentation.getMembranePatchSize(), 0);
+		if( !isProcessing3D )
+		{
+			// Expected membrane thickness
+			gd.addNumericField( "Membrane thickness:",
+					wekaSegmentation.getMembraneThickness(), 0 );
+			// Membrane patch size
+			gd.addNumericField( "Membrane patch size:",
+					wekaSegmentation.getMembranePatchSize(), 0 );
+		}
 		// Field of view
 		gd.addNumericField("Minimum sigma:", wekaSegmentation.getMinimumSigma(), 1);
 		gd.addNumericField("Maximum sigma:", wekaSegmentation.getMaximumSigma(), 1);
@@ -2223,24 +2227,30 @@ public class Weka_Segmentation implements PlugIn
 			wekaSegmentation.setEnabledFeatures(newEnableFeatures);
 		}		
 
-		// Membrane thickness
-		final int newThickness = (int) gd.getNextNumber();
-		if(newThickness != wekaSegmentation.getMembraneThickness())
+		if ( !isProcessing3D )
 		{
-			featuresChanged = true;
-			wekaSegmentation.setMembraneThickness(newThickness);
-			// Macro recording
-			record(SET_MEMBRANE_THICKNESS, new String[] { Integer.toString( newThickness )});
+			// Membrane thickness
+			final int newThickness = (int) gd.getNextNumber();
+			if( newThickness != wekaSegmentation.getMembraneThickness() )
+			{
+				featuresChanged = true;
+				wekaSegmentation.setMembraneThickness(newThickness);
+				// Macro recording
+				record( SET_MEMBRANE_THICKNESS, new String[] {
+						Integer.toString( newThickness ) } );
+			}
+			// Membrane patch size
+			final int newPatch = (int) gd.getNextNumber();
+			if( newPatch != wekaSegmentation.getMembranePatchSize() )
+			{
+				featuresChanged = true;
+				// Macro recording
+				record(SET_MEMBRANE_PATCH, new String[] {
+						Integer.toString( newPatch ) } );
+				wekaSegmentation.setMembranePatchSize(newPatch);
+			}
 		}
-		// Membrane patch size
-		final int newPatch = (int) gd.getNextNumber();
-		if(newPatch != wekaSegmentation.getMembranePatchSize())
-		{
-			featuresChanged = true;
-			// Macro recording
-			record(SET_MEMBRANE_PATCH, new String[] { Integer.toString( newPatch )});
-			wekaSegmentation.setMembranePatchSize(newPatch);
-		}
+
 		// Field of view (minimum and maximum sigma/radius for the filters)
 		final float newMinSigma = (float) gd.getNextNumber();
 		if(newMinSigma != wekaSegmentation.getMinimumSigma() && newMinSigma > 0)
