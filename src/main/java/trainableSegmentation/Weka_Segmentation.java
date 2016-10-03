@@ -2962,11 +2962,21 @@ public class Weka_Segmentation implements PlugIn
 
 	/**
 	 * Set the class homogenization flag for training
-	 * 
+	 *
 	 * @param flagStr true/false if you want to balance the number of samples per class before training
 	 */
 	public static void setClassHomogenization(String flagStr)
-	{		
+	{
+		setClassBalance( flagStr );
+	}
+
+	/**
+	 * Set the class balance flag for training
+	 *
+	 * @param flagStr true/false if you want to balance the number of samples per class before training
+	 */
+	public static void setClassBalance( String flagStr )
+	{
 		final ImageWindow iw = WindowManager.getCurrentImage().getWindow();
 		if( iw instanceof CustomWindow )
 		{
