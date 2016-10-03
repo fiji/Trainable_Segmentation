@@ -4256,16 +4256,22 @@ public class WekaSegmentation {
 		final ShapeRoi shapeRoi = new ShapeRoi(r);
 		final Rectangle rect = shapeRoi.getBounds();
 
-		final int lastX = rect.x + rect.width;
-		final int lastY = rect.y + rect.height;
+		int lastX = rect.x + rect.width ;
+		if( lastX >= trainingImage.getWidth() )
+			lastX = trainingImage.getWidth() - 1;
+		int lastY = rect.y + rect.height;
+		if( lastY >= trainingImage.getHeight() )
+			lastY = trainingImage.getHeight() - 1;
+		int firstX = Math.max( rect.x, 0 );
+		int firstY = Math.max( rect.y, 0 );
 
 		//DenseInstance ins = new DenseInstance( featureStackArray.getNumOfFeatures() + 1 );
 		//ins.setDataset( trainingData );
 
 		final FeatureStack fs = featureStackArray.get( sliceNum - 1 );
 
-		for(int x = rect.x; x < lastX; x++)
-			for(int y = rect.y; y < lastY; y++)
+		for(int x = firstX; x < lastX; x++)
+			for(int y = firstY; y < lastY; y++)
 				if(shapeRoi.contains(x, y))
 				{
 					//fs.createInstanceInPlace( x, y, classIndex, ins );
