@@ -1671,6 +1671,7 @@ public class Weka_Segmentation implements PlugIn
 		JFileChooser fileChooser = new JFileChooser( dir );
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fileChooser.setMultiSelectionEnabled(true);
+		fileChooser.setDialogTitle( "Select file(s) to classify" );
 
 		// get selected files or abort if no file has been selected
 		int returnVal = fileChooser.showOpenDialog(null);
@@ -1694,6 +1695,7 @@ public class Weka_Segmentation implements PlugIn
 				// ask for the directory to store the results
 				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				fileChooser.setMultiSelectionEnabled(false);
+				fileChooser.setDialogTitle( "Select folder to store results" );
 				returnVal = fileChooser.showOpenDialog(null);
 				if(returnVal == JFileChooser.APPROVE_OPTION) {
 					storeDir = fileChooser.getSelectedFile().getPath();
