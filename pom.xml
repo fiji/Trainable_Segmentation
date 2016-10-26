@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>Trainable_Segmentation</artifactId>
-	<version>3.2.2</version>
+	<version>3.2.3-SNAPSHOT</version>
 
 	<name>plugins/Trainable_Segmentation.jar</name>
 	<description />
