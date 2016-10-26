@@ -1760,24 +1760,30 @@ public class Weka_Segmentation implements PlugIn
 
 					IJ.log("Processing image " + file.getName() + " in thread " + numThread);
 
-					ImagePlus segmentation = wekaSegmentation.applyClassifier(testImage, numFurtherThreads, probabilityMaps);
-
-					if (showResults && null != segmentation) 
+					final ImagePlus segmentation =
+							wekaSegmentation.applyClassifier( testImage,
+									numFurtherThreads, probabilityMaps );
+					if( null == segmentation )
 					{
-						if ( !probabilityMaps )
-						{
-							// convert slices to 8-bit and apply overlay LUT
-							convertTo8bitNoScaling( segmentation );
-							
-							segmentation.getProcessor().setColorModel( overlayLUT );
-							segmentation.getImageStack().setColorModel( overlayLUT );
-							segmentation.updateAndDraw();
-						}
+						IJ.log( "Error: " + file.getName() + "could not be "
+								+ "classified!" );
+						return;
+					}
+					if ( !probabilityMaps )
+					{
+						// convert slices to 8-bit and apply overlay LUT
+						convertTo8bitNoScaling( segmentation );
+						segmentation.getProcessor().setColorModel( overlayLUT );
+						segmentation.getImageStack().setColorModel( overlayLUT );
+						segmentation.updateAndDraw();
+					}
+
+					if ( showResults )
+					{
 						segmentation.show();
 						testImage.show();
 					}
-
-					if (storeResults) {
+					else if ( storeResults ) {
 						String filename = storeDir + File.separator + file.getName();
 						IJ.log("Saving results to " + filename);
 						IJ.save(segmentation, filename);
