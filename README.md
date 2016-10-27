@@ -1,7 +1,7 @@
 [![](http://jenkins.imagej.net/job/Trainable_Segmentation/lastBuild/badge/icon)](http://jenkins.imagej.net/job/Trainable_Segmentation/)
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.59290.svg)](http://dx.doi.org/10.5281/zenodo.59290)
 
-Trainable_Segmentation
+Trainable Weka Segmentation
 ======================
 
 The **Trainable Weka Segmentation** is a Fiji plugin and library that combines a collection of machine learning algorithms with a set of selected image features to produce pixel-based segmentations. [Weka (Waikato Environment for Knowledge Analysis)](http://www.cs.waikato.ac.nz/ml/weka/) can itself be called from the plugin. It contains a collection of visualization tools and algorithms for data analysis and predictive modeling, together with graphical user interfaces for easy access to this functionality. As described on their wikipedia site, the advantages of Weka include:
