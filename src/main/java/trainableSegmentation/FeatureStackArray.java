@@ -65,6 +65,17 @@ public class FeatureStackArray
 	private boolean oldColorFormat = false;  
 	
 	/**
+	 * Initialize a feature stack list of a specific size (with default values
+	 * for the rest of parameters).
+	 *
+	 * @param num number of elements in the list
+	 */
+	public FeatureStackArray( final int num )
+	{
+		this.featureStackArray = new FeatureStack[ num ];
+	}
+
+	/**
 	 * Initialize a feature stack list of a specific size
 	 * 
 	 * @param num number of elements in the list
