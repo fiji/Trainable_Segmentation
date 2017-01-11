@@ -5435,7 +5435,9 @@ public class WekaSegmentation {
 					if(probabilityMaps)
 						classImage.setProcessor(classImage.getProcessor().duplicate());
 					else
-						classImage.setProcessor(classImage.getProcessor().convertToByte(true).duplicate());
+						classImage.setProcessor(
+								classImage.getProcessor().convertToByte(
+										false ).duplicate());
 					classifiedSlices[i-1] = classImage;
 				}
 			}
