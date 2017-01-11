@@ -2085,10 +2085,10 @@ public class WekaSegmentation {
 	}
 
 	/**
-	 * Add instances to two classes from a label (binary) image in a random
+	 * Add instances defined by a label (binary) image in a random
 	 * way.
-	 * White pixels will be added to the corresponding class 1
-	 * (defined by whiteClassName)
+	 * White pixels (with intensity values larger than 0) will be added to the
+	 * corresponding class 1 (defined by whiteClassName)
 	 *
 	 * @param labelImage binary image
 	 * @param featureStack corresponding feature stack
@@ -2926,10 +2926,10 @@ public class WekaSegmentation {
 	}
 
 	/**
-	 * Add training data from input and label images in a
+	 * Add training data from input and a binary label image in a
 	 * random way.
 	 * Input and label images can be 2D or stacks and their
-	 * sizes must match.
+	 * sizes must match. The data will be added to the defined white class.
 	 *
 	 * @param inputImage input grayscale image
 	 * @param labelImage binary label image (labels in white)
