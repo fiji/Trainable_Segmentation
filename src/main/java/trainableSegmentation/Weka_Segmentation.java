@@ -4,6 +4,7 @@ import fiji.util.gui.GenericDialogPlus;
 import fiji.util.gui.OverlayedImageCanvas;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.Prefs;
 import ij.WindowManager;
 import ij.gui.GenericDialog;
@@ -55,6 +56,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
@@ -1218,7 +1220,15 @@ public class Weka_Segmentation implements PlugIn
 		{
 			this.trainingComplete = b;
 		}
-		
+
+		/**
+		 * Get training image
+		 * @return training image
+		 */
+		public ImagePlus getTrainingImage()
+		{
+			return trainingImage;
+		}
 	}// end class CustomWindow
 
 	/**
@@ -3173,6 +3183,60 @@ public class Weka_Segmentation implements PlugIn
 			return false;
 		}
 	}
+	/**
+	 * Create label image out of the current user traces. For convention, the
+	 * label zero is used to define pixels with no class assigned. The rest of
+	 * integer values correspond to the order of the classes (1 for the first
+	 * class, 2 for the second class, etc.).
+	 *
+	 * @return label image containing user-defined traces (zero for undefined pixels)
+	 */
+	public static ImagePlus getLabelImage()
+	{
+		final ImageWindow iw = WindowManager.getCurrentImage().getWindow();
+		if( iw instanceof CustomWindow )
+		{
+			final CustomWindow win = (CustomWindow) iw;
+			final WekaSegmentation wekaSegmentation = win.getWekaSegmentation();
 
+			final int numClasses = wekaSegmentation.getNumOfClasses();
+			final int width = win.getTrainingImage().getWidth();
+			final int height = win.getTrainingImage().getHeight();
+			final int depth = win.getTrainingImage().getNSlices();
+			final ImageStack labelStack;
+			if( numClasses < 256)
+				labelStack = ImageStack.create( width, height, depth, 8 );
+			else if ( numClasses < 256 * 256 )
+				labelStack = ImageStack.create( width, height, depth, 16 );
+			else
+				labelStack = ImageStack.create( width, height, depth, 32 );
+
+			final ImagePlus labelImage = new ImagePlus( "Labels", labelStack );
+			for( int i=0; i<depth; i++ )
+			{
+				labelImage.setSlice( i+1 );
+				for( int j=0; j<numClasses; j++ )
+				{
+					 List<Roi> rois = wekaSegmentation.getExamples( j, i+1 );
+					 for( final Roi r : rois )
+					 {
+						 final ImageProcessor ip = labelImage.getProcessor();
+						 ip.setValue( j+1 );
+						 if( r.isLine() )
+						 {
+							 ip.setLineWidth( Math.round( r.getStrokeWidth() ) );
+							 ip.draw( r );
+						 }
+						 else
+							 ip.fill( r );
+					 }
+				}
+			}
+			labelImage.setSlice( 1 );
+			labelImage.setDisplayRange( 0, numClasses );
+			return labelImage;
+		}
+		return null;
+	}
 }// end of Weka_Segmentation class
 
