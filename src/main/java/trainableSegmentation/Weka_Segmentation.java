@@ -3161,6 +3161,10 @@ public class Weka_Segmentation implements PlugIn
 		}
 	}
 
+	/**
+	 * Check if ImageScience features are available
+	 * @return true if ImageScience features are available
+	 */
 	private static boolean isImageScienceAvailable() {
 		try {
 			return ImageScience.isAvailable();
