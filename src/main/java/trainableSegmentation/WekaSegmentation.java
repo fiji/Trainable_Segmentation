@@ -1134,9 +1134,9 @@ public class WekaSegmentation {
 	}
 	/**
 	 * Add instances from a labeled image in a random and balanced way.
-	 * Samples will be added to the class with the same index as the
-	 * pixel value in the labeled image. Label values that do not correspond
-	 * with any class index are skipped.
+	 * For convention, the label zero is used to define pixels with no class
+	 * assigned. The rest of integer values correspond to the order of the
+	 * classes (1 for the first class, 2 for the second class, etc.).
 	 *
 	 * @param labelImage labeled image (labels are positive integer or 0)
 	 * @param featureStack corresponding feature stack
@@ -1200,7 +1200,7 @@ public class WekaSegmentation {
 		for(int y = 0 ; y < height; y++)
 			for(int x = 0 ; x < width ; x++)
 			{
-				int classIndex = (int) labelImage.getf( x, y );
+				int classIndex = (int) labelImage.getf( x, y ) - 1;
 
 				if( classIndex >=0 && classIndex < numOfClasses )
 					classCoordinates[ classIndex ].add( new Point( x, y ) );
@@ -2674,7 +2674,10 @@ public class WekaSegmentation {
 	 * Add training data from input and labeled images in a
 	 * random and balanced way (same number of samples per class).
 	 * Input and labeled images can be 2D or stacks and their
-	 * sizes must match.
+	 * sizes must match. For convention, the label zero is used to define pixels
+	 * with no class assigned. The rest of integer values correspond to the
+	 * order of the classes (1 for the first class, 2 for the second class,
+	 * etc.).
 	 *
 	 * @param inputImage input grayscale image
 	 * @param labelImage labeled image (labeled values are positive integer or 0)
