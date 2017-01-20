@@ -4099,12 +4099,16 @@ public class WekaSegmentation {
 			this.minimumSigma = minSigma;
 			featuresChanged = true;
 			this.featureStackArray.setMinimumSigma(minSigma);
+			if( isProcessing3D )
+			    this.fs3d.setMinimumSigma( minSigma );
 		}
 		if(maxSigma != this.maximumSigma)
 		{
 			this.maximumSigma = maxSigma;
 			featuresChanged = true;
 			this.featureStackArray.setMaximumSigma(maxSigma);
+			if( isProcessing3D )
+			    this.fs3d.setMaximumSigma( maxSigma );
 		}
 
 		// Check if classes match
