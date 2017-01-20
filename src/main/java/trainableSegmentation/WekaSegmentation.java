@@ -4065,7 +4065,7 @@ public class WekaSegmentation {
 					{
 						switch( i )
 						{
-							case FeatureStack.STRUCTURE:
+							case FeatureStack3D.STRUCTURE:
 								tokens = a.name().split("_");
 								sigma = Float.parseFloat( tokens[ 2 ]);
 								if(sigma < minSigma)
