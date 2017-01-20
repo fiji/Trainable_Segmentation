@@ -1,5 +1,11 @@
 package trainableSegmentation;
 
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 /** 
  * This class is intended for the Trainable Segmentation library. It creates and holds
  * different feature images for the classification. Possible 3D filters include:
@@ -52,12 +58,6 @@ import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
-
-import java.util.ArrayList;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class FeatureStack3D 
 {
@@ -434,7 +434,8 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					
-					final ImagePlus ip = ImageScience.computeEdgesImage(sigma, channel);
+					final double scaledSigma = originalImage.getCalibration().pixelWidth * sigma;
+					final ImagePlus ip = ImageScience.computeEdgesImage( scaledSigma, channel );
 					ip.setTitle(availableFeatures[EDGES] +"_" + sigma );
 					
 					// remove pad				
@@ -883,10 +884,7 @@ public class FeatureStack3D
 								
 			
 			for (float i=minimumSigma; i<= maximumSigma; i *=2)
-			{		
-				
-				double scaledSigma = i * pixelWidth;
-				
+	    {
 				if (Thread.currentThread().isInterrupted()) 
 					return false;
 				
@@ -930,7 +928,7 @@ public class FeatureStack3D
 				// Edges
 				if(enableFeatures[ EDGES ])
 				{
-					futures.add(exe.submit( getEdges(originalImage, scaledSigma)) );
+				    futures.add(exe.submit(getEdges(originalImage, i)));
 				}
 				
 				// Structure tensor

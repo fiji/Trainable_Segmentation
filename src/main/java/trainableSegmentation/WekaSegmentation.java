@@ -482,13 +482,18 @@ public class WekaSegmentation {
 
 		// Check the features that were used in the loaded data
 		Enumeration<Attribute> attributes = loadedTrainingData.enumerateAttributes();
-		final int numFeatures = FeatureStack.availableFeatures.length;
+		final String[] availableFeatures = isProcessing3D ?
+			FeatureStack3D.availableFeatures :
+				FeatureStack.availableFeatures;
+		final int numFeatures = availableFeatures.length;
 		boolean[] usedFeatures = new boolean[numFeatures];
 		while(attributes.hasMoreElements())
 		{
 			final Attribute a = attributes.nextElement();
 			for(int i = 0 ; i < numFeatures; i++)
-				if(a.name().startsWith(FeatureStack.availableFeatures[i]))
+				if(a.name().startsWith((isProcessing3D ?
+					FeatureStack3D.availableFeatures :
+						FeatureStack.availableFeatures)[i]))
 					usedFeatures[i] = true;
 		}
 
@@ -3987,72 +3992,99 @@ public class WekaSegmentation {
 					usedFeatures[i] = true;
 					String[] tokens;
 					float sigma;
-					switch( i )
-					{
-						case FeatureStack.MEMBRANE:
-							int index = a.name().indexOf("s_") + 4;
-							int index2 = a.name().indexOf("_", index+1 );
-							final int patchSize = Integer.parseInt(a.name().substring(index, index2));
-							if(patchSize != membranePatchSize)
-							{
-								membranePatchSize = patchSize;
-								this.featureStackArray.setMembranePatchSize(patchSize);
-								featuresChanged = true;
-							}
-							index = a.name().lastIndexOf("_");
-							final int thickness = Integer.parseInt(a.name().substring(index+1));
-							if(thickness != membraneThickness)
-							{
-								membraneThickness = thickness;
-								this.featureStackArray.setMembraneSize(thickness);
-								featuresChanged = true;
-							}
-							break;
-						case FeatureStack.KUWAHARA:
-							tokens = a.name().split("_");
-							membranePatchSize = Integer.parseInt( tokens[ 1 ]);
-							break;
-						case FeatureStack.NEIGHBORS:
-						case FeatureStack.ENTROPY:
-							tokens = a.name().split("_");
-							sigma = Float.parseFloat( tokens[ 1 ]);
-							if(sigma < minSigma)
-								minSigma = sigma;
-							if(sigma > maxSigma)
-								maxSigma = sigma;
-							break;
-						case FeatureStack.STRUCTURE:
-							tokens = a.name().split("_");
-							sigma = Float.parseFloat( tokens[ 2 ]);
-							if(sigma < minSigma)
-								minSigma = sigma;
-							if(sigma > maxSigma)
-								maxSigma = sigma;
-							break;
-						case FeatureStack.ANISOTROPIC_DIFFUSION:
-							tokens = a.name().split("_");
-							sigma = Float.parseFloat( tokens[ 3 ]);
-							if(sigma < minSigma)
-								minSigma = sigma;
-							if(sigma > maxSigma)
-								maxSigma = sigma;
-							break;
-						case FeatureStack.BILATERAL:
-						case FeatureStack.LIPSCHITZ:
-							break; // Bilateral and Lipschitz filters do not have sigma
-						default:
-							tokens = a.name().split("_");
-							for(int j=0; j<tokens.length; j++)
-								if(tokens[j].indexOf(".") != -1)
+					if (!isProcessing3D) {
+						switch( i )
+						{
+							case FeatureStack.MEMBRANE:
+								int index = a.name().indexOf("s_") + 4;
+								int index2 = a.name().indexOf("_", index+1 );
+								final int patchSize = Integer.parseInt(a.name().substring(index, index2));
+								if(patchSize != membranePatchSize)
 								{
-									sigma = Float.parseFloat(tokens[j]);
-									if(sigma < minSigma)
-										minSigma = sigma;
-									if(sigma > maxSigma)
-										maxSigma = sigma;
+									membranePatchSize = patchSize;
+									this.featureStackArray.setMembranePatchSize(patchSize);
+									featuresChanged = true;
 								}
-
-
+								index = a.name().lastIndexOf("_");
+								final int thickness = Integer.parseInt(a.name().substring(index+1));
+								if(thickness != membraneThickness)
+								{
+									membraneThickness = thickness;
+									this.featureStackArray.setMembraneSize(thickness);
+									featuresChanged = true;
+								}
+								break;
+							case FeatureStack.KUWAHARA:
+								tokens = a.name().split("_");
+								membranePatchSize = Integer.parseInt( tokens[ 1 ]);
+								break;
+							case FeatureStack.NEIGHBORS:
+							case FeatureStack.ENTROPY:
+								tokens = a.name().split("_");
+								sigma = Float.parseFloat( tokens[ 1 ]);
+								if(sigma < minSigma)
+									minSigma = sigma;
+								if(sigma > maxSigma)
+									maxSigma = sigma;
+								break;
+							case FeatureStack.STRUCTURE:
+								tokens = a.name().split("_");
+								sigma = Float.parseFloat( tokens[ 2 ]);
+								if(sigma < minSigma)
+									minSigma = sigma;
+								if(sigma > maxSigma)
+									maxSigma = sigma;
+								break;
+							case FeatureStack.ANISOTROPIC_DIFFUSION:
+								tokens = a.name().split("_");
+								sigma = Float.parseFloat( tokens[ 3 ]);
+								if(sigma < minSigma)
+									minSigma = sigma;
+								if(sigma > maxSigma)
+									maxSigma = sigma;
+								break;
+							case FeatureStack.BILATERAL:
+							case FeatureStack.LIPSCHITZ:
+								break; // Bilateral and Lipschitz filters do not have sigma
+							default:
+								tokens = a.name().split("_");
+								for(int j=0; j<tokens.length; j++)
+									if(tokens[j].indexOf(".") != -1)
+									{
+										sigma = Float.parseFloat(tokens[j]);
+										if(sigma < minSigma)
+											minSigma = sigma;
+										if(sigma > maxSigma)
+											maxSigma = sigma;
+									}
+	
+	
+						}
+					}
+					else
+					{
+						switch( i )
+						{
+							case FeatureStack3D.STRUCTURE:
+								tokens = a.name().split("_");
+								sigma = Float.parseFloat( tokens[ 2 ]);
+								if(sigma < minSigma)
+									minSigma = sigma;
+								if(sigma > maxSigma)
+									maxSigma = sigma;
+								break;
+							default:
+								tokens = a.name().split("_");
+								for(int j=0; j<tokens.length; j++)
+									if(tokens[j].indexOf(".") != -1)
+									{
+										sigma = Float.parseFloat(tokens[j]);
+										if(sigma < minSigma)
+											minSigma = sigma;
+										if(sigma > maxSigma)
+											maxSigma = sigma;
+									}
+						}
 					}
 				}
 			}
@@ -4067,12 +4099,16 @@ public class WekaSegmentation {
 			this.minimumSigma = minSigma;
 			featuresChanged = true;
 			this.featureStackArray.setMinimumSigma(minSigma);
+			if( isProcessing3D )
+			    this.fs3d.setMinimumSigma( minSigma );
 		}
 		if(maxSigma != this.maximumSigma)
 		{
 			this.maximumSigma = maxSigma;
 			featuresChanged = true;
 			this.featureStackArray.setMaximumSigma(maxSigma);
+			if( isProcessing3D )
+			    this.fs3d.setMaximumSigma( maxSigma );
 		}
 
 		// Check if classes match
