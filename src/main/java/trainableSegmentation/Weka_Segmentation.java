@@ -11,6 +11,7 @@ import ij.gui.GenericDialog;
 import ij.gui.ImageWindow;
 import ij.gui.Roi;
 import ij.gui.StackWindow;
+import ij.io.DirectoryChooser;
 import ij.io.OpenDialog;
 import ij.io.SaveDialog;
 import ij.plugin.PlugIn;
@@ -1734,45 +1735,13 @@ public class Weka_Segmentation implements PlugIn
 					"Save results?", JOptionPane.YES_NO_OPTION);
 
 			if (decision == JOptionPane.YES_OPTION) {
-				if( Prefs.useFileChooser )
-				{
-					JFileChooser fileChooser = new JFileChooser( dir );
-					// ask for the directory to store the results
-					fileChooser.setFileSelectionMode(
-							JFileChooser.DIRECTORIES_ONLY );
-					fileChooser.setMultiSelectionEnabled( false );
-					fileChooser.setDialogTitle(
-							"Select folder to store results" );
-					int returnVal = fileChooser.showOpenDialog( null );
-					if(returnVal == JFileChooser.APPROVE_OPTION) {
-						storeDir = fileChooser.getSelectedFile().getPath();
-					} else {
-						return;
-					}
-				}
-				else // use FileDialog (folders only)
-				{
-					final Frame parent = IJ.getInstance();
-					final FileDialog fd = new FileDialog( parent,
-							"Select folder to store results", FileDialog.LOAD );
-					fd.setDirectory( dir );
-					// folders only
-					fd.setFilenameFilter( new FilenameFilter(){
-						public boolean accept( File dir, String name )
-						{
-							final File f = new File( name );
-							if( f.exists() && !f.isDirectory() )
-								return false;
-							else
-								return true;
-						}
-					});
-					// get selected folder or abort if none has been selected
-					fd.setVisible( true );
-					storeDir = fd.getFile();
-					if( null == storeDir )
-						return;
-				}
+				final DirectoryChooser dc = new DirectoryChooser(
+						"Select folder to store results");
+				DirectoryChooser.setDefaultDirectory( dir );
+				storeDir = dc.getDirectory();
+				if( null == storeDir )
+					return;
+
 				showResults  = false;
 				storeResults = true;
 			}
