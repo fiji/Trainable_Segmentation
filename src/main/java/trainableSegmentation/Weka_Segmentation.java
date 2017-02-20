@@ -27,6 +27,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Composite;
 import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -52,6 +54,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
@@ -1678,18 +1681,47 @@ public class Weka_Segmentation implements PlugIn
 		String dir = OpenDialog.getLastDirectory();
 		if (null == dir)
 			dir = OpenDialog.getDefaultDirectory();
-		JFileChooser fileChooser = new JFileChooser( dir );
-		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		fileChooser.setMultiSelectionEnabled(true);
-		fileChooser.setDialogTitle( "Select file(s) to classify" );
+		if( Prefs.useFileChooser )
+		{
+			JFileChooser fileChooser = new JFileChooser( dir );
+			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fileChooser.setMultiSelectionEnabled(true);
+			fileChooser.setDialogTitle( "Select file(s) to classify" );
 
-		// get selected files or abort if no file has been selected
-		int returnVal = fileChooser.showOpenDialog(null);
-		if(returnVal == JFileChooser.APPROVE_OPTION) {
-			imageFiles = fileChooser.getSelectedFiles();
-			OpenDialog.setLastDirectory( imageFiles[ 0 ].getParent() );
-		} else {
-			return;
+			// get selected files or abort if no file has been selected
+			int returnVal = fileChooser.showOpenDialog(null);
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				imageFiles = fileChooser.getSelectedFiles();
+				OpenDialog.setLastDirectory( imageFiles[ 0 ].getParent() );
+			} else {
+				return;
+			}
+		}
+		else // use FileDialog
+		{
+			final Frame parent = IJ.getInstance();
+			final FileDialog fd = new FileDialog( parent,
+					"Select file(s) to classify", FileDialog.LOAD );
+			fd.setDirectory( dir );
+			fd.setMultipleMode( true );
+			// files only
+			fd.setFilenameFilter( new FilenameFilter(){
+				public boolean accept( File dir, String name )
+				{
+					final File f = new File( name );
+					if( f.exists() && !f.isDirectory() )
+						return true;
+					else
+						return false;
+				}
+			});
+			// get selected files or abort if no file has been selected
+			fd.setVisible( true );
+			imageFiles = fd.getFiles();
+			if( null == imageFiles || imageFiles.length == 0 )
+				return;
+			else
+				OpenDialog.setLastDirectory( imageFiles[ 0 ].getParent() );
 		}
 
 		boolean showResults = true;
@@ -1702,15 +1734,44 @@ public class Weka_Segmentation implements PlugIn
 					"Save results?", JOptionPane.YES_NO_OPTION);
 
 			if (decision == JOptionPane.YES_OPTION) {
-				// ask for the directory to store the results
-				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				fileChooser.setMultiSelectionEnabled(false);
-				fileChooser.setDialogTitle( "Select folder to store results" );
-				returnVal = fileChooser.showOpenDialog(null);
-				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					storeDir = fileChooser.getSelectedFile().getPath();
-				} else {
-					return;
+				if( Prefs.useFileChooser )
+				{
+					JFileChooser fileChooser = new JFileChooser( dir );
+					// ask for the directory to store the results
+					fileChooser.setFileSelectionMode(
+							JFileChooser.DIRECTORIES_ONLY );
+					fileChooser.setMultiSelectionEnabled( false );
+					fileChooser.setDialogTitle(
+							"Select folder to store results" );
+					int returnVal = fileChooser.showOpenDialog( null );
+					if(returnVal == JFileChooser.APPROVE_OPTION) {
+						storeDir = fileChooser.getSelectedFile().getPath();
+					} else {
+						return;
+					}
+				}
+				else // use FileDialog (folders only)
+				{
+					final Frame parent = IJ.getInstance();
+					final FileDialog fd = new FileDialog( parent,
+							"Select folder to store results", FileDialog.LOAD );
+					fd.setDirectory( dir );
+					// folders only
+					fd.setFilenameFilter( new FilenameFilter(){
+						public boolean accept( File dir, String name )
+						{
+							final File f = new File( name );
+							if( f.exists() && !f.isDirectory() )
+								return false;
+							else
+								return true;
+						}
+					});
+					// get selected folder or abort if none has been selected
+					fd.setVisible( true );
+					storeDir = fd.getFile();
+					if( null == storeDir )
+						return;
 				}
 				showResults  = false;
 				storeResults = true;
