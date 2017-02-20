@@ -1709,7 +1709,7 @@ public class Weka_Segmentation implements PlugIn
 			fd.setFilenameFilter( new FilenameFilter(){
 				public boolean accept( File dir, String name )
 				{
-					final File f = new File( name );
+					final File f = new File( dir + File.separator + name );
 					if( f.exists() && !f.isDirectory() )
 						return true;
 					else
