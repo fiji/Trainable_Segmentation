@@ -3,17 +3,31 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>sc.fiji</groupId>
-		<artifactId>pom-fiji</artifactId>
-		<version>24.1.0</version>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>14.0.0</version>
 		<relativePath />
 	</parent>
 
+	<groupId>sc.fiji</groupId>
 	<artifactId>Trainable_Segmentation</artifactId>
 	<version>3.2.6-SNAPSHOT</version>
 
-	<name>plugins/Trainable_Segmentation.jar</name>
-	<description />
+	<name>Trainable Segmentation</name>
+	<description>Trainable Segmentation plugin for Fiji.</description>
+	<url>https://imagej.net/Trainable_Segmentation</url>
+	<inceptionYear>2010</inceptionYear>
+	<organization>
+		<name>Fiji</name>
+		<url>https://fiji.sc/</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>GNU General Public License v3+</name>
+			<url>https://www.gnu.org/licenses/gpl.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<developers>
 		<developer>
@@ -93,6 +107,13 @@
 		<contributor><name>Yong Wang</name></contributor>
 	</contributors>
 
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
+
 	<scm>
 		<connection>scm:git:git://github.com/fiji/Trainable_Segmentation</connection>
 		<developerConnection>scm:git:git@github.com:fiji/Trainable_Segmentation</developerConnection>
@@ -107,6 +128,13 @@
 		<system>Jenkins</system>
 		<url>http://jenkins.imagej.net/job/Trainable_Segmentation/</url>
 	</ciManagement>
+
+	<properties>
+		<package-name>ai</package-name>
+		<license.licenseName>gpl_v3</license.licenseName>
+		<license.copyrightOwners>Fiji developers.</license.copyrightOwners>
+		<license.projectName>Fiji distribution of ImageJ for the life sciences.</license.projectName>
+	</properties>
 
 	<repositories>
 		<repository>
