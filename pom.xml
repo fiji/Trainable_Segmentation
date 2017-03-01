@@ -125,8 +125,8 @@
 		<url>https://github.com/fiji/Trainable_Segmentation/issues</url>
 	</issueManagement>
 	<ciManagement>
-		<system>Jenkins</system>
-		<url>http://jenkins.imagej.net/job/Trainable_Segmentation/</url>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/fiji/Trainable_Segmentation</url>
 	</ciManagement>
 
 	<properties>

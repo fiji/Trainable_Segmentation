@@ -1,4 +1,4 @@
-[![](http://jenkins.imagej.net/job/Trainable_Segmentation/lastBuild/badge/icon)](http://jenkins.imagej.net/job/Trainable_Segmentation/)
+[![](https://travis-ci.org/fiji/Trainable_Segmentation.svg?branch=master)](https://travis-ci.org/fiji/Trainable_Segmentation)
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.59290.svg)](http://dx.doi.org/10.5281/zenodo.59290)
 
 Trainable Weka Segmentation
