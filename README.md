@@ -15,3 +15,8 @@ The **Trainable Weka Segmentation** is a Fiji plugin and library that combines a
 The main goal of this library is to work as a **bridge between the Machine Learning and the Image Processing fields**. It provides the framework to use and, more important, compare any available classifier to perform image segmentation based on pixel classification.
 
 For further details, please visit the documentation site: http://fiji.sc/Trainable_Weka_Segmentation
+
+Citation
+--------
+Please note that Trainable Weka Segmentation is based on a publication. If you use it successfully for your research please be so kind to cite our work:
+* Arganda-Carreras, I., Kaynig, V., Rueden, C., Eliceiri, K. W., Schindelin, J., Cardona, A., & Seung, H. S. (2017). [Trainable Weka Segmentation: a machine learning tool for microscopy pixel classification](https://academic.oup.com/bioinformatics/article-abstract/doi/10.1093/bioinformatics/btx180/3092362/Trainable-Weka-Segmentation-a-machine-learning). Bioinformatics (Oxford Univ Press) Bioinformatics btx180, [doi:10.1093/bioinformatics/btx180](http://dx.doi.org/10.1093%2Fbioinformatics%2Fbtx180) ([on Google Scholar](http://scholar.google.com/scholar?cluster=12995971888361615836)).
