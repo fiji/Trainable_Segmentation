@@ -65,7 +65,6 @@ public class BasicTest
 		testDefaultFeaturesOnBridge(FeatureStack::updateFeaturesST);
 	}
 
-	@Ignore("There is a Failure in the multi threaded calculation of the Hessian feature.")
 	@Test
 	public void testDefaultFeatureGenerationMT() {
 		testDefaultFeaturesOnBridge(FeatureStack::updateFeaturesMT);
