@@ -135,7 +135,7 @@ public class FeatureStackArray
 	}
 	
 	/**
-	 * Get n-th stack in the array (remember n>=0)
+	 * Get n-th stack in the array (remember n&gt;=0)
 	 * @param n position of the stack to get
 	 * @return feature stack of the corresponding slice
 	 */
@@ -375,7 +375,7 @@ public class FeatureStackArray
 	
 	/**
 	 * Get a specific label of the reference stack
-	 * @param index slice index (>=1)
+	 * @param index slice index (&gt;=1)
 	 * @return label name
 	 */
 	public String getLabel(int index)

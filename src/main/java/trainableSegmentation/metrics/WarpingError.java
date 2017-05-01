@@ -1150,7 +1150,7 @@ public class WarpingError extends Metrics {
 	 * Computes topological numbers for the central point of an image patch.
 	 * These numbers can be used as the basis of a topological classification.
 	 * T_4 and T_8 are used when IM is a 2d image patch of size 3x3
-	 * defined on p. 172 of Bertrand & Malandain, Patt. Recog. Lett. 15, 169-75 (1994).
+	 * defined on p. 172 of Bertrand &amp; Malandain, Patt. Recog. Lett. 15, 169-75 (1994).
 	 *
 	 * @param im input image
 	 * @param adjacency number of neighbors

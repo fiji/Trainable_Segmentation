@@ -48,12 +48,13 @@ import weka.core.Utils;
  * have the same representation in the training process. 
  * 
  * <!-- globalinfo-start -->
- * Class for constructing a balanced forest of random trees.<br/>
- * <br/>
- * For more information see: <br/>
- * <br/>
+ * Class for constructing a balanced forest of random trees.
+ * <p>
+ * For more information see:
+ * </p>
+ * <blockquote>
  * Leo Breiman (2001). Random Forests. Machine Learning. 45(1):5-32.
- * <p/>
+ * </blockquote>
  <!-- globalinfo-end -->
  *
  <!-- technical-bibtex-start -->
@@ -69,11 +70,12 @@ import weka.core.Utils;
  *    year = {2001}
  * }
  * </pre> * 
- * <p/>
  <!-- technical-bibtex-end -->
  *
  <!-- options-start -->
- * Valid options are: <p/>
+ * <p>
+ * Valid options are:
+ * </p>
  * 
  * <pre> -I &lt;number of trees&gt;
  *  Number of trees to build.</pre>
@@ -366,10 +368,12 @@ public class BalancedRandomForest extends AbstractClassifier implements Randomiz
 	
 	
 	/**
-	 * Parses a given list of options. <p/>
+	 * Parses a given list of options.
 	 * 
 	   <!-- options-start -->
-	 * Valid options are: <p/>
+	 * <p>
+	 * Valid options are:
+	 * </p>
 	 * 
 	 * <pre> -I &lt;number of trees&gt;
 	 *  Number of trees to build.</pre>

@@ -48,30 +48,25 @@ import weka.core.WeightedInstancesHandler;
  * Based on the "weka.classifiers.meta.Bagging" class, revision 1.39,
  * by Kirkby, Frank and Trigg, with modifications:
  * <ul>
- * <p/>
  * <li>Instead of Instances, produces DataCaches; consequently, FastRfBagging
- * is compatible only with FastRandomTree as base classifier
- * <p/>
+ * is compatible only with FastRandomTree as base classifier</li>
  * <li>The function for resampling the data is removed; this is a responsibility
- * of the DataCache objects now
- * <p/>
- * <li>Not a TechnicalInformationHandler anymore
- * <p/>
+ * of the DataCache objects now</li>
+ * <li>Not a TechnicalInformationHandler anymore</li>
  * <li>The classifiers are trained in separate "tasks" which are handled by
  * an ExecutorService (the FixedThreadPool) which runs the tasks in
  * more threads in parallel. If the number of threads is not specified,
- * it will be set automatically to the available number of cores.
- * <p/>
+ * it will be set automatically to the available number of cores.</li>
  * <li>Estimating the out-of-bag (OOB) error is also multithreaded, using
- * the VotesCollector class
- * <p/>
+ * the VotesCollector class</li>
  * <li>OOB estimation in Weka's Bagging is one tree - one vote. In FastRF 0.97
  * onwards, some trees will have a heavier weight in the overall vote
  * depending on the averaged weights of instances that ended in the specific
- * leaf.
- * <p/>
+ * leaf.</li>
  * </ul>
+ * <p>
  * This class should be used only from within the FastRandomForest classifier.
+ * </p>
  *
  * @author Eibe Frank (eibe@cs.waikato.ac.nz) - original code
  * @author Len Trigg (len@reeltwo.com) - original code
@@ -449,40 +444,35 @@ class FastRfBagging extends RandomizableIteratedSingleClassifierEnhancer
 
 
   /**
-   * Parses a given list of options. <p/>
-   * <p/>
+   * Parses a given list of options.
+   *
    * <!-- options-start -->
-   * Valid options are: <p/>
-   * <p/>
+   * <p>
+   * Valid options are:
+   * </p>
    * <pre> -P
    *  Size of each bag, as a percentage of the
    *  training set size. (default 100)</pre>
-   * <p/>
    * <pre> -O
    *  Calculate the out of bag error.</pre>
-   * <p/>
    * <pre> -S &lt;num&gt;
    *  Random number seed.
    *  (default 1)</pre>
-   * <p/>
    * <pre> -I &lt;num&gt;
    *  Number of iterations.
    *  (default 10)</pre>
-   * <p/>
    * <pre> -D
    *  If set, classifier is run in debug mode and
    *  may output additional info to the console</pre>
-   * <p/>
    * <pre> -W
    *  Full name of base classifier.
    *  (default: fastRandomForest.classifiers.FastRandomTree)</pre>
-   * <p/>
    * <!-- options-end -->
-   * <p/>
-   * Options after -- are passed to the designated classifier.<p>
+   * <p>
+   * Options after -- are passed to the designated classifier.
+   * </p>
    *
    * @param options the list of options as an array of strings
-   *
    * @throws Exception if an option is not supported
    */
   @Override
