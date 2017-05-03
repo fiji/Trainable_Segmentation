@@ -73,6 +73,7 @@ public class BasicTest
 	private void testDefaultFeaturesOnBridge(Consumer<FeatureStack> updateFeaturesMethod) {
 		// setup
 		final ImagePlus bridge = loadFromResource("/bridge.png");
+
 		// process
 		final FeatureStack featureStack = new FeatureStack(bridge);
 		updateFeaturesMethod.accept(featureStack);
