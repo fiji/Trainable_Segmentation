@@ -45,23 +45,27 @@ import weka.core.WeightedInstancesHandler;
 /**
  * Based on the "weka.classifiers.trees.RandomForest" class, revision 1.12,
  * by Richard Kirkby, with minor modifications:
- * <p/>
- * - uses FastRfBagger with FastRandomTree, instead of Bagger with RandomTree.
- * - stores dataset header (instead of every Tree storing its own header)
- * - checks if only ZeroR model is possible (instead of each Tree checking)
- * - added "-threads" option
- * <p/>
+ * <ul>
+ * <li>uses FastRfBagger with FastRandomTree, instead of Bagger with RandomTree.</li>
+ * <li>stores dataset header (instead of every Tree storing its own header)</li>
+ * <li>checks if only ZeroR model is possible (instead of each Tree checking)</li>
+ * <li>added "-threads" option</li>
+ * </ul>
  * <!-- globalinfo-start -->
- * Class for constructing a forest of random trees.<br/>
- * <br/>
- * For more information see: <br/>
- * <br/>
+ * <p>
+ * Class for constructing a forest of random trees.
+ * </p>
+ * <p>
+ * For more information see:
+ * </p>
+ * <blockquote>
  * Leo Breiman (2001). Random Forests. Machine Learning. 45(1):5-32.
- * <p/>
+ * </blockquote>
  * <!-- globalinfo-end -->
- * <p/>
  * <!-- technical-bibtex-start -->
+ * <p>
  * BibTeX:
+ * </p>
  * <pre>
  * &#64;article{Breiman2001,
  *    author = {Leo Breiman},
@@ -73,30 +77,24 @@ import weka.core.WeightedInstancesHandler;
  *    year = {2001}
  * }
  * </pre>
- * <p/>
  * <!-- technical-bibtex-end -->
- * <p/>
  * <!-- options-start -->
- * Valid options are: <p/>
- * <p/>
+ * <p>
+ * Valid options are:
+ * </p>
  * <pre> -I &lt;number of trees&gt;
  *  Number of trees to build.</pre>
- * <p/>
  * <pre> -K &lt;number of features&gt;
  *  Number of features to consider (&lt;1=int(logM+1)).</pre>
- * <p/>
  * <pre> -S
  *  Seed for random number generator.
  *  (default 1)</pre>
- * <p/>
  * <pre> -depth &lt;num&gt;
  *  The maximum depth of the trees, 0 for unlimited.
  *  (default 0)</pre>
- * <p/>
  * <pre> -D
  *  If set, classifier is run in debug mode and
  *  may output additional info to the console</pre>
- * <p/>
  * <!-- options-end -->
  *
  * @author Richard Kirkby (rkirkby@cs.waikato.ac.nz) - original code
@@ -487,40 +485,33 @@ public class FastRandomForest
 
 
   /**
-   * Parses a given list of options. <p/>
-   * <p/>
+   * Parses a given list of options.
+   *
    * <!-- options-start -->
-   * Valid options are: <p/>
-   * <p/>
+   * <p>
+   * Valid options are:
+   * </p>
    * <pre> -I &lt;number of trees&gt;
    *  Number of trees to build.</pre>
-   * <p/>
    * <pre> -K &lt;number of features&gt;
    *  Number of features to consider (&lt;1=int(logM+1)).</pre>
-   * <p/>
    * <pre> -S
    *  Seed for random number generator.
    *  (default 1)</pre>
-   * <p/>
    * <pre> -depth &lt;num&gt;
    *  The maximum depth of the trees, 0 for unlimited.
    *  (default 0)</pre>
-   * <p/>
    * <pre> -threads
    *  Number of simultaneous threads to use.
    *  (default 0 = autodetect number of available cores)</pre>
-   * <p/>
    * <pre> -import
    *  Compute and output RF feature importances (slow).</pre>
-   * <p/>
    * <pre> -D
    *  If set, classifier is run in debug mode and
    *  may output additional info to the console</pre>
-   * <p/>
    * <!-- options-end -->
    *
    * @param options the list of options as an array of strings
-   *
    * @throws Exception if an option is not supported
    */
   public void setOptions(String[] options) throws Exception{

@@ -363,7 +363,7 @@ public class WatershedTransform2D {
 	
 	/**
 	 * Extract pixel values from input image such that
-	 * they have value h, hMin <= h <= hMax.
+	 * they have value h, hMin &lt;= h &lt;= hMax.
 	 * 
 	 * @param inputImage input image
 	 * @param hMin minimum grayscale height value

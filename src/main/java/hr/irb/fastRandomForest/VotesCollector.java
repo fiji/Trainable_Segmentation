@@ -31,8 +31,9 @@ import weka.core.Utils;
  * Used to retrieve the out-of-bag vote of an ensemble classifier for a single
  * instance. In classification, does not return the class distribution but only
  * class index of the dominant class.
- * <p/>
+ * <p>
  * Implements callable so it can be run in multiple threads.
+ * </p>
  *
  * @author Fran Supek
  */
