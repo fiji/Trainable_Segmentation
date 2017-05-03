@@ -4136,15 +4136,21 @@ public class WekaSegmentation {
 			j++;
 		}
 
-		final boolean[] oldEnableFeatures = isProcessing3D ?
-				fs3d.getEnabledFeatures() :
-					this.featureStackArray.getEnabledFeatures();
-		// Read checked features and check if any of them changed
-		for(int i = 0; i < numFeatures; i++)
+		if( null != featureStackArray )
 		{
-			if (usedFeatures[i] != oldEnableFeatures[i])
-				featuresChanged = true;
+			final boolean[] oldEnableFeatures = isProcessing3D ?
+					fs3d.getEnabledFeatures() :
+						this.featureStackArray.getEnabledFeatures();
+			// Read checked features and check if any of them changed
+			for(int i = 0; i < numFeatures; i++)
+			{
+				if (usedFeatures[i] != oldEnableFeatures[i])
+					featuresChanged = true;
+			}
 		}
+		else
+			featuresChanged = true;
+
 		// Update feature stack if necessary
 		if(featuresChanged)
 		{
@@ -6393,7 +6399,8 @@ public class WekaSegmentation {
 			this.fs3d.setEnableFeatures( newFeatures );
 		else
 			this.enabledFeatures = newFeatures;
-		featureStackArray.setEnabledFeatures(newFeatures);
+		if( null != featureStackArray )
+			featureStackArray.setEnabledFeatures(newFeatures);
 	}
 
 	/**
