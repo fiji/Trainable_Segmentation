@@ -29,12 +29,14 @@ import weka.core.Utils;
 /**
  * Used to retrieve the out-of-bag vote of an FastRandomForest classifier for a
  * single instance from a DataCache the forest was trained on. New in 0.99.
- * Used for OOB error calculation and feature importances. <p>
- * 
+ * Used for OOB error calculation and feature importances.
+ * <p>
  * In classification, does not return the class distribution, but only the class
  * index of the dominant class.
- * <p/>
+ * </p>
+ * <p>
  * Implements callable so it can be run in multiple threads.
+ * </p>
  *
  * @author Fran Supek
  */

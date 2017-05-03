@@ -417,7 +417,7 @@ public class WekaSegmentation {
 
 	/**
 	 * Set the current number of classes. Should not be used to create new
-	 * classes. Use <link>addClass<\link> instead.
+	 * classes. Use {@link #addClass} instead.
 	 *
 	 * @param numOfClasses the new number of classes
 	 */
@@ -2194,7 +2194,7 @@ public class WekaSegmentation {
 	/**
 	 * Get current feature stack
 	 *
-	 * @param i number of feature stack slice (>=1)
+	 * @param i number of feature stack slice (&gt;=1)
 	 * @return feature stack of the corresponding slice
 	 */
 	public FeatureStack getFeatureStack(int i)
@@ -2460,7 +2460,7 @@ public class WekaSegmentation {
 	 * Add label image as binary data
 	 *
 	 * @param labelImage binary label image
-	 * @param n slice number (0 <= n < number of slices)
+	 * @param n slice number (0 &lt;= n &lt; number of slices)
 	 * @param whiteClassName class name for the white pixels
 	 * @param blackClassName class name for the black pixels
 	 * @return false if error
@@ -4136,15 +4136,21 @@ public class WekaSegmentation {
 			j++;
 		}
 
-		final boolean[] oldEnableFeatures = isProcessing3D ?
-				fs3d.getEnabledFeatures() :
-					this.featureStackArray.getEnabledFeatures();
-		// Read checked features and check if any of them changed
-		for(int i = 0; i < numFeatures; i++)
+		if( null != featureStackArray )
 		{
-			if (usedFeatures[i] != oldEnableFeatures[i])
-				featuresChanged = true;
+			final boolean[] oldEnableFeatures = isProcessing3D ?
+					fs3d.getEnabledFeatures() :
+						this.featureStackArray.getEnabledFeatures();
+			// Read checked features and check if any of them changed
+			for(int i = 0; i < numFeatures; i++)
+			{
+				if (usedFeatures[i] != oldEnableFeatures[i])
+					featuresChanged = true;
+			}
 		}
+		else
+			featuresChanged = true;
+
 		// Update feature stack if necessary
 		if(featuresChanged)
 		{
@@ -6393,7 +6399,8 @@ public class WekaSegmentation {
 			this.fs3d.setEnableFeatures( newFeatures );
 		else
 			this.enabledFeatures = newFeatures;
-		featureStackArray.setEnabledFeatures(newFeatures);
+		if( null != featureStackArray )
+			featureStackArray.setEnabledFeatures(newFeatures);
 	}
 
 	/**

@@ -132,8 +132,9 @@ public final class FastRfUtils {
 
   /**
    * Normalizes the doubles in the array by their sum.
-   * <p/>
+   * <p>
    * If supplied an array full of zeroes, does not modify the array.
+   * </p>
    *
    * @param doubles the array of double
    *
@@ -151,8 +152,9 @@ public final class FastRfUtils {
 
   /**
    * Normalizes the doubles in the array using the given value.
-   * <p/>
+   * <p>
    * If supplied an array full of zeroes, does not modify the array.
+   * </p>
    *
    * @param doubles the array of double
    * @param sum     the value by which the doubles are to be normalized
@@ -199,9 +201,10 @@ public final class FastRfUtils {
 
   /**
    * Produces a random permutation of the values of an attribute in a dataset using Knuth shuffle.
-   * <p/>
+   * <p>
    * Copies back the current values of the previously scrambled attribute and uses the given permutation
    * to scramble the values of the new attribute all by copying from the original dataset.
+   * </p>
    *
    * @param src      the source dataset
    * @param dst      the scrambled dataset
