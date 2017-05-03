@@ -887,116 +887,12 @@ public class FeatureStack
 	 */
 	public void addHessian(float sigma)
 	{
-		float[] sobelFilter_x = {1f,2f,1f,0f,0f,0f,-1f,-2f,-1f};
-		float[] sobelFilter_y = {1f,0f,-1f,2f,0f,-2f,1f,0f,-1f};
-		Convolver c = new Convolver();				
-		GaussianBlur gs = new GaussianBlur();
-	
-		// Get channel(s) to process
-		ImagePlus[] channels = extractChannels(originalImage);
-		
-		ImagePlus[] results = new ImagePlus[ channels.length ];
-		
-		for(int ch=0; ch < channels.length; ch++)
-		{		
-			ImageProcessor ip_x = channels[ch].getProcessor().duplicate().convertToFloat();
-			gs.blurGaussian(ip_x, 0.4 * sigma, 0.4 * sigma,  0.0002);		
-			c.convolveFloat(ip_x, sobelFilter_x, 3, 3);		
+		ImagePlus merged = calculateHessian(originalImage, sigma);
 
-			ImageProcessor ip_y = channels[ch].getProcessor().duplicate().convertToFloat();
-			gs.blurGaussian(ip_y, 0.4 * sigma, 0.4 * sigma,  0.0002);
-			c = new Convolver();
-			c.convolveFloat(ip_y, sobelFilter_y, 3, 3);
-
-			ImageProcessor ip_xx = ip_x.duplicate();
-			c.convolveFloat(ip_xx, sobelFilter_x, 3, 3);		
-
-			ImageProcessor ip_xy = ip_x.duplicate();
-			c.convolveFloat(ip_xy, sobelFilter_y, 3, 3);		
-
-			ImageProcessor ip_yy = ip_y.duplicate();
-			c.convolveFloat(ip_yy, sobelFilter_y, 3, 3);		
-
-			ImageProcessor ip = new FloatProcessor(width, height);
-			ImageProcessor ipTr = new FloatProcessor(width, height);
-			ImageProcessor ipDet = new FloatProcessor(width, height);
-			//ImageProcessor ipRatio = new FloatProcessor(width, height);
-			ImageProcessor ipEig1 = new FloatProcessor(width, height);
-			ImageProcessor ipEig2 = new FloatProcessor(width, height);
-			ImageProcessor ipOri = new FloatProcessor(width, height);
-			ImageProcessor ipSed = new FloatProcessor(width, height);
-			ImageProcessor ipNed = new FloatProcessor(width, height);
-
-			final double t = Math.pow(1, 0.75);
-
-			for (int x=0; x<width; x++){
-				for (int y=0; y<height; y++)
-				{
-					// a
-					float s_xx = ip_xx.getf(x,y);
-					// b, c
-					float s_xy = ip_xy.getf(x,y);
-					// d
-					float s_yy = ip_yy.getf(x,y);
-					// Hessian module: sqrt (a^2 + b*c + d^2)
-					ip.setf(x,y, (float) Math.sqrt(s_xx*s_xx + s_xy*s_xy+ s_yy*s_yy));
-					// Trace: a + d
-					final float trace = s_xx + s_yy;
-					ipTr.setf(x,y,  trace);
-					// Determinant: a*d - c*b
-					final float determinant = s_xx*s_yy-s_xy*s_xy;
-					ipDet.setf(x,y, determinant);
-					
-					// Ratio
-					//ipRatio.setf(x,y, (float)(trace*trace) / determinant);																												
-					// First eigenvalue: (a + d) / 2 + sqrt( ( 4*b^2 + (a - d)^2) ) / 2 )
-					ipEig1.setf(x,y, (float) ( trace/2.0 + Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) / 2.0 ) ) );
-					// Second eigenvalue: (a + d) / 2 - sqrt( ( 4*b^2 + (a - d)^2) ) / 2 )
-					ipEig2.setf(x,y, (float) ( trace/2.0 - Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) / 2.0 ) ) );
-					// Orientation
-					if (s_xy < 0.0) // -0.5 * acos( (a-d) / sqrt( 4*b^2 + (a - d)^2)) )
-					{
-						float orientation =(float)( -0.5 * Math.acos((s_xx	- s_yy) 
-								/ Math.sqrt(4.0 * s_xy * s_xy + (s_xx - s_yy) * (s_xx - s_yy)) ));							
-						if (Float.isNaN(orientation))
-							orientation = 0;
-						ipOri.setf(x, y,  orientation);
-					}
-					else 	// 0.5 * acos( (a-d) / sqrt( 4*b^2 + (a - d)^2)) )
-					{
-						float orientation =(float)( 0.5 * Math.acos((s_xx	- s_yy) 
-								/ Math.sqrt(4.0 * s_xy * s_xy + (s_xx - s_yy) * (s_xx - s_yy)) ));							
-						if (Float.isNaN(orientation))
-							orientation = 0;
-						ipOri.setf(x, y,  orientation);
-					}
-					// Gamma-normalized square eigenvalue difference
-					ipSed.setf(x, y, (float) ( Math.pow(t,4) * trace*trace * ( (s_xx - s_yy)*(s_xx - s_yy) + 4*s_xy*s_xy ) ) );
-					// Square of Gamma-normalized eigenvalue difference
-					ipNed.setf(x, y, (float) ( Math.pow(t,2) * ( (s_xx - s_yy)*(s_xx - s_yy) + 4*s_xy*s_xy ) ) );
-				}
-			}
-
-			ImageStack hessianStack = new ImageStack(width, height);
-			hessianStack.addSlice(availableFeatures[HESSIAN] + "_"  + sigma, ip);
-			hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Trace_"+sigma, ipTr);
-			hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Determinant_"+sigma, ipDet);
-			//hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Eignevalue_Ratio_"+sigma, ipRatio);
-			hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Eigenvalue_1_"+sigma, ipEig1);
-			hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Eigenvalue_2_"+sigma, ipEig2);
-			hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Orientation_"+sigma, ipOri);
-			hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Square_Eigenvalue_Difference_"+sigma, ipSed);
-			hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Normalized_Eigenvalue_Difference_"+sigma, ipNed);
-		
-			results[ ch ] = new ImagePlus("hessian stack", hessianStack);
-		}
-		
-		ImagePlus merged = mergeResultChannels(results);
-		
 		for(int i=1; i<=merged.getImageStackSize(); i++)
 			wholeStack.addSlice(merged.getImageStack().getSliceLabel(i), merged.getImageStack().getPixels(i));
 	}
-	
+
 	/**
 	 * Get Hessian features from original image (to be submitted in an ExecutorService).
 	 * The features include a scalar representing the Hessian, the trace, determinant, 
@@ -1016,120 +912,125 @@ public class FeatureStack
 		
 		return new Callable<ImagePlus>(){
 			public ImagePlus call(){
-
-				final int width = originalImage.getWidth();
-				final int height = originalImage.getHeight();
-
-				float[] sobelFilter_x = {1f,2f,1f,0f,0f,0f,-1f,-2f,-1f};
-				float[] sobelFilter_y = {1f,0f,-1f,2f,0f,-2f,1f,0f,-1f};
-				Convolver c = new Convolver();				
-				GaussianBlur gs = new GaussianBlur();
-
-				// Get channel(s) to process
-				ImagePlus[] channels = extractChannels(originalImage);
-
-				ImagePlus[] results = new ImagePlus[ channels.length ];
-
-				for(int ch=0; ch < channels.length; ch++)
-				{
-
-					ImageProcessor ip_x = channels[ch].getProcessor().duplicate().convertToFloat();
-					gs.blurGaussian(ip_x, 0.4 * sigma, 0.4 * sigma,  0.0002);		
-					c.convolveFloat(ip_x, sobelFilter_x, 3, 3);		
-
-					ImageProcessor ip_y = channels[ch].getProcessor().duplicate().convertToFloat();
-					gs.blurGaussian(ip_y, 0.4 * sigma, 0.4 * sigma,  0.0002);
-					c = new Convolver();
-					c.convolveFloat(ip_y, sobelFilter_y, 3, 3);
-
-					ImageProcessor ip_xx = ip_x.duplicate();
-					c.convolveFloat(ip_xx, sobelFilter_x, 3, 3);		
-
-					ImageProcessor ip_xy = ip_x.duplicate();
-					c.convolveFloat(ip_xy, sobelFilter_y, 3, 3);		
-
-					ImageProcessor ip_yy = ip_y.duplicate();
-					c.convolveFloat(ip_yy, sobelFilter_y, 3, 3);		
-
-					ImageProcessor ip = new FloatProcessor(width, height);
-					ImageProcessor ipTr = new FloatProcessor(width, height);
-					ImageProcessor ipDet = new FloatProcessor(width, height);
-					//ImageProcessor ipRatio = new FloatProcessor(width, height);
-					ImageProcessor ipEig1 = new FloatProcessor(width, height);
-					ImageProcessor ipEig2 = new FloatProcessor(width, height);
-					ImageProcessor ipOri = new FloatProcessor(width, height);
-					ImageProcessor ipSed = new FloatProcessor(width, height);
-					ImageProcessor ipNed = new FloatProcessor(width, height);
-
-					final double t = Math.pow(1, 0.75);
-
-					for (int x=0; x<width; x++){
-						for (int y=0; y<height; y++)
-						{
-							// a
-							float s_xx = ip_xx.getf(x,y);
-							// b, c
-							float s_xy = ip_xy.getf(x,y);
-							// d
-							float s_yy = ip_yy.getf(x,y);
-							// Hessian module: sqrt (a^2 + b*c + d^2)
-							ip.setf(x,y, (float) Math.sqrt(s_xx*s_xx + s_xy*s_xy+ s_yy*s_yy));
-							// Trace: a + d
-							final float trace = s_xx + s_yy;
-							ipTr.setf(x,y,  trace);
-							// Determinant: a*d - c*b
-							final float determinant = s_xx*s_yy-s_xy*s_xy;
-							ipDet.setf(x,y, determinant);
-							
-							// Ratio
-							//ipRatio.setf(x,y, (float)(trace*trace) / determinant);																												
-							// First eigenvalue: (a + d + sqrt( ( 4*b^2 + (a - d)^2) ) ) / 2 
-							ipEig1.setf(x,y, (float) ( trace + Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) ) / 2.0 ) );
-							// Second eigenvalue: (a + d - sqrt( ( 4*b^2 + (a - d)^2) )) / 2 
-							ipEig2.setf(x,y, (float) ( trace - Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy))) / 2.0 ) );
-							// Orientation
-							if (s_xy < 0.0) // -0.5 * acos( (a-d) / sqrt( 4*b^2 + (a - d)^2)) )
-							{
-								float orientation =(float)( -0.5 * Math.acos((s_xx	- s_yy) 
-										/ Math.sqrt(4.0 * s_xy * s_xy + (s_xx - s_yy) * (s_xx - s_yy)) ));							
-								if (Float.isNaN(orientation))
-									orientation = 0;
-								ipOri.setf(x, y,  orientation);
-							}
-							else 	// 0.5 * acos( (a-d) / sqrt( 4*b^2 + (a - d)^2)) )
-							{
-								float orientation =(float)( 0.5 * Math.acos((s_xx	- s_yy) 
-										/ Math.sqrt(4.0 * s_xy * s_xy + (s_xx - s_yy) * (s_xx - s_yy)) ));							
-								if (Float.isNaN(orientation))
-									orientation = 0;
-								ipOri.setf(x, y,  orientation);
-							}
-							// Gamma-normalized square eigenvalue difference
-							ipSed.setf(x, y, (float) ( Math.pow(t,4) * trace*trace * ( (s_xx - s_yy)*(s_xx - s_yy) + 4*s_xy*s_xy ) ) );
-							// Square of Gamma-normalized eigenvalue difference
-							ipNed.setf(x, y, (float) ( Math.pow(t,2) * ( (s_xx - s_yy)*(s_xx - s_yy) + 4*s_xy*s_xy ) ) );
-						}
-					}
-
-					ImageStack hessianStack = new ImageStack(width, height);
-					hessianStack.addSlice(availableFeatures[HESSIAN] + "_"  + sigma, ip);
-					hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Trace_"+sigma, ipTr);
-					hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Determinant_"+sigma, ipDet);
-					//hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Eignevalue_Ratio_"+sigma, ipRatio);
-					hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Eigenvalue_1_"+sigma, ipEig1);
-					hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Eigenvalue_2_"+sigma, ipEig2);
-					hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Orientation_"+sigma, ipOri);
-					hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Square_Eigenvalue_Difference_"+sigma, ipSed);
-					hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Normalized_Eigenvalue_Difference_"+sigma, ipNed);
-
-					results[ ch ] = new ImagePlus("hessian stack", hessianStack);
-				}
-
-				return mergeResultChannels(results);
+				return calculateHessian(originalImage, sigma);
 			}
 		};
 	}
-	
+
+	/** Helper method to addHessian and getHessian */
+	private ImagePlus calculateHessian(ImagePlus originalImage, float sigma) {
+		ImagePlus[] channels = extractChannels(originalImage);
+		ImagePlus[] results = new ImagePlus[ channels.length ];
+
+		for(int ch=0; ch < channels.length; ch++)
+			results[ ch ] = calculateHessianOnChannel(channels[ch], sigma);
+
+		return mergeResultChannels(results);
+	}
+
+	/** Helper method to addHessian and getHessian */
+	private ImagePlus calculateHessianOnChannel(ImagePlus channel, float sigma)
+	{
+		float[] sobelFilter_x = {1f,2f,1f,0f,0f,0f,-1f,-2f,-1f};
+		float[] sobelFilter_y = {1f,0f,-1f,2f,0f,-2f,1f,0f,-1f};
+
+		Convolver c = new Convolver();
+		GaussianBlur gs = new GaussianBlur();
+
+		int width = channel.getWidth();
+		int height = channel.getHeight();
+
+		ImageProcessor ip_x = channel.getProcessor().duplicate().convertToFloat();
+		gs.blurGaussian(ip_x, 0.4 * sigma, 0.4 * sigma,  0.0002);
+		c.convolveFloat(ip_x, sobelFilter_x, 3, 3);
+
+		ImageProcessor ip_y = channel.getProcessor().duplicate().convertToFloat();
+		gs.blurGaussian(ip_y, 0.4 * sigma, 0.4 * sigma,  0.0002);
+		c.convolveFloat(ip_y, sobelFilter_y, 3, 3);
+
+		ImageProcessor ip_xx = ip_x.duplicate();
+		c.convolveFloat(ip_xx, sobelFilter_x, 3, 3);
+
+		ImageProcessor ip_xy = ip_x.duplicate();
+		c.convolveFloat(ip_xy, sobelFilter_y, 3, 3);
+
+		ImageProcessor ip_yy = ip_y.duplicate();
+		c.convolveFloat(ip_yy, sobelFilter_y, 3, 3);
+
+		ImageProcessor ip = new FloatProcessor(width, height);
+		ImageProcessor ipTr = new FloatProcessor(width, height);
+		ImageProcessor ipDet = new FloatProcessor(width, height);
+		//ImageProcessor ipRatio = new FloatProcessor(width, height);
+		ImageProcessor ipEig1 = new FloatProcessor(width, height);
+		ImageProcessor ipEig2 = new FloatProcessor(width, height);
+		ImageProcessor ipOri = new FloatProcessor(width, height);
+		ImageProcessor ipSed = new FloatProcessor(width, height);
+		ImageProcessor ipNed = new FloatProcessor(width, height);
+
+		final double t = Math.pow(1, 0.75);
+
+		for (int x=0; x<width; x++){
+			for (int y=0; y<height; y++)
+			{
+				// a
+				float s_xx = ip_xx.getf(x,y);
+				// b, c
+				float s_xy = ip_xy.getf(x,y);
+				// d
+				float s_yy = ip_yy.getf(x,y);
+				// Hessian module: sqrt (a^2 + b*c + d^2)
+				ip.setf(x,y, (float) Math.sqrt(s_xx*s_xx + s_xy*s_xy+ s_yy*s_yy));
+				// Trace: a + d
+				final float trace = s_xx + s_yy;
+				ipTr.setf(x,y,  trace);
+				// Determinant: a*d - c*b
+				final float determinant = s_xx*s_yy-s_xy*s_xy;
+				ipDet.setf(x,y, determinant);
+
+				// Ratio
+				//ipRatio.setf(x,y, (float)(trace*trace) / determinant);
+				// First eigenvalue: (a + d) / 2 + sqrt( ( 4*b^2 + (a - d)^2) / 2 )
+				ipEig1.setf(x,y, (float) ( trace/2.0 + Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) / 2.0 ) ) );
+				// Second eigenvalue: (a + d) / 2 - sqrt( ( 4*b^2 + (a - d)^2) / 2 )
+				ipEig2.setf(x,y, (float) ( trace/2.0 - Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) / 2.0 ) ) );
+				// Orientation
+				if (s_xy < 0.0) // -0.5 * acos( (a-d) / sqrt( 4*b^2 + (a - d)^2)) )
+				{
+					float orientation =(float)( -0.5 * Math.acos((s_xx	- s_yy)
+							/ Math.sqrt(4.0 * s_xy * s_xy + (s_xx - s_yy) * (s_xx - s_yy)) ));
+					if (Float.isNaN(orientation))
+						orientation = 0;
+					ipOri.setf(x, y,  orientation);
+				}
+				else 	// 0.5 * acos( (a-d) / sqrt( 4*b^2 + (a - d)^2)) )
+				{
+					float orientation =(float)( 0.5 * Math.acos((s_xx	- s_yy)
+							/ Math.sqrt(4.0 * s_xy * s_xy + (s_xx - s_yy) * (s_xx - s_yy)) ));
+					if (Float.isNaN(orientation))
+						orientation = 0;
+					ipOri.setf(x, y,  orientation);
+				}
+				// Gamma-normalized square eigenvalue difference
+				ipSed.setf(x, y, (float) ( Math.pow(t,4) * trace*trace * ( (s_xx - s_yy)*(s_xx - s_yy) + 4*s_xy*s_xy ) ) );
+				// Square of Gamma-normalized eigenvalue difference
+				ipNed.setf(x, y, (float) ( Math.pow(t,2) * ( (s_xx - s_yy)*(s_xx - s_yy) + 4*s_xy*s_xy ) ) );
+			}
+		}
+
+		ImageStack hessianStack = new ImageStack(width, height);
+		hessianStack.addSlice(availableFeatures[HESSIAN] + "_"  + sigma, ip);
+		hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Trace_"+sigma, ipTr);
+		hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Determinant_"+sigma, ipDet);
+		//hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Eignevalue_Ratio_"+sigma, ipRatio);
+		hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Eigenvalue_1_"+sigma, ipEig1);
+		hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Eigenvalue_2_"+sigma, ipEig2);
+		hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Orientation_"+sigma, ipOri);
+		hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Square_Eigenvalue_Difference_"+sigma, ipSed);
+		hessianStack.addSlice(availableFeatures[HESSIAN]+ "_Normalized_Eigenvalue_Difference_"+sigma, ipNed);
+
+		return new ImagePlus("hessian stack", hessianStack);
+	}
+
 	/**
 	 * Add difference of Gaussians to feature stack (single thread version)
 	 * @param sigma1 first Gaussian sigma

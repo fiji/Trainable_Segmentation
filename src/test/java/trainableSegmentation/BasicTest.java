@@ -13,7 +13,9 @@ import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 
 import java.net.URL;
+import java.util.function.Consumer;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class BasicTest
@@ -56,6 +58,28 @@ public class BasicTest
 
 		ImagePlus output = segmentBridge(bridge);
 		assertEquals(0, diffImagePlus(output, bridgeExpect));
+	}
+
+	@Test
+	public void testDefaultFeatureGenerationST() {
+		testDefaultFeaturesOnBridge(FeatureStack::updateFeaturesST);
+	}
+
+	@Test
+	public void testDefaultFeatureGenerationMT() {
+		testDefaultFeaturesOnBridge(FeatureStack::updateFeaturesMT);
+	}
+
+	private void testDefaultFeaturesOnBridge(Consumer<FeatureStack> updateFeaturesMethod) {
+		// setup
+		final ImagePlus bridge = loadFromResource("/bridge.png");
+		// process
+		final FeatureStack featureStack = new FeatureStack(bridge);
+		updateFeaturesMethod.accept(featureStack);
+		final ImagePlus features = new ImagePlus("features", featureStack.getStack());
+		// test
+		final ImagePlus expected = loadFromResource("/features-expected.tiff");
+		assertEquals(0, diffImagePlus(expected, features));
 	}
 
 	private ImagePlus makeTestImage(final String title, final int width, final int height, final int... pixels)
