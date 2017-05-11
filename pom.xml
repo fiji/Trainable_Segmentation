@@ -134,6 +134,7 @@
 		<license.licenseName>gpl_v3</license.licenseName>
 		<license.copyrightOwners>Fiji developers.</license.copyrightOwners>
 		<license.projectName>Fiji distribution of ImageJ for the life sciences.</license.projectName>
+		<weka.version>3.9.0</weka.version>
 	</properties>
 
 	<repositories>
@@ -188,7 +189,6 @@
 		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
 			<artifactId>weka-dev</artifactId>
-			<version>3.9.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.github.fommil.netlib</groupId>
