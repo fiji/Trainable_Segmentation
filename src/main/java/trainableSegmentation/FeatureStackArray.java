@@ -79,12 +79,12 @@ public class FeatureStackArray
 	 * Initialize a feature stack list of a specific size
 	 * 
 	 * @param num number of elements in the list
-	 * @param minimumSigma
-	 * @param maximumSigma
-	 * @param useNeighbors
-	 * @param membraneSize
-	 * @param membranePatchSize
-	 * @param enabledFeatures
+	 * @param minimumSigma minimum sigma value (usually filter radius)
+	 * @param maximumSigma maximum sigma value (usually filter radius)
+	 * @param useNeighbors flag to use neighbor features
+	 * @param membraneSize expected membrane thickness
+	 * @param membranePatchSize membrane patch size
+	 * @param enabledFeatures array of flags to enable features
 	 */
 	public FeatureStackArray(
 			final int num,
