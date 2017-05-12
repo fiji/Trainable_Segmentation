@@ -4001,7 +4001,8 @@ public class WekaSegmentation {
 								if(patchSize != membranePatchSize)
 								{
 									membranePatchSize = patchSize;
-									this.featureStackArray.setMembranePatchSize(patchSize);
+									if( null != featureStackArray )
+										featureStackArray.setMembranePatchSize(patchSize);
 									featuresChanged = true;
 								}
 								index = a.name().lastIndexOf("_");
@@ -4009,7 +4010,8 @@ public class WekaSegmentation {
 								if(thickness != membraneThickness)
 								{
 									membraneThickness = thickness;
-									this.featureStackArray.setMembraneSize(thickness);
+									if( null != featureStackArray )
+										featureStackArray.setMembraneSize( thickness );
 									featuresChanged = true;
 								}
 								break;
@@ -4097,7 +4099,8 @@ public class WekaSegmentation {
 		{
 			this.minimumSigma = minSigma;
 			featuresChanged = true;
-			this.featureStackArray.setMinimumSigma(minSigma);
+			if( null != featureStackArray )
+				featureStackArray.setMinimumSigma(minSigma);
 			if( isProcessing3D )
 			    this.fs3d.setMinimumSigma( minSigma );
 		}
@@ -4105,7 +4108,8 @@ public class WekaSegmentation {
 		{
 			this.maximumSigma = maxSigma;
 			featuresChanged = true;
-			this.featureStackArray.setMaximumSigma(maxSigma);
+			if( null != featureStackArray )
+				featureStackArray.setMaximumSigma(maxSigma);
 			if( isProcessing3D )
 			    this.fs3d.setMaximumSigma( maxSigma );
 		}
