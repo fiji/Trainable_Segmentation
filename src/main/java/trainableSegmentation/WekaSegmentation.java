@@ -531,7 +531,7 @@ public class WekaSegmentation {
 		}
 
 		boolean featuresChanged = false;
-		final boolean[] oldEnableFeatures = this.featureStackArray.getEnabledFeatures();
+		final boolean[] oldEnableFeatures = enabledFeatures;
 		// Read checked features and check if any of them chasetButtonsEnablednged
 		for(int i = 0; i < numFeatures; i++)
 		{
@@ -2542,7 +2542,7 @@ public class WekaSegmentation {
 			labelIP.getProcessor().autoThreshold();
 
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
-			featureStack.setEnabledFeatures(this.featureStackArray.getEnabledFeatures());
+			featureStack.setEnabledFeatures( enabledFeatures );
 			featureStack.setMembranePatchSize(membranePatchSize);
 			featureStack.setMembraneSize(this.membraneThickness);
 			featureStack.setMaximumSigma(this.maximumSigma);
@@ -2593,7 +2593,7 @@ public class WekaSegmentation {
 			final ImagePlus labelIP = new ImagePlus ("labels", labelSlices.getProcessor(i).duplicate());
 
 			final FeatureStack featureStack = new FeatureStack( new ImagePlus( "slice " + i, inputSlices.getProcessor(i) ) );
-			featureStack.setEnabledFeatures( this.featureStackArray.getEnabledFeatures() );
+			featureStack.setEnabledFeatures( enabledFeatures );
 			featureStack.setMembranePatchSize( membranePatchSize );
 			featureStack.setMembraneSize( this.membraneThickness );
 			featureStack.setMaximumSigma( this.maximumSigma );
@@ -2654,7 +2654,7 @@ public class WekaSegmentation {
 			labelIP.getProcessor().autoThreshold();
 
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
-			featureStack.setEnabledFeatures(this.featureStackArray.getEnabledFeatures());
+			featureStack.setEnabledFeatures( enabledFeatures );
 			featureStack.setMembranePatchSize(membranePatchSize);
 			featureStack.setMembraneSize(this.membraneThickness);
 			featureStack.setMaximumSigma(this.maximumSigma);
@@ -2711,7 +2711,7 @@ public class WekaSegmentation {
 		{
 			// Create feature stack for the slice
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor( i ) ) );
-			featureStack.setEnabledFeatures(this.featureStackArray.getEnabledFeatures());
+			featureStack.setEnabledFeatures( enabledFeatures );
 			featureStack.setMembranePatchSize(membranePatchSize);
 			featureStack.setMembraneSize(this.membraneThickness);
 			featureStack.setMaximumSigma(this.maximumSigma);
@@ -2771,8 +2771,7 @@ public class WekaSegmentation {
 			final FeatureStack featureStack =
 					new FeatureStack( new ImagePlus( "slice " + i,
 							inputSlices.getProcessor( i ) ) );
-			featureStack.setEnabledFeatures(
-					this.featureStackArray.getEnabledFeatures() );
+			featureStack.setEnabledFeatures( enabledFeatures );
 			featureStack.setMembranePatchSize(membranePatchSize);
 			featureStack.setMembraneSize(this.membraneThickness);
 			featureStack.setMaximumSigma(this.maximumSigma);
@@ -2840,7 +2839,7 @@ public class WekaSegmentation {
 			labelIP.getProcessor().autoThreshold();
 
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
-			featureStack.setEnabledFeatures(this.featureStackArray.getEnabledFeatures());
+			featureStack.setEnabledFeatures( enabledFeatures );
 			featureStack.setMembranePatchSize(membranePatchSize);
 			featureStack.setMembraneSize(this.membraneThickness);
 			featureStack.setMaximumSigma(this.maximumSigma);
@@ -2909,7 +2908,7 @@ public class WekaSegmentation {
 			labelIP.getProcessor().autoThreshold();
 
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
-			featureStack.setEnabledFeatures(this.featureStackArray.getEnabledFeatures());
+			featureStack.setEnabledFeatures( enabledFeatures );
 			featureStack.setMembranePatchSize(membranePatchSize);
 			featureStack.setMembraneSize(this.membraneThickness);
 			featureStack.setMaximumSigma(this.maximumSigma);
@@ -2973,7 +2972,7 @@ public class WekaSegmentation {
 			labelIP.getProcessor().autoThreshold();
 
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
-			featureStack.setEnabledFeatures(this.featureStackArray.getEnabledFeatures());
+			featureStack.setEnabledFeatures( enabledFeatures );
 			featureStack.setMembranePatchSize(membranePatchSize);
 			featureStack.setMembraneSize(this.membraneThickness);
 			featureStack.setMaximumSigma(this.maximumSigma);
@@ -3176,7 +3175,7 @@ public class WekaSegmentation {
 	 */
 	public void useAllFeatures()
 	{
-		boolean[] enableFeatures = this.featureStackArray.getEnabledFeatures();
+		boolean[] enableFeatures = this.enabledFeatures ;
 		for (int i = 0; i < enableFeatures.length; i++)
 			enableFeatures[i] = true;
 		this.featureStackArray.setEnabledFeatures(enableFeatures);
@@ -3391,7 +3390,7 @@ public class WekaSegmentation {
 				IJ.log("Creating features for test image (slice "+z+")...");
 			final FeatureStack testImageFeatures = new FeatureStack(testSlice);
 			// Use the same features as the current classifier
-			testImageFeatures.setEnabledFeatures(featureStackArray.getEnabledFeatures());
+			testImageFeatures.setEnabledFeatures( enabledFeatures );
 			testImageFeatures.setMaximumSigma(maximumSigma);
 			testImageFeatures.setMinimumSigma(minimumSigma);
 			testImageFeatures.setMembranePatchSize(membranePatchSize);
@@ -4769,7 +4768,7 @@ public class WekaSegmentation {
                     IJ.log("Creating features for slice " + i +  "...");
                     final FeatureStack sliceFeatures = new FeatureStack(slice);
                     // Use the same features as the current classifier
-                    sliceFeatures.setEnabledFeatures(featureStackArray.getEnabledFeatures());
+                    sliceFeatures.setEnabledFeatures( enabledFeatures );
                     sliceFeatures.setMaximumSigma(maximumSigma);
                     sliceFeatures.setMinimumSigma(minimumSigma);
                     sliceFeatures.setMembranePatchSize(membranePatchSize);
@@ -5163,7 +5162,7 @@ public class WekaSegmentation {
 				IJ.log("Creating features of slice " + slice.getTitle() + "...");
 				final FeatureStack sliceFeatures = new FeatureStack(slice);
 				// Use the same features as the current classifier
-				sliceFeatures.setEnabledFeatures(featureStackArray.getEnabledFeatures());
+				sliceFeatures.setEnabledFeatures( enabledFeatures );
 				sliceFeatures.setMaximumSigma(maximumSigma);
 				sliceFeatures.setMinimumSigma(minimumSigma);
 				sliceFeatures.setMembranePatchSize(membranePatchSize);
@@ -5281,7 +5280,7 @@ public class WekaSegmentation {
 					IJ.log("Creating features of slice " + image.getTitle() + ", size = " + image.getWidth() + "x" + image.getHeight() + "...");
 					final FeatureStack sliceFeatures = new FeatureStack( image );
 					// Use the same features as the current classifier
-					sliceFeatures.setEnabledFeatures(featureStackArray.getEnabledFeatures());
+					sliceFeatures.setEnabledFeatures( enabledFeatures );
 					sliceFeatures.setMaximumSigma(maximumSigma);
 					sliceFeatures.setMinimumSigma(minimumSigma);
 					sliceFeatures.setMembranePatchSize(membranePatchSize);
