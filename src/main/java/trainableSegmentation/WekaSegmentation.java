@@ -4790,7 +4790,7 @@ public class WekaSegmentation {
 						IJ.log("Error while applying classifier!");
 						return;
 					}
-
+					classImage.setCalibration( imp.getCalibration() );
 					classImage.setTitle("classified_" + slice.getTitle());
 
 					classifiedSlices[i-1] = classImage;
@@ -4846,7 +4846,7 @@ public class WekaSegmentation {
 			if (imp.getNSlices()*imp.getNFrames() > 1)
 				result.setOpenAsHyperStack(true);
 		}
-		result.setCalibration(trainingImage.getCalibration());
+		result.setCalibration( imp.getCalibration() );
 
 		return result;
 	}
@@ -5839,7 +5839,6 @@ public class WekaSegmentation {
 		}
 		ImagePlus classImg = new ImagePlus(probabilityMaps ? "Probability maps" : "Classification result", classStack);
 
-		classImg.setCalibration(trainingImage.getCalibration());
 		return classImg;
 	}
 
