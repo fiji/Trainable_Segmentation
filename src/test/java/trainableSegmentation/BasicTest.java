@@ -72,14 +72,14 @@ public class BasicTest
 
 	private void testDefaultFeaturesOnBridge(Consumer<FeatureStack> updateFeaturesMethod) {
 		// setup
-		final ImagePlus bridge = loadFromResource("/bridge.png");
+		final ImagePlus bridge = loadFromResource("/nuclei.tif");
 
 		// process
 		final FeatureStack featureStack = new FeatureStack(bridge);
 		updateFeaturesMethod.accept(featureStack);
 		final ImagePlus features = new ImagePlus("features", featureStack.getStack());
 		// test
-		final ImagePlus expected = loadFromResource("/features-expected.tiff");
+		final ImagePlus expected = loadFromResource("/nuclei-features.tif");
 		assertEquals(0, diffImagePlus(expected, features));
 	}
 
