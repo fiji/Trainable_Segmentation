@@ -4028,6 +4028,7 @@ public class WekaSegmentation {
 								if(sigma > maxSigma)
 									maxSigma = sigma;
 								break;
+							case FeatureStack.GABOR:
 							case FeatureStack.STRUCTURE:
 								tokens = a.name().split("_");
 								sigma = Float.parseFloat( tokens[ 2 ]);
