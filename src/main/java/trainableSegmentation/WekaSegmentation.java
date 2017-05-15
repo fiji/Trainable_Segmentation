@@ -4705,7 +4705,7 @@ public class WekaSegmentation {
 					+ " slice(s) with " + fsa.getNumOfFeatures()
 					+ " feature(s), took " + (end-start) + "ms)." );
 			final ImagePlus result =
-					applyClassifier(	fsa, numThreads, probabilityMaps );
+					applyClassifier( fsa, numThreads, probabilityMaps );
 			if (probabilityMaps)
 			{
 				result.setDimensions(
