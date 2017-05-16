@@ -135,6 +135,8 @@
 		<license.copyrightOwners>Fiji developers.</license.copyrightOwners>
 		<license.projectName>Fiji distribution of ImageJ for the life sciences.</license.projectName>
 
+		<imagescience.version>3.0.0</imagescience.version>
+
 		<!-- TEMP: Until pom-scijava 15.0.0 is released. -->
 		<weka.version>3.9.0</weka.version>
 	</properties>
@@ -219,7 +221,8 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>imagescience</artifactId>
-			<version>3.0.0</version>
+			<version>${imagescience.version}</version>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- Test scope dependencies -->
