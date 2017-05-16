@@ -1802,7 +1802,7 @@ public class Weka_Segmentation implements PlugIn
 
 					IJ.log("Processing image " + file.getName() + " in thread " + numThread);
 
-					final ImagePlus segmentation =
+					ImagePlus segmentation =
 							wekaSegmentation.applyClassifier( testImage,
 									numFurtherThreads, probabilityMaps );
 					if( null == segmentation )
@@ -1831,6 +1831,11 @@ public class Weka_Segmentation implements PlugIn
 						IJ.save(segmentation, filename);
 						segmentation.close();
 						testImage.close();
+						// force garbage collection
+						segmentation = null;
+						testImage = null;
+						System.gc();
+						System.gc();
 					}
 				}
 			}

@@ -4714,6 +4714,11 @@ public class WekaSegmentation {
 					result.setOpenAsHyperStack( true );
 			}
 			result.setCalibration( trainingImage.getCalibration() );
+			// force garbage collection
+			fs3d = null;
+			fsa = null;
+			System.gc();
+			System.gc();
 			return result;
 		}
 
@@ -4771,7 +4776,7 @@ public class WekaSegmentation {
                     // Create feature stack for slice
                     IJ.showStatus("Creating features...");
                     IJ.log("Creating features for slice " + i +  "...");
-                    final FeatureStack sliceFeatures = new FeatureStack(slice);
+                    FeatureStack sliceFeatures = new FeatureStack(slice);
                     // Use the same features as the current classifier
                     sliceFeatures.setEnabledFeatures( enabledFeatures );
                     sliceFeatures.setMaximumSigma(maximumSigma);
@@ -4780,7 +4785,7 @@ public class WekaSegmentation {
                     sliceFeatures.setMembraneSize(membraneThickness);
                     sliceFeatures.updateFeaturesST();
                     filterFeatureStackByList(featureNames, sliceFeatures);
-                    final Instances sliceData = sliceFeatures.createInstances(classNames);
+                    Instances sliceData = sliceFeatures.createInstances(classNames);
                     sliceData.setClassIndex(sliceData.numAttributes() - 1);
 
 					IJ.log("Classifying slice " + i + " in " + numFurtherThreads + " thread(s)...");
@@ -4795,6 +4800,11 @@ public class WekaSegmentation {
 					classImage.setTitle("classified_" + slice.getTitle());
 
 					classifiedSlices[i-1] = classImage;
+					// force garbage collection
+					sliceFeatures = null;
+					sliceData = null;
+					System.gc();
+					System.gc();
 				}
 			}
 		}
