@@ -1835,7 +1835,6 @@ public class Weka_Segmentation implements PlugIn
 						segmentation = null;
 						testImage = null;
 						System.gc();
-						System.gc();
 					}
 				}
 			}

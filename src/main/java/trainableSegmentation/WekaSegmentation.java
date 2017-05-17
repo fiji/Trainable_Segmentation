@@ -4718,7 +4718,6 @@ public class WekaSegmentation {
 			fs3d = null;
 			fsa = null;
 			System.gc();
-			System.gc();
 			return result;
 		}
 
@@ -4803,7 +4802,6 @@ public class WekaSegmentation {
 					// force garbage collection
 					sliceFeatures = null;
 					sliceData = null;
-					System.gc();
 					System.gc();
 				}
 			}
