@@ -479,6 +479,11 @@ public class WekaSegmentation {
 	{
 		IJ.log("Loading data from " + pathname + "...");
 		loadedTrainingData = readDataFromARFF(pathname);
+		if( null == loadedTrainingData )
+		{
+			IJ.log( "Unable to load training data from " + pathname );
+			return false;
+		}
 
 		// Check the features that were used in the loaded data
 		Enumeration<Attribute> attributes = loadedTrainingData.enumerateAttributes();
@@ -3911,7 +3916,9 @@ public class WekaSegmentation {
 				reader.close();
 				return data;
 			}
-			catch(IOException e){IJ.showMessage("IOException");}
+			catch(IOException e){
+				IJ.showMessage("IOException: wrong file format!");
+			}
 		}
 		catch(FileNotFoundException e){IJ.showMessage("File not found!");}
 		return null;
