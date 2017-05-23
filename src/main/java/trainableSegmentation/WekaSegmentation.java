@@ -4579,6 +4579,21 @@ public class WekaSegmentation {
 			IJ.log("Feature stack array is now updated (" + featureStackArray.getSize()
 					+ " slice(s) with " + featureStackArray.getNumOfFeatures()
 					+ " feature(s), took " + (end-start) + "ms).");
+
+			double memory = 0;
+			for (int i = 0; i < featureStackArray.getSize(); i++)
+			{
+				FeatureStack featureStack = featureStackArray.get( i );
+				ImageStack imageStack = featureStack.getStack();
+				int bitDepth = imageStack.getBitDepth();
+				int size = imageStack.getSize();
+				int height = imageStack.getHeight();
+				int width = imageStack.getWidth();
+				memory += size * height * width * bitDepth;
+			}
+			memory /= 8000000000L; // convert from bit to gigabyte
+			IJ.log("Feature stack array size is " + memory + " giga-byte");
+
 		}
 
 		IJ.showStatus("Creating training instances...");
