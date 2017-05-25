@@ -193,24 +193,6 @@
 		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
 			<artifactId>weka-dev</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>com.github.fommil.netlib</groupId>
-					<artifactId>all</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>nz.ac.waikato.cms.weka.thirdparty</groupId>
-					<artifactId>java-cup-11b</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>nz.ac.waikato.cms.weka.thirdparty</groupId>
-					<artifactId>java-cup-11b-runtime</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.googlecode.netlib-java</groupId>
-					<artifactId>netlib-java</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
