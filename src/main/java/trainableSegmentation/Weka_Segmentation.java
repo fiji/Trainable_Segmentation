@@ -898,8 +898,15 @@ public class Weka_Segmentation implements PlugIn
 
 			addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
-					//IJ.log("closing window");
-					// cleanup								
+				    	super.windowClosing( e );
+					// cleanup
+				    	if( null != trainingImage )
+				    	{
+				    	    // display training image
+				    	    if( null == trainingImage.getWindow() )
+				    		trainingImage.show();
+				    	    trainingImage.getWindow().setVisible( true );
+				    	}
 					// Stop any thread from the segmentator
 					if(null != trainingTask)
 						trainingTask.interrupt();
@@ -1256,9 +1263,9 @@ public class Weka_Segmentation implements PlugIn
 		}
 		else
 		{
-			trainingImage = WindowManager.getCurrentImage().duplicate();
-			trainingImage.setSlice( 
-					WindowManager.getCurrentImage().getSlice() );
+			trainingImage = WindowManager.getCurrentImage();
+			// hide input image (to avoid accidental closing)
+			trainingImage.getWindow().setVisible( false );
 		}
 
 
