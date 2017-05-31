@@ -793,8 +793,6 @@ public class Weka_Segmentation implements PlugIn
 			trainingConstraints.gridy++;
 			trainingJPanel.add(plotButton, trainingConstraints);
 			trainingConstraints.gridy++;
-			//trainingJPanel.add(newImageButton, trainingConstraints);
-			trainingConstraints.gridy++;
 
 			// Options panel
 			optionsJPanel.setBorder(BorderFactory.createTitledBorder("Options"));
@@ -915,7 +913,6 @@ public class Weka_Segmentation implements PlugIn
 					resultButton.removeActionListener(listener);
 					probabilityButton.removeActionListener(listener);
 					plotButton.removeActionListener(listener);
-					//newImageButton.removeActionListener(listener);
 					applyButton.removeActionListener(listener);
 					loadClassifierButton.removeActionListener(listener);
 					saveClassifierButton.removeActionListener(listener);
@@ -1098,7 +1095,6 @@ public class Weka_Segmentation implements PlugIn
 			resultButton.setEnabled(s);
 			probabilityButton.setEnabled(s);
 			plotButton.setEnabled(s);
-			//newImageButton.setEnabled(s);
 			applyButton.setEnabled(s);
 			loadClassifierButton.setEnabled(s);
 			saveClassifierButton.setEnabled(s);
@@ -1144,7 +1140,6 @@ public class Weka_Segmentation implements PlugIn
 				plotButton.setEnabled( win.trainingComplete );				
 				probabilityButton.setEnabled( win.trainingComplete );
 
-				//newImageButton.setEnabled(true);
 				loadClassifierButton.setEnabled(true);
 				loadDataButton.setEnabled(true);
 
@@ -2012,54 +2007,6 @@ public class Weka_Segmentation implements PlugIn
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Load a new image to segment
-	 */
-	public void loadNewImage()
-	{
-		OpenDialog od = new OpenDialog("Choose new image", OpenDialog.getLastDirectory());
-		if (od.getFileName()==null)
-			return;
-
-		win.setButtonsEnabled(false);
-
-		IJ.log("Loading image " + od.getDirectory() + od.getFileName() + "...");
-
-		ImagePlus newImage = new ImagePlus(od.getDirectory() + od.getFileName());
-
-		if( !wekaSegmentation.loadNewImage( newImage ) )
-		{
-			IJ.error("Error while loading new image!");
-			win.updateButtonsEnabling();
-			return;
-		}
-
-		// Remove traces from the lists and ROI overlays
-		for(int i = 0; i < wekaSegmentation.getNumOfClasses(); i ++)
-		{
-			exampleList[i].removeAll();
-			roiOverlay[i].setRoi(null);
-		}
-
-		// Updating image
-		displayImage = new ImagePlus();
-		displayImage.setProcessor( Weka_Segmentation.PLUGIN_NAME + " " 
-									+ Weka_Segmentation.PLUGIN_VERSION, 
-									trainingImage.getProcessor().duplicate());
-
-		// Remove current classification result image
-		win.resultOverlay.setImage(null);
-
-		win.toggleOverlay();
-
-		// Update GUI
-		win.setImagePlus(displayImage);
-		displayImage.updateAndDraw();
-		win.pack();
-
-		win.updateButtonsEnabling();
 	}
 
 	/**
