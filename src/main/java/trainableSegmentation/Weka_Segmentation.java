@@ -668,7 +668,6 @@ public class Weka_Segmentation implements PlugIn
 							public void run() {							
 								if(e.getSource() == sliceSelector)
 								{
-									//IJ.log("moving scroll");
 									displayImage.killRoi();
 									drawExamples();
 									updateExampleLists();
