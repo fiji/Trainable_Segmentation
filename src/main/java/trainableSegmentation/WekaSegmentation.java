@@ -4323,9 +4323,16 @@ public class WekaSegmentation {
 
 		final FeatureStack fs = featureStackArray.get( sliceNum - 1 );
 
-		for(int x = firstX; x < lastX; x++)
-			for(int y = firstY; y < lastY; y++)
-				if(shapeRoi.contains(x, y))
+		// create equivalent binary image to speed up the checking
+		// of each pixel belonging to the shape
+		final ByteProcessor bp = new ByteProcessor( rect.width, rect.height );
+		bp.setValue( 255 );
+		shapeRoi.setLocation( 0 , 0 );
+		bp.fill( shapeRoi );
+
+		for( int x = firstX, rectX = 0; x < lastX; x++, rectX++ )
+			for( int y = firstY, rectY = 0; y < lastY; y++, rectY++ )
+				if( bp.getf(rectX, rectY) > 0 )
 				{
 					trainingData.add( fs.createInstance( x, y, classIndex ) );
 
