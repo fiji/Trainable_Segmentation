@@ -4321,16 +4321,12 @@ public class WekaSegmentation {
 		int firstX = Math.max( rect.x, 0 );
 		int firstY = Math.max( rect.y, 0 );
 
-		//DenseInstance ins = new DenseInstance( featureStackArray.getNumOfFeatures() + 1 );
-		//ins.setDataset( trainingData );
-
 		final FeatureStack fs = featureStackArray.get( sliceNum - 1 );
 
 		for(int x = firstX; x < lastX; x++)
 			for(int y = firstY; y < lastY; y++)
 				if(shapeRoi.contains(x, y))
 				{
-					//fs.createInstanceInPlace( x, y, classIndex, ins );
 					trainingData.add( fs.createInstance( x, y, classIndex ) );
 
 					// increase number of instances for this class
