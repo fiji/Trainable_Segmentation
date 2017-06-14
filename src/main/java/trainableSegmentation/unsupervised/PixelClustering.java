@@ -112,11 +112,11 @@ public class PixelClustering {
             features.setStack(stack);
 
             featureStackArray.set(features,slice-1);
-            byte[] pixels = new byte[image.getWidth() * image.getHeight()];
+           /* byte[] pixels = new byte[image.getWidth() * image.getHeight()];
             for(int i=0;i<pixels.length;++i){
                 pixels[i] = (byte) (i % numClusters + 1);
             }
-            ByteProcessor labels = new ByteProcessor(image.getWidth(),image.getHeight(),pixels);
+            ByteProcessor labels = new ByteProcessor(image.getWidth(),image.getHeight(),pixels);*/
             if( null == featuresInstances )
             {
                 IJ.log("Initializing loaded data...");
@@ -136,17 +136,29 @@ public class PixelClustering {
                     }
 
                 // Update list of names of loaded classes
-                ArrayList<String> loadedClassNames = new ArrayList<String>();
+                /*ArrayList<String> loadedClassNames = new ArrayList<String>();
                 for(int i = 0; i < numOfClasses ; i ++)
                     loadedClassNames.add(classLabels[i]);
 
-                attributes.add(new Attribute("class", loadedClassNames));
+                attributes.add(new Attribute("class", loadedClassNames));*/
                 featuresInstances = new Instances("segment", attributes, 1);
 
-                featuresInstances.setClassIndex(featuresInstances.numAttributes()-1);
+                //featuresInstances.setClassIndex(featuresInstances.numAttributes()-1);
+            }
+            Random rand = new Random();
+            for(int i=0;i<numSamples;++i){
+                int randx = rand.nextInt((image.getHeight()-0)+1)+0;//(max-min+1)+min
+                int randy = rand.nextInt((image.getWidth()-0)+1)+0;//(max-min+1)+min
+                //Have to create instance without class, for the time being I will manually create the instance here
+                double[] values = new double[2]; //a & b
+                float[] a = (float[]) stack.getPixels(1); //Array of values of a
+                float[] b = (float[]) stack.getPixels(2); //Array of values of b
+                values[0] = a[randx+image.getWidth()*randy];
+                values[1] = b[randx+image.getWidth()*randy];
+                featuresInstances.add(new DenseInstance(1.0, values));
             }
 
-            ArrayList<Point>[] classCoordinates = new ArrayList[ numOfClasses ];
+            /*ArrayList<Point>[] classCoordinates = new ArrayList[ numOfClasses ];
             for(int i = 0; i < numOfClasses ; ++i) {
                 classCoordinates[i] = new ArrayList<Point>();
             }
@@ -170,9 +182,9 @@ public class PixelClustering {
                         featuresInstances.add(features.createInstance( classCoordinates[ j ].get( randomSample ).x, classCoordinates[ j ].get( randomSample ).y, j ) );
                     }
                 }
-            }
+            }*/
 
-            /*for(int y = 0 ; y < height; y++) {
+            /*for(int y = 0 ; y < height; y++) { //<commented>
                 for (int x = 0; x < width; x++) {
                     int classIndex = (int) imageProcessor.getf(x, y) - 1;
 
@@ -193,10 +205,10 @@ public class PixelClustering {
                                 classCoordinates[ j ].get( randomSample ).y, j ) );
                     }
                 }
-            }*/
+            }*/ //</commented>
         }
 
-         /*String[] classLabels = new String[numOfClasses];
+         /*String[] classLabels = new String[numOfClasses]; //<commented>
         classLabels[0]="a";classLabels[1]="b";classLabels[2]="c";
         ArrayList<Attribute> attributes = new ArrayList<Attribute>();
         for (int i=1; i<=featureStackArray.getNumOfFeatures(); i++)
@@ -267,7 +279,7 @@ public class PixelClustering {
                 }
 
             IJ.log("# of pixels selected as " + classLabels[classIndex] + ": " +nl);
-        }*/
+        }*/ //</commented>
 
 
 
