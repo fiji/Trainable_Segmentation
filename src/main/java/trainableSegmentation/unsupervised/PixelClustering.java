@@ -21,6 +21,7 @@ import trainableSegmentation.FeatureStack;
 import trainableSegmentation.FeatureStackArray;
 import trainableSegmentation.WekaSegmentation;
 import weka.clusterers.AbstractClusterer;
+import weka.clusterers.SimpleKMeans;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
@@ -87,16 +88,13 @@ public class PixelClustering {
     }
 
 
-    public PixelClustering(ImagePlus imagePlus){//create feature stack array and save it into an arff file to check
+    public PixelClustering(ImagePlus imagePlus){//create feature stack array, it into an arff file and create clusterer. This is a test of concept for the procedures that will later be separated.
 
 
         this.image = imagePlus;
         ImageProcessor imageProcessor = image.getProcessor();
         int numClusters = 3;//Number of clusters
-        int numOfClasses = 3;//Number of classes
-        int numSamples = 3; //Number of Samples
-        String[] classLabels = new String[numOfClasses];
-        classLabels[0]="x";classLabels[1]="y";classLabels[2]="z"; //Names for classes
+        int numSamples = 30; //Number of Samples
         featureStackArray = new FeatureStackArray(image.getStackSize());
         for(int slice = 1; slice <= image.getStackSize(); ++slice){
             ImageStack stack = new ImageStack(image.getWidth(),image.getHeight());
@@ -107,16 +105,10 @@ public class PixelClustering {
 
             stack.addSlice("a", lab.getStack().getProcessor(2));
             stack.addSlice("b",lab.getStack().getProcessor(3));
-
             FeatureStack features = new FeatureStack(stack.getWidth(),stack.getHeight(),false);
             features.setStack(stack);
 
             featureStackArray.set(features,slice-1);
-           /* byte[] pixels = new byte[image.getWidth() * image.getHeight()];
-            for(int i=0;i<pixels.length;++i){
-                pixels[i] = (byte) (i % numClusters + 1);
-            }
-            ByteProcessor labels = new ByteProcessor(image.getWidth(),image.getHeight(),pixels);*/
             if( null == featuresInstances )
             {
                 IJ.log("Initializing loaded data...");
@@ -134,19 +126,10 @@ public class PixelClustering {
                         IJ.log("Adding extra attribute original_neighbor_" + (i+1) + "...");
                         attributes.add( new Attribute( new String( "original_neighbor_" + (i+1) ) ) );
                     }
-
-                // Update list of names of loaded classes
-                /*ArrayList<String> loadedClassNames = new ArrayList<String>();
-                for(int i = 0; i < numOfClasses ; i ++)
-                    loadedClassNames.add(classLabels[i]);
-
-                attributes.add(new Attribute("class", loadedClassNames));*/
                 featuresInstances = new Instances("segment", attributes, 1);
-
-                //featuresInstances.setClassIndex(featuresInstances.numAttributes()-1);
             }
             Random rand = new Random();
-            for(int i=0;i<numSamples;++i){
+            for(int i=0;i<numSamples;++i){ //Problem: When choosing points they can repeat, so you may have duplicates
                 int randx = rand.nextInt((image.getWidth()-1-0)+1)+0;//(max-min+1)+min
                 int randy = rand.nextInt((image.getHeight()-1-0)+1)+0;//(max-min+1)+min
                 //Have to create instance without class, for the time being I will manually create the instance here
@@ -157,131 +140,7 @@ public class PixelClustering {
                 values[1] = b[randx+image.getWidth()*randy];
                 featuresInstances.add(new DenseInstance(1.0, values));
             }
-
-            /*ArrayList<Point>[] classCoordinates = new ArrayList[ numOfClasses ];
-            for(int i = 0; i < numOfClasses ; ++i) {
-                classCoordinates[i] = new ArrayList<Point>();
-            }
-            Random rand = new Random();
-            final int width = image.getWidth();
-            final int height = image.getHeight();
-            for(int y = 0 ; y < height; y++) {
-                for (int x = 0; x < width; x++) { //For all pixels choose a class at random
-                    int rando = rand.nextInt((numOfClasses-1-0)+1)+0;//(max-min+1)+min
-                    classCoordinates[rando].add(new Point(x, y));
-                    }
-            }
-            for( int i=0; i<numSamples; i++ )
-            {
-                for( int j = 0; j < numOfClasses ; j ++ )
-                {
-                    if( !classCoordinates[ j ].isEmpty() )
-                    {
-                        int randomSample = rand.nextInt( classCoordinates[ j ].size() );
-
-                        featuresInstances.add(features.createInstance( classCoordinates[ j ].get( randomSample ).x, classCoordinates[ j ].get( randomSample ).y, j ) );
-                    }
-                }
-            }*/
-
-            /*for(int y = 0 ; y < height; y++) { //<commented>
-                for (int x = 0; x < width; x++) {
-                    int classIndex = (int) imageProcessor.getf(x, y) - 1;
-
-                    if (classIndex >= 0 && classIndex < numOfClasses)
-                        classCoordinates[classIndex].add(new Point(x, y));
-                }
-            }
-            Random rand = new Random();
-            for( int i=0; i<numSamples; i++ )
-            {
-                for( int j = 0; j < numOfClasses ; j ++ )
-                {
-                    if( !classCoordinates[ j ].isEmpty() )
-                    {
-                        int randomSample = rand.nextInt( classCoordinates[ j ].size() );
-
-                        featuresInstances.add(features.createInstance( classCoordinates[ j ].get( randomSample ).x,
-                                classCoordinates[ j ].get( randomSample ).y, j ) );
-                    }
-                }
-            }*/ //</commented>
         }
-
-         /*String[] classLabels = new String[numOfClasses]; //<commented>
-        classLabels[0]="a";classLabels[1]="b";classLabels[2]="c";
-        ArrayList<Attribute> attributes = new ArrayList<Attribute>();
-        for (int i=1; i<=featureStackArray.getNumOfFeatures(); i++)
-        {
-            String attString = featureStackArray.getLabel(i);
-            attributes.add(new Attribute(attString));
-        }
-        final ArrayList<String> classes;
-        classes = new ArrayList<String>();
-        for(int i = 0; i < numOfClasses ; i ++)
-        {
-            for(int n=0; n<image.getImageStackSize(); n++)
-            {
-                if(!classes.contains(classLabels[i]))
-                    classes.add(classLabels[i]);
-            }
-        }
-
-
-        Vector<ArrayList<Roi>>[] examples = new Vector[image.getImageStackSize()];
-        for(int i=0; i< image.getImageStackSize(); i++)
-        {
-            examples[i] = new Vector<ArrayList<Roi>>(numOfClasses);
-
-            for(int j=0; j<numOfClasses; j++)
-                examples[i].add(new ArrayList<Roi>());
-
-            // Initialize each feature stack (one per slice)
-            featureStackArray.set(new FeatureStack(image.getImageStack().getProcessor(i+1)), i);
-        }
-
-
-        attributes.add(new Attribute("class", classes));
-        featuresInstances =  new Instances( "segment", attributes, 1 );
-        featuresInstances.setClassIndex(featureStackArray.getNumOfFeatures());
-        final boolean colorFeatures = image.getType() == ImagePlus.COLOR_RGB;
-        for(int classIndex = 0; classIndex < numOfClasses; classIndex++)
-        {
-            int nl = 0;
-            // Read all lists of examples
-            for(int sliceNum = 1; sliceNum <= image.getImageStackSize(); sliceNum ++)
-                for(int j=0; j < examples[sliceNum-1].get( classIndex ).size(); j++)
-                {
-                    Roi r = examples[ sliceNum-1 ].get( classIndex ).get(j);
-
-                    // For polygon rois we get the list of points
-                    if( r instanceof PolygonRoi && r.getType() == Roi.FREELINE )
-                    {
-                        if(r.getStrokeWidth() == 1)
-                            nl += addThinFreeLineSamples(featuresInstances, classIndex,
-                                    sliceNum, r);
-
-                        else // For thicker lines, include also neighbors
-                            nl += addThickFreeLineInstances(featuresInstances,
-                                    colorFeatures, classIndex, sliceNum, r);
-                    }
-                    else if( r instanceof Line)
-                    {
-                        // Get all coordinates in the line
-                        nl += addLineInstances(featuresInstances, colorFeatures, classIndex,
-                                sliceNum, r);
-                    }
-                    // for regular rectangles
-                    else if ( r.getType() == Roi.RECTANGLE && r.getCornerDiameter() == 0 )
-                        nl += addRectangleRoiInstances( featuresInstances, classIndex, sliceNum, r );
-                    else // for the rest of rois we get ALL points inside the roi
-                        nl += addShapeRoiInstances( featuresInstances, classIndex, sliceNum, r );
-                }
-
-            IJ.log("# of pixels selected as " + classLabels[classIndex] + ": " +nl);
-        }*/ //</commented>
-
-
 
         BufferedWriter out = null;
         try{
@@ -311,8 +170,21 @@ public class PixelClustering {
             }
         }
         IJ.log("Created file?");
-
-
+        SimpleKMeans clusterer = new SimpleKMeans();
+        Random rand = new Random();
+        clusterer.setSeed(rand.nextInt());
+        try {
+            clusterer.setNumClusters(numClusters);
+        } catch (Exception e) {
+            IJ.log("Error when setting number of clusters");
+        }
+        try {
+            clusterer.buildClusterer(featuresInstances);
+        } catch (Exception e) {
+            IJ.log("Error when building clusterer");
+        }
+        IJ.log("Clusterer built succesfully!");
+        IJ.log(clusterer.toString());
 
     }
 
