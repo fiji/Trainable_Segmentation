@@ -133,12 +133,12 @@ public class PixelClustering {
                 int randx = rand.nextInt((image.getWidth()-1-0)+1)+0;//(max-min+1)+min
                 int randy = rand.nextInt((image.getHeight()-1-0)+1)+0;//(max-min+1)+min
                 //Have to create instance without class, for the time being I will manually create the instance here
-                double[] values = new double[2]; //a & b
+                /*double[] values = new double[2]; //a & b
                 float[] a = (float[]) stack.getPixels(1); //Array of values of a
                 float[] b = (float[]) stack.getPixels(2); //Array of values of b
                 values[0] = a[randx+image.getWidth()*randy];
-                values[1] = b[randx+image.getWidth()*randy];
-                featuresInstances.add(new DenseInstance(1.0, values));
+                values[1] = b[randx+image.getWidth()*randy];*/
+                featuresInstances.add(featureStackArray.get(slice-1).createInstance(randx,randy));
             }
         }
 
