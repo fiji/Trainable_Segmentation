@@ -4,23 +4,30 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ColorSpaceConverter;
+import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import org.apache.commons.math3.analysis.function.Abs;
+import sun.security.jca.GetInstance;
 import trainableSegmentation.FeatureStack;
 import trainableSegmentation.FeatureStackArray;
+import trainableSegmentation.ReusableDenseInstance;
+import weka.clusterers.AbstractClusterer;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 
+import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 /**
- * Created by 96jsa on 17/06/15.
+ * Comments need to be updated
  */
 public class ColorClustering {
 
@@ -28,17 +35,20 @@ public class ColorClustering {
     private ImagePlus image;
     private FeatureStackArray featureStackArray;
     private int numSamples;
+    private AbstractClusterer theClusterer;
 
     /**
      * Creates features based on image and number of samples
      * @param image
      * @param numSamples
      */
-    public ColorClustering(ImagePlus image, int numSamples){
+    public ColorClustering(ImagePlus image, int numSamples, int numClusters){
         this.setImage(image);
         this.setNumSamples(numSamples);
         featureStackArray = new FeatureStackArray(image.getStackSize());
         this.createFeatures();
+        PixelClustering pixelClustering = new PixelClustering(this.getFeaturesInstances(),numClusters);
+        theClusterer = pixelClustering.getClusterer();
     }
 
     /**
@@ -78,12 +88,48 @@ public class ColorClustering {
                 featuresInstances = new Instances("segment", attributes, 1);
             }
             Random rand = new Random();
-            for(int i=0;i<numSamples;++i){ //Problem: When choosing points they can repeat, so you may have duplicates
-                int randx = rand.nextInt((image.getWidth()-1-0)+1)+0;//(max-min+1)+min
-                int randy = rand.nextInt((image.getHeight()-1-0)+1)+0;//(max-min+1)+min
-                featuresInstances.add(featureStackArray.get(slice-1).createInstance(randx,randy));
+            ArrayList<Point> positions = new ArrayList<Point>();
+            for(int x=0;x<image.getWidth();++x){
+                for(int y=0;y<image.getHeight();++y){
+                    positions.add(new Point(x,y));
+                }
+            }
+            Collections.shuffle(positions);
+            for(int i=0;i<numSamples;++i){
+                featuresInstances.add(featureStackArray.get(slice-1).createInstance(positions.get(i).x,positions.get(i).y));
+                IJ.log("Added element "+i+" from coordinates "+positions.get(i).x+","+positions.get(i).y);
             }
         }
+    }
+
+
+    public ImagePlus createClusteredImage(){
+        theClusterer.setDebug(true);
+        IJ.log(theClusterer.toString());
+        int height = image.getHeight();
+        int width = image.getWidth();
+        int numInstances = height*width;
+        ImageStack clusteringResult = new ImageStack(width, height);
+        double clusterArray[] = new double[numInstances];
+        FeatureStack sliceFeatures = new FeatureStack(image);
+        final double[] values = new double[ sliceFeatures.getSize() + 1];
+        // create empty reusable instance
+        final ReusableDenseInstance ins =
+                new ReusableDenseInstance( 1.0, values );
+        ins.setDataset(featuresInstances);
+        for(int x=0;x<width;++x){
+            for(int y=0;y<height;++y){
+                sliceFeatures.setInstance(x,y,0,ins,values);
+                try {
+                    clusterArray[x+y*width]=theClusterer.clusterInstance(ins);
+                    //IJ.log("assigned cluster: "+clusterArray[x+y*width]);
+                } catch (Exception e) {
+                    IJ.log("Error when applying clusterer to pixel: "+x+","+y);
+                }
+            }
+        }
+        clusteringResult.addSlice(new FloatProcessor(width,height,clusterArray));
+        return new ImagePlus("clustered image", clusteringResult);
     }
 
     /**

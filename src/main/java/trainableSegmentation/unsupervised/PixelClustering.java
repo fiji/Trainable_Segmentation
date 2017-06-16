@@ -65,21 +65,22 @@ public class PixelClustering {
      * Builds clusterer based on featuresInstances and number of clusters
      */
     public void buildClusterer(){
-        SimpleKMeans clusterer = new SimpleKMeans();
+        SimpleKMeans theClusterer = new SimpleKMeans();
         Random rand = new Random();
-        clusterer.setSeed(rand.nextInt());
+        theClusterer.setSeed(rand.nextInt());
         try {
-            clusterer.setNumClusters(numClusters);
+            theClusterer.setNumClusters(numClusters);
         } catch (Exception e) {
             IJ.log("Error when setting number of clusters");
         }
         try {
-            clusterer.buildClusterer(featuresInstances);
+            theClusterer.buildClusterer(featuresInstances);
         } catch (Exception e) {
             IJ.log("Error when building clusterer");
         }
         IJ.log("Clusterer built succesfully!");
-        IJ.log(clusterer.toString());
+        IJ.log(theClusterer.toString());
+        this.clusterer = theClusterer;
     }
 
 
