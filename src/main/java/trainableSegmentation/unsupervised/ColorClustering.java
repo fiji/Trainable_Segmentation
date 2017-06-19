@@ -104,26 +104,31 @@ public class ColorClustering {
 
 
     public ImagePlus createClusteredImage(){
-        theClusterer.setDebug(true);
-        IJ.log(theClusterer.toString());
+
         int height = image.getHeight();
         int width = image.getWidth();
         int numInstances = height*width;
-        ImageStack clusteringResult = new ImageStack(width, height);
+
+        ImageStack stack = new ImageStack(image.getWidth(),image.getHeight());
+
+        ColorSpaceConverter converter = new ColorSpaceConverter();
+        ImageStack clusteringResult = new ImageStack(width,height);
+        ImagePlus lab = converter.RGBToLab(new ImagePlus("RGB",image.getStack()));
         double clusterArray[] = new double[numInstances];
-        FeatureStack sliceFeatures = new FeatureStack(image);
-        final double[] values = new double[ sliceFeatures.getSize() + 1];
-        // create empty reusable instance
-        final ReusableDenseInstance ins =
-                new ReusableDenseInstance( 1.0, values );
+        stack.addSlice("a", lab.getStack().getProcessor(2));
+        stack.addSlice("b",lab.getStack().getProcessor(3));
+        FeatureStack features = new FeatureStack(stack.getWidth(),stack.getHeight(),false);
+        features.setStack(stack);
+        final double[] values = new double[features.getSize()];
+        final ReusableDenseInstance ins = new ReusableDenseInstance(1.0,values);
         ins.setDataset(featuresInstances);
-        for(int x=0;x<width;++x){
+        for (int x=0;x<width;++x){
             for(int y=0;y<height;++y){
-                sliceFeatures.setInstance(x,y,0,ins,values);
+                features.setInstance(x,y,ins,values);
                 try {
+                    //IJ.log(ins.toString());
                     clusterArray[x+y*width]=theClusterer.clusterInstance(ins);
-                    //IJ.log("assigned cluster: "+clusterArray[x+y*width]);
-                } catch (Exception e) {
+                }catch (Exception e){
                     IJ.log("Error when applying clusterer to pixel: "+x+","+y);
                 }
             }
@@ -136,19 +141,19 @@ public class ColorClustering {
      * Creates arff file
      * @param name name of the file to be created
      */
-    public void createFile(String name){
+    public void createFile(String name, Instances theInstances){
         BufferedWriter out = null;
         try{
             out = new BufferedWriter(
                     new OutputStreamWriter(
                             new FileOutputStream( name), StandardCharsets.UTF_8 ) );
 
-            final Instances header = new Instances(featuresInstances, 0);
+            final Instances header = new Instances(theInstances, 0);
             out.write(header.toString());
 
-            for(int i = 0; i < featuresInstances.numInstances(); i++)
+            for(int i = 0; i < theInstances.numInstances(); i++)
             {
-                out.write(featuresInstances.get(i).toString()+"\n");
+                out.write(theInstances.get(i).toString()+"\n");
             }
         }
         catch(Exception e)

@@ -22,8 +22,8 @@ public class TestUnsupervised {
     {
         ImagePlus image = IJ.openImage();
         image.show();
-        ColorClustering colorClustering = new ColorClustering(image,30,2);
-        colorClustering.createFile("test.arff");
+        ColorClustering colorClustering = new ColorClustering(image,30,3);
+        colorClustering.createFile("test.arff",colorClustering.getFeaturesInstances());
         ImagePlus clusteredImage = colorClustering.createClusteredImage();
         clusteredImage.show();
     }
