@@ -90,16 +90,10 @@ public class ColorClustering {
      * @param image
      * @param numSamples
      */
-    public ColorClustering(ImagePlus image, int numSamples, int numClusters){
-        this.channels.add(Channel.fromLabel("Lightness"));
-        this.channels.add(Channel.fromLabel("a"));
-        this.channels.add(Channel.fromLabel("b"));
-        this.channels.add(Channel.fromLabel("Red"));
-        this.channels.add(Channel.fromLabel("Green"));
-        this.channels.add(Channel.fromLabel("Blue"));
-        this.channels.add(Channel.fromLabel("Hue"));
-        this.channels.add(Channel.fromLabel("Brightness"));
-        this.channels.add(Channel.fromLabel("Saturation"));
+    public ColorClustering(ImagePlus image, int numSamples, int numClusters, ArrayList<Channel> selectedChannels){
+        for(Channel element: selectedChannels){
+            this.channels.add(element);
+        }
         this.setImage(image);
         this.setNumSamples(numSamples);
         featureStackArray = new FeatureStackArray(image.getStackSize());
