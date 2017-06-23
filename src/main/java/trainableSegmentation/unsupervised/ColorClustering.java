@@ -52,6 +52,14 @@ public class ColorClustering {
             return this.label;
         }
 
+        public static int numChannels(){
+            int number=0;
+            for(String item : getAllLabels()){
+                number++;
+            }
+            return number;
+        }
+
         public static String[] getAllLabels(){
             int n = Channel.values().length;
             String[] result = new String[n];
@@ -241,11 +249,6 @@ public class ColorClustering {
         final double[] values = new double[features.getSize()];
         final ReusableDenseInstance ins = new ReusableDenseInstance(1.0,values);
         ins.setDataset(featuresInstances);
-        try {
-            IJ.log("Number of clusters: "+theClusterer.numberOfClusters());
-        } catch (Exception e) {
-            IJ.log("Error when looking for number of clusters");
-        }
         for (int x=0;x<width;++x){
             for(int y=0;y<height;++y){
                 features.setInstance(x,y,ins,values);

@@ -1,10 +1,13 @@
 package trainableSegmentation.unsupervised;
 
 import ij.IJ;
+import ij.ImageJ;
 import ij.ImagePlus;
+import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.gui.StackWindow;
 import ij.plugin.PlugIn;
+import ij.process.ImageProcessor;
 import javafx.scene.control.CheckBox;
 import jdk.nashorn.internal.runtime.arrays.NumericElements;
 import trainableSegmentation.Weka_Segmentation;
@@ -16,70 +19,85 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 public class Color_Clustering implements PlugIn{
 
-    private int numClusters=3;//Default
-    private int numSamples=3;//Default
-    private ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
-    private ImagePlus ogImage;
-    private CustomWindow win;
-    private int numElements;//Number of elements on the GUI
+    protected ImagePlus image;
+    private boolean[] selectedChannels;
+    private int numClusters;
+    private int numSamples;
+    private int numChannels;
 
     @Override
-    public void run(String arg) {
-        ogImage = IJ.openImage();
-        win = new CustomWindow(ogImage);
-        numElements=0;
-        for(String element : ColorClustering.Channel.getAllLabels()){
-            win.add(new JCheckBox(element),numElements);
-            numElements++;
+    public void run(String s) {
+
+        image = WindowManager.getCurrentImage();
+        if(image == null){
+            image=IJ.openImage();
         }
-        JButton clusterizer = new JButton("Clusterize!");
-        win.add(clusterizer);
-        TextField tfClusters = new TextField("Number of clusters");
-        TextField tfSamples = new TextField("Number of samples");
-        win.add(tfClusters,numElements);
-        numElements++;
-        win.add(tfSamples,numElements);
-        numElements++;
-        clusterizer.addActionListener(clusterize);
-        IJ.log("Number of components"+win.getComponentCount());
-        win.maximize();
-        /*ImagePlus image = IJ.openImage();
         image.show();
-        ColorClustering imageClustered = new ColorClustering(image,image.getHeight());
-        int numClusters = (int) IJ.getNumber("Number of clusters!",2);
-        PixelClustering pixelClusterer = new PixelClustering(imageClustered.getFeaturesInstances(),numClusters);
-        Clusterer theClusterer = pixelClusterer.getClusterer();
-        */
-    }
-
-    private class CustomWindow extends StackWindow
-    {
-        private JPanel mainPannel = new JPanel();
-
-        public CustomWindow(ImagePlus imp) {
-            super(imp);
+        if(showDialog()){
+            process();
         }
     }
 
-    private ActionListener clusterize = new ActionListener() {
-        public void actionPerformed(final ActionEvent e) {
-            for(int i=0;i< numElements-3;++i){
-                JCheckBox checkBox = (JCheckBox) win.getComponent(i);
-                if(checkBox.isSelected()) {
-                    channels.add(ColorClustering.Channel.fromLabel(checkBox.getText()));
-                }
+    private boolean showDialog() {
+        boolean someSelected = false;
+        GenericDialog gd = new GenericDialog("Clusterize");
+
+        gd.addNumericField("Number of clusters", 3,0);
+        gd.addNumericField("Number of samples",30,0);
+        numChannels = ColorClustering.Channel.numChannels();
+        selectedChannels = new boolean[numChannels];
+        for(int i=0;i<numChannels;++i){
+            selectedChannels[i]=false;
+        }
+        gd.addCheckboxGroup(numChannels,1,ColorClustering.Channel.getAllLabels(),selectedChannels);
+        gd.showDialog();
+        if(gd.wasCanceled()){
+            return false;
+        }
+        numClusters = (int) gd.getNextNumber();
+        numSamples = (int) gd.getNextNumber();
+        Vector<Checkbox> checkboxes = gd.getCheckboxes();
+        for(int i=0;i<numChannels;++i){
+            selectedChannels[i] = checkboxes.get(i).getState();
+            if(checkboxes.get(i).getState()){
+                someSelected=true;
             }
-            TextField clusterstxt = (TextField) win.getComponent(numElements-2);
-            TextField samplestxt = (TextField) win.getComponent(numElements-1);
-            numClusters = Integer.parseInt(clusterstxt.getText());
-            numSamples = Integer.parseInt(samplestxt.getText());
-            ColorClustering colorClustering = new ColorClustering(ogImage, numSamples, numClusters,channels);
-            //colorClustering.createFile("sampled.arff",colorClustering.getFeaturesInstances());
-            ImagePlus clusteredImage = colorClustering.createClusteredImage();
-            clusteredImage.show();
         }
-    };
+        if(someSelected){
+            IJ.log("Finished getting elements");
+            return true;
+        }else{
+            IJ.log("Select at least a channel");
+            return false;
+        }
+    }
+    public void process(){
+        IJ.log("Starting Processing");
+        ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
+        for(int i=0;i<numChannels;++i){
+            if(selectedChannels[i]){
+                ColorClustering.Channel channel = ColorClustering.Channel.fromLabel(ColorClustering.Channel.getAllLabels()[i]);
+                channels.add(channel);
+            }
+        }
+        ColorClustering colorClustering = new ColorClustering(image,numSamples,numClusters,channels);
+        ImagePlus clusteredImage = colorClustering.createClusteredImage();
+        clusteredImage.show();
+    }
+
+    public static void main(String[] args){
+        Class<?> clazz = Color_Clustering.class;
+        String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();
+        String pluginsDir = url.substring("file:".length(), url.length() - clazz.getName().length() - ".class".length());
+        System.setProperty("plugins.dir", pluginsDir);
+        new ImageJ();
+        ImagePlus image = IJ.openImage();
+        image.show();
+        IJ.runPlugIn(clazz.getName(),"");
+
+    }
 }
