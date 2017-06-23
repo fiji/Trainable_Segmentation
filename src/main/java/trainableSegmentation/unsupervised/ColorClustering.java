@@ -14,6 +14,7 @@ import weka.clusterers.AbstractClusterer;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.stopwords.Null;
 
 import java.awt.*;
 import java.io.BufferedWriter;
@@ -115,15 +116,39 @@ public class ColorClustering {
      */
     public void createFeatures(){
         for(int slice = 1; slice <= image.getStackSize(); ++slice){
+            boolean labactive=false,rgbactive=false,hsbactive=false;
+            ImageConverter ic,ic2;
+            ImagePlus rgb,hsb,lab;
             ImageStack stack = new ImageStack(image.getWidth(),image.getHeight());
             ColorSpaceConverter converter = new ColorSpaceConverter();
-            ImagePlus lab = converter.RGBToLab( new ImagePlus("RGB", image.getStack().getProcessor(slice)));//Inneficient
-            ImagePlus rgb = image.duplicate();//Inneficient
-            ImagePlus hsb = image.duplicate();
-            ImageConverter ic = new ImageConverter(rgb);
-            ImageConverter ic2 = new ImageConverter(hsb);
-            ic.convertToRGBStack();
-            ic2.convertToHSB();
+            for(int i=0;i<channels.size();++i){
+                if(channels.get(i).toString()=="Red"||channels.get(i).toString()=="Blue"||channels.get(i).toString()=="Green"){
+                    rgbactive=true;
+                }else if(channels.get(i).toString()=="Lightness"||channels.get(i).toString()=="a"||channels.get(i).toString()=="b"){
+                    labactive=true;
+                }else if(channels.get(i).toString()=="Hue"||channels.get(i).toString()=="Saturation"||channels.get(i).toString()=="Brightness"){
+                    hsbactive=true;
+                }
+            }
+            if(labactive){
+                lab = converter.RGBToLab(new ImagePlus("RGB", image.getStack().getProcessor(slice)));
+            }else {
+                lab = null;
+            }
+            if(rgbactive) {
+                rgb = image.duplicate();
+                ic = new ImageConverter(rgb);
+                ic.convertToRGBStack();
+            }else {
+                rgb = null;
+            }
+            if(hsbactive) {
+                hsb = image.duplicate();
+                ic2 = new ImageConverter(hsb);
+                ic2.convertToHSB();
+            }else {
+                hsb = null;
+            }
             for(int i=0;i<channels.size();++i){//Need to add HSB
                 switch (channels.get(i)){
                     case Lightness:
