@@ -99,7 +99,7 @@ public class ColorClustering {
      * @param image
      * @param numSamples
      */
-    public ColorClustering(ImagePlus image, int numSamples, int numClusters, ArrayList<Channel> selectedChannels){
+    public ColorClustering(ImagePlus image, int numSamples, int numClusters, ArrayList<Channel> selectedChannels){ //Separar build clusterer del constructor
         for(Channel element: selectedChannels){
             this.channels.add(element);
         }
@@ -108,6 +108,7 @@ public class ColorClustering {
         featureStackArray = new FeatureStackArray(image.getStackSize());
         this.createFeatures();
         PixelClustering pixelClustering = new PixelClustering(this.getFeaturesInstances(),numClusters);
+        pixelClustering.buildClusterer();
         theClusterer = pixelClustering.getClusterer();
     }
 
@@ -149,7 +150,7 @@ public class ColorClustering {
             }else {
                 hsb = null;
             }
-            for(int i=0;i<channels.size();++i){//Need to add HSB
+            for(int i=0;i<channels.size();++i){
                 switch (channels.get(i)){
                     case Lightness:
                         stack.addSlice("L",lab.getStack().getProcessor(1));
@@ -219,74 +220,131 @@ public class ColorClustering {
         }
     }
 
-
-    public ImagePlus createClusteredImage(){
-
-        int height = image.getHeight();
-        int width = image.getWidth();
-        int numInstances = height*width;
-
-        ImageStack stack = new ImageStack(image.getWidth(),image.getHeight());
-        IJ.log(channels.toString());
-        ColorSpaceConverter converter = new ColorSpaceConverter();
+    public FeatureStackArray createFSArray(ImagePlus image){
+        int height;
+        int width;
+        int numInstances;
+        height = image.getHeight();
+        width = image.getWidth();
+        numInstances = height*width;
+        FeatureStackArray theFeatures = new FeatureStackArray(image.getStackSize());
         ImageStack clusteringResult = new ImageStack(width,height);
-        ImagePlus lab = converter.RGBToLab(new ImagePlus("RGB",image.getStack()));
-        ImagePlus rgb = image.duplicate();
-        ImagePlus hsb = image.duplicate();
         double clusterArray[] = new double[numInstances];
-        ImageConverter ic = new ImageConverter(rgb);
-        ImageConverter ic2 = new ImageConverter(hsb);
-        ic.convertToRGBStack();
-        ic2.convertToHSB();
-        for(int i=0;i<channels.size();++i){//Need to add HSB
-            switch (channels.get(i)){
-                case Lightness:
-                    stack.addSlice("L",lab.getStack().getProcessor(1));
-                    break;
-                case a:
-                    stack.addSlice("a", lab.getStack().getProcessor(2));
-                    break;
-                case b:
-                    stack.addSlice("b",lab.getStack().getProcessor(3));
-                    break;
-                case Red:
-                    stack.addSlice("Red", rgb.getStack().getProcessor(1).convertToFloatProcessor());
-                    break;
-                case Green:
-                    stack.addSlice("Green",rgb.getStack().getProcessor(2).convertToFloatProcessor());
-                    break;
-                case Blue:
-                    stack.addSlice("Blue",rgb.getStack().getProcessor(3).convertToFloatProcessor());
-                    break;
-                case Hue:
-                    stack.addSlice("Hue",hsb.getStack().getProcessor(1).convertToFloatProcessor());
-                    break;
-                case Brightness:
-                    stack.addSlice("Brightness",hsb.getStack().getProcessor(2).convertToFloatProcessor());
-                    break;
-                case Saturation:
-                    stack.addSlice("Saturation",hsb.getStack().getProcessor(3).convertToFloatProcessor());
-                    break;
-            }
-        }
-        FeatureStack features = new FeatureStack(stack.getWidth(),stack.getHeight(),false);
-        features.setStack(stack);
-        final double[] values = new double[features.getSize()];
-        final ReusableDenseInstance ins = new ReusableDenseInstance(1.0,values);
-        ins.setDataset(featuresInstances);
-        for (int x=0;x<width;++x){
-            for(int y=0;y<height;++y){
-                features.setInstance(x,y,ins,values);
-                try {
-                    clusterArray[x+y*width]=theClusterer.clusterInstance(ins);
-                    //IJ.log(ins.toString());
-                    //IJ.log("Coordinates: "+x+","+y+" Cluster: "+clusterArray[x+y*width]);
-                }catch (Exception e){
-                    IJ.log("Error when applying clusterer to pixel: "+x+","+y);
+        for(int slice = 1; slice <= image.getStackSize(); ++slice) {
+            boolean labactive = false, rgbactive = false, hsbactive = false;
+            ImageConverter ic, ic2;
+            ImagePlus rgb, hsb, lab;
+            ImageStack stack = new ImageStack(image.getWidth(), image.getHeight());
+            ColorSpaceConverter converter = new ColorSpaceConverter();
+            for (int i = 0; i < channels.size(); ++i) {
+                if (channels.get(i).toString() == "Red" || channels.get(i).toString() == "Blue" || channels.get(i).toString() == "Green") {
+                    rgbactive = true;
+                } else if (channels.get(i).toString() == "Lightness" || channels.get(i).toString() == "a" || channels.get(i).toString() == "b") {
+                    labactive = true;
+                } else if (channels.get(i).toString() == "Hue" || channels.get(i).toString() == "Saturation" || channels.get(i).toString() == "Brightness") {
+                    hsbactive = true;
                 }
             }
+            if (labactive) {
+                lab = converter.RGBToLab(new ImagePlus("RGB", image.getStack().getProcessor(slice)));
+            } else {
+                lab = null;
+            }
+            if (rgbactive) {
+                rgb = new ImagePlus("RGB",image.getStack().getProcessor(slice));
+                ic = new ImageConverter(rgb);
+                ic.convertToRGBStack();
+            } else {
+                rgb = null;
+            }
+            if (hsbactive) {
+                hsb = new ImagePlus("HSB",image.getStack().getProcessor(slice));
+                ic2 = new ImageConverter(hsb);
+                ic2.convertToHSB();
+            } else {
+                hsb = null;
+            }
+            for (int i = 0; i < channels.size(); ++i) {
+                switch (channels.get(i)) {
+                    case Lightness:
+                        stack.addSlice("L", lab.getStack().getProcessor(1));
+                        break;
+                    case a:
+                        stack.addSlice("a", lab.getStack().getProcessor(2));
+                        break;
+                    case b:
+                        stack.addSlice("b", lab.getStack().getProcessor(3));
+                        break;
+                    case Red:
+                        stack.addSlice("Red", rgb.getStack().getProcessor(1).convertToFloatProcessor());
+                        break;
+                    case Green:
+                        stack.addSlice("Green", rgb.getStack().getProcessor(2).convertToFloatProcessor());
+                        break;
+                    case Blue:
+                        stack.addSlice("Blue", rgb.getStack().getProcessor(3).convertToFloatProcessor());
+                        break;
+                    case Hue:
+                        stack.addSlice("Hue", hsb.getStack().getProcessor(1).convertToFloatProcessor());
+                        break;
+                    case Saturation:
+                        stack.addSlice("Saturation", hsb.getStack().getProcessor(2).convertToFloatProcessor());
+                        break;
+                    case Brightness:
+                        stack.addSlice("Brightness", hsb.getStack().getProcessor(3).convertToFloatProcessor());
+                        break;
+                }
+            }
+            FeatureStack features = new FeatureStack(stack.getWidth(), stack.getHeight(), false);
+            features.setStack(stack);
+            theFeatures.set(features, slice - 1);
         }
-        clusteringResult.addSlice(new FloatProcessor(width,height,clusterArray));//Byteprocessor
+        return theFeatures;
+    }
+
+    public ImagePlus createClusteredImage(FeatureStackArray theFeatures){
+        int height;
+        int width;
+        int numInstances;
+        height = image.getHeight();
+        width = image.getWidth();
+        numInstances = height*width;
+        ImageStack clusteringResult = new ImageStack(width,height);
+        double clusterArray[] = new double[numInstances];
+        for(int slice = 1; slice <= image.getStackSize(); ++slice){
+            FeatureStack features = theFeatures.get(slice-1);
+            ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+            Instances instances;
+            for (int i=1; i<=theFeatures.get(slice-1).getSize(); i++)
+            {
+                String attString = theFeatures.get(slice-1).getSliceLabel(i);
+                attributes.add( new Attribute( attString ) );
+            }
+
+            if( theFeatures.get(slice-1).useNeighborhood() )
+                for (int i=0; i<8; i++)
+                {
+                    //IJ.log("Adding extra attribute original_neighbor_" + (i+1) + "...");
+                    attributes.add( new Attribute( new String( "original_neighbor_" + (i+1) ) ) );
+                }
+            instances = new Instances("segment", attributes, 1);
+            final double[] values = new double[features.getSize()];
+            final ReusableDenseInstance ins = new ReusableDenseInstance(1.0,values);
+            ins.setDataset(instances);
+            for (int x=0;x<width;++x){
+                for(int y=0;y<height;++y){
+                    features.setInstance(x,y,ins,values);
+                    try {
+                        clusterArray[x+y*width]=theClusterer.clusterInstance(ins);
+                        //IJ.log(ins.toString());
+                        //IJ.log("Coordinates: "+x+","+y+" Cluster: "+clusterArray[x+y*width]);
+                    }catch (Exception e){
+                        IJ.log("Error when applying clusterer to pixel: "+x+","+y);
+                    }
+                }
+            }
+            clusteringResult.addSlice(new FloatProcessor(width,height,clusterArray));
+        }
         return new ImagePlus("clustered image", clusteringResult);
     }
 

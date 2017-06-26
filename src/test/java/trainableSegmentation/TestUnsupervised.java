@@ -33,12 +33,14 @@ public class TestUnsupervised {
         channels.add(ColorClustering.Channel.fromLabel("Hue"));
         channels.add(ColorClustering.Channel.fromLabel("Brightness"));
         channels.add(ColorClustering.Channel.fromLabel("Saturation"));
-        ColorClustering colorClustering = new ColorClustering(image,300,3, channels);
+        ColorClustering colorClustering = new ColorClustering(image,30,3, channels);
         colorClustering.createFile("test.arff",colorClustering.getFeaturesInstances());
-        ImagePlus clusteredImage = colorClustering.createClusteredImage();
+        FeatureStackArray theFeatures = colorClustering.createFSArray(image);
+        ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
         clusteredImage.show();
     }
 
 
 
 }
+

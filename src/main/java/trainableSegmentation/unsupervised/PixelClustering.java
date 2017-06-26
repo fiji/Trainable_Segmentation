@@ -58,7 +58,6 @@ public class PixelClustering {
     public PixelClustering(Instances featuresInstances,int numClusters){
         this.setNumClusters(numClusters);
         this.setFeaturesInstances(featuresInstances);
-        this.buildClusterer();
     }
 
     /**

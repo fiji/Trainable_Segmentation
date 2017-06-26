@@ -10,6 +10,7 @@ import ij.plugin.PlugIn;
 import ij.process.ImageProcessor;
 import javafx.scene.control.CheckBox;
 import jdk.nashorn.internal.runtime.arrays.NumericElements;
+import trainableSegmentation.FeatureStackArray;
 import trainableSegmentation.Weka_Segmentation;
 import weka.clusterers.Clusterer;
 
@@ -85,7 +86,8 @@ public class Color_Clustering implements PlugIn{
             }
         }
         ColorClustering colorClustering = new ColorClustering(image,numSamples,numClusters,channels);
-        ImagePlus clusteredImage = colorClustering.createClusteredImage();
+        FeatureStackArray theFeatures = colorClustering.createFSArray(image);
+        ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
         clusteredImage.show();
     }
 
