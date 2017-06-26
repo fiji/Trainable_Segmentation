@@ -132,19 +132,19 @@ public class ColorClustering {
                 }
             }
             if(labactive){
-                lab = converter.RGBToLab(new ImagePlus("RGB", image.getStack().getProcessor(slice)));
+                lab = converter.RGBToLab(new ImagePlus("Lab", image.getStack().getProcessor(slice)));
             }else {
                 lab = null;
             }
             if(rgbactive) {
-                rgb = image.duplicate();
+                rgb = new ImagePlus("RGB",image.getStack().getProcessor(slice));
                 ic = new ImageConverter(rgb);
                 ic.convertToRGBStack();
             }else {
                 rgb = null;
             }
             if(hsbactive) {
-                hsb = image.duplicate();
+                hsb = new ImagePlus("HSB",image.getStack().getProcessor(slice));
                 ic2 = new ImageConverter(hsb);
                 ic2.convertToHSB();
             }else {
@@ -246,7 +246,7 @@ public class ColorClustering {
                 }
             }
             if (labactive) {
-                lab = converter.RGBToLab(new ImagePlus("RGB", image.getStack().getProcessor(slice)));
+                lab = converter.RGBToLab(new ImagePlus("Lab", image.getStack().getProcessor(slice)));
             } else {
                 lab = null;
             }
