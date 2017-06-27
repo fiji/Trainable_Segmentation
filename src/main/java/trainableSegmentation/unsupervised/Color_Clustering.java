@@ -9,11 +9,13 @@ import ij.gui.StackWindow;
 import ij.plugin.PlugIn;
 import ij.process.ImageProcessor;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.RadioButton;
 import jdk.nashorn.internal.runtime.arrays.NumericElements;
 import trainableSegmentation.FeatureStackArray;
 import trainableSegmentation.Weka_Segmentation;
 import weka.clusterers.AbstractClusterer;
 import weka.clusterers.Clusterer;
+import weka.core.Check;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +32,8 @@ public class Color_Clustering implements PlugIn{
     private int numClusters;
     private int numSamples;
     private int numChannels;
-
+    private int numClusterers;
+    private String selectedClusterer;
 
     @Override
     public void run(String s) {
@@ -48,15 +51,16 @@ public class Color_Clustering implements PlugIn{
     private boolean showDialog() {
         boolean someSelected = false;
         GenericDialog gd = new GenericDialog("Clusterize");
-
         gd.addNumericField("Number of clusters", 3,0);
         gd.addNumericField("Number of samples",30,0);
         numChannels = ColorClustering.Channel.numChannels();
+        numClusterers = PixelClustering.SelectedClusterer.numClusterers();
         selectedChannels = new boolean[numChannels];
         for(int i=0;i<numChannels;++i){
             selectedChannels[i]=false;
         }
         gd.addCheckboxGroup(numChannels,1,ColorClustering.Channel.getAllLabels(),selectedChannels);
+        gd.addRadioButtonGroup("Clusterer", PixelClustering.SelectedClusterer.getAllClusterers(),numClusterers,1,null);
         gd.showDialog();
         if(gd.wasCanceled()){
             return false;
@@ -70,6 +74,9 @@ public class Color_Clustering implements PlugIn{
                 someSelected=true;
             }
         }
+        Vector<CheckboxGroup> radioButtons = gd.getRadioButtonGroups();
+        CheckboxGroup checkboxGroup = radioButtons.get(0);
+        selectedClusterer = checkboxGroup.getSelectedCheckbox().getLabel();
         if(someSelected){
             IJ.log("Finished getting elements");
             return true;
@@ -89,7 +96,7 @@ public class Color_Clustering implements PlugIn{
             }
         }
         ColorClustering colorClustering = new ColorClustering(image,numSamples,channels);
-        AbstractClusterer theClusterer = colorClustering.createClusterer(numClusters);
+        AbstractClusterer theClusterer = colorClustering.createClusterer(numClusters,selectedClusterer);
         colorClustering.setTheClusterer(theClusterer);
         FeatureStackArray theFeatures = colorClustering.createFSArray(image);
         ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
