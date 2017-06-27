@@ -28,11 +28,13 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Random;
 
-/**
- * Comments need to be updated
- */
+
 public class ColorClustering {
 
+
+    /**
+     * Names all channels that can be used.
+     * */
     public enum Channel{
         Red("Red"),
         Green("Green"),
@@ -46,14 +48,26 @@ public class ColorClustering {
 
         private final String label;
 
+        /**
+         * Create channel with a label.
+         * @param label
+         */
         private Channel(String label){
             this.label = label;
         }
 
+        /**
+         * Turn channel to string.
+         * @return
+         */
         public String toString(){
             return this.label;
         }
 
+        /**
+         * Returns total number of channels, static method.
+         * @return
+         */
         public static int numChannels(){
             int number=0;
             for(String item : getAllLabels()){
@@ -62,6 +76,10 @@ public class ColorClustering {
             return number;
         }
 
+        /**
+         * Get all labels in a String[] structure.
+         * @return
+         */
         public static String[] getAllLabels(){
             int n = Channel.values().length;
             String[] result = new String[n];
@@ -72,6 +90,11 @@ public class ColorClustering {
             return result;
         }
 
+        /**
+         * Get channel from label (label is a String).
+         * @param chLabel
+         * @return
+         */
         public static Channel fromLabel(String chLabel){
             if(chLabel != null){
                 chLabel = chLabel.toLowerCase();
@@ -95,12 +118,8 @@ public class ColorClustering {
     private int numSamples;
     private AbstractClusterer theClusterer;
 
-    /**
-     * Creates features based on image and number of samples
-     * @param image
-     * @param numSamples
-     */
-    public ColorClustering(ImagePlus image, int numSamples, int numClusters, ArrayList<Channel> selectedChannels){ //Separar build clusterer del constructor
+
+    public ColorClustering(ImagePlus image, int numSamples, ArrayList<Channel> selectedChannels){ //Separar build clusterer del constructor
         for(Channel element: selectedChannels){
             this.channels.add(element);
         }
@@ -108,9 +127,12 @@ public class ColorClustering {
         this.setNumSamples(numSamples);
         featureStackArray = new FeatureStackArray(image.getStackSize());
         this.createFeatures();
+    }
+
+    public AbstractClusterer createClusterer(int numClusters){
         PixelClustering pixelClustering = new PixelClustering(this.getFeaturesInstances(),numClusters);
         pixelClustering.buildClusterer();
-        theClusterer = pixelClustering.getClusterer();
+        return theClusterer;
     }
 
     /**
@@ -428,6 +450,15 @@ public class ColorClustering {
 
     public void setFeaturesInstances(Instances featuresInstances) {
         this.featuresInstances = featuresInstances;
+    }
+
+
+    public AbstractClusterer getTheClusterer() {
+        return theClusterer;
+    }
+
+    public void setTheClusterer(AbstractClusterer theClusterer) {
+        this.theClusterer = theClusterer;
     }
 
 }
