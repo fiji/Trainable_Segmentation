@@ -119,6 +119,12 @@ public class ColorClustering {
     private AbstractClusterer theClusterer;
 
 
+    /**
+     * Creates ColorClustering, sets image, number of samples and creates featureStackArray accordig to selected channels.
+     * @param image
+     * @param numSamples
+     * @param selectedChannels
+     */
     public ColorClustering(ImagePlus image, int numSamples, ArrayList<Channel> selectedChannels){ //Separar build clusterer del constructor
         for(Channel element: selectedChannels){
             this.channels.add(element);
@@ -129,10 +135,16 @@ public class ColorClustering {
         this.createFeatures();
     }
 
+    /**
+     * Create clusterer using features, and provided number of clusters;
+     * @param numClusters
+     * @return
+     */
     public AbstractClusterer createClusterer(int numClusters){
         PixelClustering pixelClustering = new PixelClustering(this.getFeaturesInstances(),numClusters);
         pixelClustering.buildClusterer();
-        return theClusterer;
+        AbstractClusterer clusterer = pixelClustering.getClusterer();
+        return clusterer;
     }
 
     /**
