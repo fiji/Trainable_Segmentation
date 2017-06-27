@@ -86,6 +86,7 @@ import weka.core.Instances;
 import weka.core.OptionHandler;
 import weka.core.SerializationHelper;
 import weka.core.Utils;
+import weka.core.WekaPackageManager;
 import weka.gui.GUIChooserApp;
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyPanel;
@@ -2304,7 +2305,7 @@ public class Weka_Segmentation implements PlugIn
 	    		return false;
 	    	}
 	    	
-	    	// Assing new classifier
+	    	// Assign new classifier
 	    	wekaSegmentation.setClassifier( cls );
 	    	
 	    	// Set the training flag to false  
@@ -2400,7 +2401,7 @@ public class Weka_Segmentation implements PlugIn
 			editorProperties.setProperty(key, value);
 			//new Exception("insert").printStackTrace();
 			//System.err.println("value: " + value);
-			
+			WekaPackageManager.loadPackages( true );
 			// add classifiers from properties (needed after upgrade to WEKA version 3.7.11)
 			PluginManager.addFromProperties(editorProperties);						
 		} catch (Exception e) {
