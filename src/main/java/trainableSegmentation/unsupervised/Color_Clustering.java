@@ -31,6 +31,7 @@ public class Color_Clustering implements PlugIn{
     private int numSamples;
     private int numChannels;
 
+
     @Override
     public void run(String s) {
 
@@ -77,6 +78,7 @@ public class Color_Clustering implements PlugIn{
             return false;
         }
     }
+
     public void process(){
         IJ.log("Starting Processing");
         ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
@@ -94,6 +96,10 @@ public class Color_Clustering implements PlugIn{
         clusteredImage.show();
     }
 
+    /**
+     * Usefull for testing
+     * @param args
+     */
     public static void main(String[] args){
         Class<?> clazz = Color_Clustering.class;
         String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();

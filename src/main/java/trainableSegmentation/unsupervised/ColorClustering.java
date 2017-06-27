@@ -147,8 +147,9 @@ public class ColorClustering {
         return clusterer;
     }
 
+
     /**
-     * Creates a b features based on RGB image into Lab image, chooses numSamples pixels at random
+     * Creates features based on selected channels, uses private variables.
      */
     public void createFeatures(){
         for(int slice = 1; slice <= image.getStackSize(); ++slice){
@@ -255,6 +256,11 @@ public class ColorClustering {
         }
     }
 
+    /**
+     * Creates FeatureStackArray based on provided image and selected channels (private variable)
+     * @param image
+     * @return
+     */
     public FeatureStackArray createFSArray(ImagePlus image){
         int height;
         int width;
@@ -337,6 +343,11 @@ public class ColorClustering {
         return theFeatures;
     }
 
+    /**
+     * Creates clustered image based on provided FeatureStackArray and using private clusterer, returns as ImagePlus
+     * @param theFeatures
+     * @return
+     */
     public ImagePlus createClusteredImage(FeatureStackArray theFeatures){
         int height;
         int width;
@@ -345,7 +356,6 @@ public class ColorClustering {
         width = theFeatures.getWidth();
         numInstances = height*width;
         ImageStack clusteringResult = new ImageStack(width,height);
-        String info = image.getInfoProperty();
         for(int slice = 1; slice <= theFeatures.getSize(); ++slice){
             byte clusterArray[] = new byte[numInstances];
             FeatureStack features = theFeatures.get(slice-1);
@@ -391,9 +401,11 @@ public class ColorClustering {
         return result;
     }
 
+
     /**
-     * Creates arff file
-     * @param name name of the file to be created
+     * Creates file with provided name based on provided instances.
+     * @param name
+     * @param theInstances
      */
     public void createFile(String name, Instances theInstances){
         BufferedWriter out = null;
@@ -430,45 +442,84 @@ public class ColorClustering {
 
     //Getters and setters
 
+    /**
+     * Get number of samples that is being used
+     * @return
+     */
     public int getNumSamples() {
         return numSamples;
     }
 
+    /**
+     * Set number of samples that is to be used
+     * @param numSamples
+     */
     public void setNumSamples(int numSamples) {
         this.numSamples = numSamples;
     }
 
+    /**
+     * Get image that is being used
+     * @return
+     */
     public ImagePlus getImage() {
         return image;
     }
 
+    /**
+     * Set image that is to be used
+     * @param image
+     */
     public void setImage(ImagePlus image) {
         this.image = image;
     }
 
-
+    /**
+     * Get FeatureStackArray that is being used
+     * @return
+     */
     public FeatureStackArray getFeatureStackArray() {
         return featureStackArray;
     }
 
+    /**
+     * Set FeatureStackArray that is to be used
+     * @param featureStackArray
+     */
     public void setFeatureStackArray(FeatureStackArray featureStackArray) {
         this.featureStackArray = featureStackArray;
     }
 
 
+    /**
+     * Get features instances that are being used
+     * @return
+     */
     public Instances getFeaturesInstances() {
         return featuresInstances;
     }
 
+    /**
+     * Set features instances that are to be used
+     * @param featuresInstances
+     */
     public void setFeaturesInstances(Instances featuresInstances) {
         this.featuresInstances = featuresInstances;
     }
 
 
+    /**
+     * Get abstract clusterer that has been created
+     * @return
+     */
     public AbstractClusterer getTheClusterer() {
         return theClusterer;
     }
 
+    /**
+     * Set abstract clusterer to be used
+     * @param theClusterer
+     */
     public void setTheClusterer(AbstractClusterer theClusterer) {
         this.theClusterer = theClusterer;
     }

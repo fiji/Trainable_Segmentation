@@ -1,9 +1,4 @@
 package trainableSegmentation.unsupervised;
-/*
-TrainableSegmentation test case: TestPixelClustering
- */
-
-
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -84,27 +79,51 @@ public class PixelClustering {
 
 
     //Getters and setters
+
+    /**
+     * Set features instances to be used
+     * @param featuresInstances
+     */
     public void setFeaturesInstances(Instances featuresInstances) {
         this.featuresInstances = featuresInstances;
     }
 
+    /**
+     * Get features instances that are being used
+     * @return
+     */
     public Instances getFeaturesInstances() {
         return featuresInstances;
     }
 
+    /**
+     * Set clusterer to be used
+     * @param clusterer
+     */
     public void setClusterer(AbstractClusterer clusterer) {
         this.clusterer = clusterer;
     }
 
-
+    /**
+     * Get clusterer that has been created
+     * @return
+     */
     public AbstractClusterer getClusterer() {
         return clusterer;
     }
 
+    /**
+     * Set number of clusters
+     * @param numClusters
+     */
     public void setNumClusters(int numClusters) {
         this.numClusters = numClusters;
     }
 
+    /**
+     * Get number of clusters
+     * @return
+     */
     public int getNumClusters() {
         return numClusters;
     }
