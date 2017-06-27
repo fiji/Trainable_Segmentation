@@ -516,12 +516,30 @@ public class WekaSegmentation {
 			loadedClassNames.add(className);
 
 			IJ.log("Read class name: " + className);
+			// If classes do not match
 			if( !className.equals(this.getClassLabels()[j]))
 			{
-				String s = getClassLabels()[0];
+				// Store current GUI class names
+				String guiClasses = getClassLabels()[0];
 				for(int i = 1; i < numOfClasses; i++)
-					s = s.concat(", " + getClassLabels()[i]);
-				IJ.error("ERROR: Loaded classes and current classes do not match!\nExpected: " + s);
+					guiClasses = guiClasses.concat(", " + getClassLabels()[i]);
+				// Store file class names
+				String fileClasses = loadedClassNames.get( 0 );
+				for(int i = 1; i < loadedClassNames.size(); i++)
+					fileClasses += ", " + loadedClassNames.get( i );
+				while( classValues.hasMoreElements() )
+					fileClasses += ", "
+							+ ( (String) classValues.nextElement() ).trim();
+				// Show error message displaying both lists of names
+				IJ.error("WekaSegmentation: load ARFF",
+						"<html>"
+						+ "<b>Error</b>: Loaded classes and current classes do "
+						+ "not match:"
+						+ "<ul>"
+						+ "<li>Expected names: <i>" + guiClasses + "</i>"
+						+ "<li>ARFF class names: <i>" + fileClasses + "</i>"
+						+ "</ul>"
+						+ "Please adjust names in GUI before loading ARFF." );
 				loadedTrainingData = null;
 				return false;
 			}
@@ -530,7 +548,9 @@ public class WekaSegmentation {
 
 		if(j != numOfClasses)
 		{
-			IJ.error("ERROR: Loaded number of classes and current number do not match!");
+			IJ.error( "WekaSegmentation: load ARFF",
+					"ERROR: Loaded number of classes and current number do not "
+					+ "match!" );
 			loadedTrainingData = null;
 			return false;
 		}
