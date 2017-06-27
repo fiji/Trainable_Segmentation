@@ -59,8 +59,8 @@ public class Color_Clustering implements PlugIn{
         for(int i=0;i<numChannels;++i){
             selectedChannels[i]=false;
         }
-        gd.addCheckboxGroup(numChannels,1,ColorClustering.Channel.getAllLabels(),selectedChannels);
-        gd.addRadioButtonGroup("Clusterer", PixelClustering.SelectedClusterer.getAllClusterers(),numClusterers,1,null);
+        gd.addCheckboxGroup(3,numChannels / 3,ColorClustering.Channel.getAllLabels(),selectedChannels);
+        gd.addRadioButtonGroup("Clusterer", PixelClustering.SelectedClusterer.getAllClusterers(),3,numClusterers / 3, PixelClustering.SelectedClusterer.getAllClusterers()[0]);
         gd.showDialog();
         if(gd.wasCanceled()){
             return false;
