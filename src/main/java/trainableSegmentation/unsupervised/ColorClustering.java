@@ -3,6 +3,7 @@ package trainableSegmentation.unsupervised;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.io.FileInfo;
 import ij.plugin.Converter;
 import ij.process.*;
 import org.apache.commons.math3.analysis.function.Abs;
@@ -306,12 +307,13 @@ public class ColorClustering {
         int height;
         int width;
         int numInstances;
-        height = image.getHeight();
-        width = image.getWidth();
+        height = theFeatures.getHeight();
+        width = theFeatures.getWidth();
         numInstances = height*width;
         ImageStack clusteringResult = new ImageStack(width,height);
-        double clusterArray[] = new double[numInstances];
-        for(int slice = 1; slice <= image.getStackSize(); ++slice){
+        String info = image.getInfoProperty();
+        for(int slice = 1; slice <= theFeatures.getSize(); ++slice){
+            byte clusterArray[] = new byte[numInstances];
             FeatureStack features = theFeatures.get(slice-1);
             ArrayList<Attribute> attributes = new ArrayList<Attribute>();
             Instances instances;
@@ -335,7 +337,7 @@ public class ColorClustering {
                 for(int y=0;y<height;++y){
                     features.setInstance(x,y,ins,values);
                     try {
-                        clusterArray[x+y*width]=theClusterer.clusterInstance(ins);
+                        clusterArray[x+y*width]= (byte) theClusterer.clusterInstance(ins);
                         //IJ.log(ins.toString());
                         //IJ.log("Coordinates: "+x+","+y+" Cluster: "+clusterArray[x+y*width]);
                     }catch (Exception e){
@@ -343,9 +345,16 @@ public class ColorClustering {
                     }
                 }
             }
-            clusteringResult.addSlice(new FloatProcessor(width,height,clusterArray));
+            ByteProcessor processor = new ByteProcessor(width,height,clusterArray);
+            try {
+                processor.setMinAndMax(0,theClusterer.numberOfClusters());
+            } catch (Exception e) {
+                IJ.log("Error when setting histogram range in slice: "+slice);
+            }
+            clusteringResult.addSlice(processor);
         }
-        return new ImagePlus("clustered image", clusteringResult);
+        ImagePlus result = new ImagePlus("Clustered image", clusteringResult);
+        return result;
     }
 
     /**
