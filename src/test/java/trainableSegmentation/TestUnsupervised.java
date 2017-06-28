@@ -8,6 +8,7 @@ import trainableSegmentation.unsupervised.ColorClustering;
 import trainableSegmentation.unsupervised.PixelClustering;
 import weka.clusterers.AbstractClusterer;
 import weka.clusterers.Clusterer;
+import weka.clusterers.SimpleKMeans;
 import weka.core.Instances;
 
 import java.awt.*;
@@ -35,7 +36,8 @@ public class TestUnsupervised {
         channels.add(ColorClustering.Channel.fromLabel("Brightness"));
         channels.add(ColorClustering.Channel.fromLabel("Saturation"));
         ColorClustering colorClustering = new ColorClustering(image,30, channels);
-        AbstractClusterer theClusterer = colorClustering.createClusterer(3,"SimpleKMeans");
+        AbstractClusterer kmeans = new SimpleKMeans();
+        AbstractClusterer theClusterer = colorClustering.createClusterer(3,kmeans);
         colorClustering.setTheClusterer(theClusterer);
         colorClustering.createFile("test.arff",colorClustering.getFeaturesInstances());
         FeatureStackArray theFeatures = colorClustering.createFSArray(image);

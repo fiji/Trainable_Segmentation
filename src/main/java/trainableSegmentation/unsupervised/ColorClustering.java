@@ -141,10 +141,10 @@ public class ColorClustering {
      * @param numClusters
      * @return
      */
-    public AbstractClusterer createClusterer(int numClusters, String selectedClusterer){
+    public AbstractClusterer createClusterer(int numClusters, AbstractClusterer selectedClusterer){
         PixelClustering pixelClustering = new PixelClustering(this.getFeaturesInstances(),numClusters,selectedClusterer);
         pixelClustering.buildClusterer();
-        AbstractClusterer clusterer = pixelClustering.getClusterer();
+        AbstractClusterer clusterer = pixelClustering.getSelectedClusterer();
         return clusterer;
     }
 

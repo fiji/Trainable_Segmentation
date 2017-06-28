@@ -1,5 +1,6 @@
 package trainableSegmentation.unsupervised;
 
+import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
@@ -15,7 +16,12 @@ import trainableSegmentation.FeatureStackArray;
 import trainableSegmentation.Weka_Segmentation;
 import weka.clusterers.AbstractClusterer;
 import weka.clusterers.Clusterer;
+import weka.clusterers.SimpleKMeans;
 import weka.core.Check;
+import weka.core.OptionHandler;
+import weka.core.Utils;
+import weka.gui.GenericObjectEditor;
+import weka.gui.PropertyPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,8 +39,8 @@ public class Color_Clustering implements PlugIn{
     private int numSamples;
     private int numChannels;
     private int numClusterers;
-    private String selectedClusterer;
     private boolean file=false;
+    private AbstractClusterer clusterer;
 
     @Override
     public void run(String s) {
@@ -51,35 +57,60 @@ public class Color_Clustering implements PlugIn{
 
     private boolean showDialog() {
         boolean someSelected = false;
-        GenericDialog gd = new GenericDialog("Clusterize");
+        GenericDialogPlus gd = new GenericDialogPlus("Clusterize");
         gd.addNumericField("Number of clusters", 3,0);
         gd.addNumericField("Number of samples",30,0);
         numChannels = ColorClustering.Channel.numChannels();
-        numClusterers = PixelClustering.SelectedClusterer.numClusterers();
         selectedChannels = new boolean[numChannels];
         for(int i=0;i<numChannels;++i){
             selectedChannels[i]=false;
         }
         gd.addCheckboxGroup(3,numChannels / 3,ColorClustering.Channel.getAllLabels(),selectedChannels);
-        gd.addRadioButtonGroup("Clusterer", PixelClustering.SelectedClusterer.getAllClusterers(),3,numClusterers / 3, PixelClustering.SelectedClusterer.getAllClusterers()[0]);
-        gd.addCheckbox("Create file",false);
+
+        clusterer = new SimpleKMeans();
+        GenericObjectEditor clustererEditor = new GenericObjectEditor();
+        PropertyPanel clustererEditorPanel = new PropertyPanel( clustererEditor );
+        clustererEditor.setClassType( Clusterer.class );
+        clustererEditor.setValue( clusterer );
+        gd.addComponent( clustererEditorPanel,  GridBagConstraints.HORIZONTAL , 1 );
+
+        gd.addCheckbox("File",false);
         gd.showDialog();
+
         if(gd.wasCanceled()){
             return false;
         }
+
         numClusters = (int) gd.getNextNumber();
         numSamples = (int) gd.getNextNumber();
         Vector<Checkbox> checkboxes = gd.getCheckboxes();
+
         for(int i=0;i<numChannels;++i){
             selectedChannels[i] = checkboxes.get(i).getState();
             if(checkboxes.get(i).getState()){
                 someSelected=true;
             }
         }
-        Vector<CheckboxGroup> radioButtons = gd.getRadioButtonGroups();
-        CheckboxGroup checkboxGroup = radioButtons.get(0);
-        selectedClusterer = checkboxGroup.getSelectedCheckbox().getLabel();
+
+        Object c = ( Object ) clustererEditor.getValue();
+        String options = "";
+        String[] optionsArray = ((OptionHandler)c).getOptions();
+        if ( c instanceof OptionHandler )
+        {
+            options = Utils.joinOptions( optionsArray );
+        }
+        try{
+            clusterer = (AbstractClusterer) (c.getClass().newInstance());
+            clusterer.setOptions( optionsArray );
+        }
+        catch(Exception ex)
+        {
+            IJ.log("Error when setting clusterer");
+            return false;
+        }
+
         file = checkboxes.get(numChannels).getState();
+
         if(someSelected){
             IJ.log("Finished getting elements");
             return true;
@@ -98,7 +129,7 @@ public class Color_Clustering implements PlugIn{
             }
         }
         ColorClustering colorClustering = new ColorClustering(image, numSamples, channels);
-        AbstractClusterer theClusterer = colorClustering.createClusterer(numClusters, selectedClusterer);
+        AbstractClusterer theClusterer = colorClustering.createClusterer(numClusters, clusterer);
         colorClustering.setTheClusterer(theClusterer);
         FeatureStackArray theFeatures = colorClustering.createFSArray(image);
         ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
