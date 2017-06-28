@@ -34,6 +34,7 @@ public class Color_Clustering implements PlugIn{
     private int numChannels;
     private int numClusterers;
     private String selectedClusterer;
+    private boolean file=false;
 
     @Override
     public void run(String s) {
@@ -61,6 +62,7 @@ public class Color_Clustering implements PlugIn{
         }
         gd.addCheckboxGroup(3,numChannels / 3,ColorClustering.Channel.getAllLabels(),selectedChannels);
         gd.addRadioButtonGroup("Clusterer", PixelClustering.SelectedClusterer.getAllClusterers(),3,numClusterers / 3, PixelClustering.SelectedClusterer.getAllClusterers()[0]);
+        gd.addCheckbox("Create file",false);
         gd.showDialog();
         if(gd.wasCanceled()){
             return false;
@@ -77,6 +79,7 @@ public class Color_Clustering implements PlugIn{
         Vector<CheckboxGroup> radioButtons = gd.getRadioButtonGroups();
         CheckboxGroup checkboxGroup = radioButtons.get(0);
         selectedClusterer = checkboxGroup.getSelectedCheckbox().getLabel();
+        file = checkboxes.get(numChannels).getState();
         if(someSelected){
             IJ.log("Finished getting elements");
             return true;
@@ -87,20 +90,23 @@ public class Color_Clustering implements PlugIn{
     }
 
     public void process(){
-        IJ.log("Starting Processing");
         ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
-        for(int i=0;i<numChannels;++i){
-            if(selectedChannels[i]){
+        for (int i = 0; i < numChannels; ++i) {
+            if (selectedChannels[i]) {
                 ColorClustering.Channel channel = ColorClustering.Channel.fromLabel(ColorClustering.Channel.getAllLabels()[i]);
                 channels.add(channel);
             }
         }
-        ColorClustering colorClustering = new ColorClustering(image,numSamples,channels);
-        AbstractClusterer theClusterer = colorClustering.createClusterer(numClusters,selectedClusterer);
+        ColorClustering colorClustering = new ColorClustering(image, numSamples, channels);
+        AbstractClusterer theClusterer = colorClustering.createClusterer(numClusters, selectedClusterer);
         colorClustering.setTheClusterer(theClusterer);
         FeatureStackArray theFeatures = colorClustering.createFSArray(image);
         ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
         clusteredImage.show();
+        if(file){
+            colorClustering.createFile(image.getShortTitle()+"clustered.arff",colorClustering.getFeaturesInstances());
+        }
+
     }
 
     /**

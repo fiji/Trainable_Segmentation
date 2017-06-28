@@ -4,6 +4,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.io.FileInfo;
+import ij.measure.Calibration;
 import ij.plugin.Converter;
 import ij.process.*;
 import org.apache.commons.math3.analysis.function.Abs;
@@ -352,6 +353,8 @@ public class ColorClustering {
         int height;
         int width;
         int numInstances;
+        Calibration calibration = new Calibration();
+        calibration = image.getCalibration();
         height = theFeatures.getHeight();
         width = theFeatures.getWidth();
         numInstances = height*width;
@@ -398,6 +401,7 @@ public class ColorClustering {
             clusteringResult.addSlice(processor);
         }
         ImagePlus result = new ImagePlus("Clustered image", clusteringResult);
+        result.setCalibration(calibration);
         return result;
     }
 
