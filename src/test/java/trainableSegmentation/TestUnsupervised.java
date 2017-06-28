@@ -36,8 +36,13 @@ public class TestUnsupervised {
         channels.add(ColorClustering.Channel.fromLabel("Brightness"));
         channels.add(ColorClustering.Channel.fromLabel("Saturation"));
         ColorClustering colorClustering = new ColorClustering(image,30, channels);
-        AbstractClusterer kmeans = new SimpleKMeans();
-        AbstractClusterer theClusterer = colorClustering.createClusterer(3,kmeans);
+        SimpleKMeans kmeans = new SimpleKMeans();
+        try {
+            kmeans.setNumClusters(3);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        AbstractClusterer theClusterer = colorClustering.createClusterer(kmeans);
         colorClustering.setTheClusterer(theClusterer);
         colorClustering.createFile("test.arff",colorClustering.getFeaturesInstances());
         FeatureStackArray theFeatures = colorClustering.createFSArray(image);

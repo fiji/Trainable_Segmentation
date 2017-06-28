@@ -35,7 +35,6 @@ public class PixelClustering {
 
 
     private Instances featuresInstances;
-    private int numClusters;//Number of clusters
     private AbstractClusterer selectedClusterer;
 
 
@@ -52,8 +51,7 @@ public class PixelClustering {
      * @param featuresInstances
      * @param numClusters Because it uses K-Means
      */
-    public PixelClustering(Instances featuresInstances,int numClusters, AbstractClusterer clusterer){
-        this.setNumClusters(numClusters);
+    public PixelClustering(Instances featuresInstances, AbstractClusterer clusterer){
         this.setFeaturesInstances(featuresInstances);
         this.setSelectedClusterer(clusterer);
     }
@@ -88,22 +86,6 @@ public class PixelClustering {
      */
     public Instances getFeaturesInstances() {
         return featuresInstances;
-    }
-
-    /**
-     * Set clusterer to be used
-     * @param clusterer
-     */
-    public void setNumClusters(int numClusters) {
-        this.numClusters = numClusters;
-    }
-
-    /**
-     * Get number of clusters
-     * @return
-     */
-    public int getNumClusters() {
-        return numClusters;
     }
 
     public AbstractClusterer getSelectedClusterer() {

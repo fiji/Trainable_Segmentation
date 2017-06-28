@@ -35,10 +35,8 @@ public class Color_Clustering implements PlugIn{
 
     protected ImagePlus image;
     private boolean[] selectedChannels;
-    private int numClusters;
     private int numSamples;
     private int numChannels;
-    private int numClusterers;
     private boolean file=false;
     private AbstractClusterer clusterer;
 
@@ -58,7 +56,6 @@ public class Color_Clustering implements PlugIn{
     private boolean showDialog() {
         boolean someSelected = false;
         GenericDialogPlus gd = new GenericDialogPlus("Clusterize");
-        gd.addNumericField("Number of clusters", 3,0);
         gd.addNumericField("Number of samples",30,0);
         numChannels = ColorClustering.Channel.numChannels();
         selectedChannels = new boolean[numChannels];
@@ -81,7 +78,6 @@ public class Color_Clustering implements PlugIn{
             return false;
         }
 
-        numClusters = (int) gd.getNextNumber();
         numSamples = (int) gd.getNextNumber();
         Vector<Checkbox> checkboxes = gd.getCheckboxes();
 
@@ -129,7 +125,7 @@ public class Color_Clustering implements PlugIn{
             }
         }
         ColorClustering colorClustering = new ColorClustering(image, numSamples, channels);
-        AbstractClusterer theClusterer = colorClustering.createClusterer(numClusters, clusterer);
+        AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
         colorClustering.setTheClusterer(theClusterer);
         FeatureStackArray theFeatures = colorClustering.createFSArray(image);
         ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
