@@ -60,7 +60,7 @@ public class PixelClustering {
      * Builds clusterer based on featuresInstances and number of clusters
      */
     public void buildClusterer(){
-        Random rand = new Random();
+        IJ.log("Building clusterer");
         try {
             selectedClusterer.buildClusterer(featuresInstances);
         } catch (Exception e) {

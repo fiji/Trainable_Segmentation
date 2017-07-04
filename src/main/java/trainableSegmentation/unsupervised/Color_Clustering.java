@@ -64,13 +64,13 @@ public class Color_Clustering implements PlugIn{
                 JSlider slider = (JSlider) samplePanel.getComponent(1);
                 numSamples = (image.getHeight()*image.getWidth()) * slider.getValue() / 100;
                 JTextArea textArea = (JTextArea) samplePanel.getComponent(2);
-                textArea.setText(Integer.toString(slider.getValue()));
+                textArea.setText(Integer.toString(slider.getValue())+"% ("+numSamples+") " + "px");
             }
         };
         ActionListener clusterize = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                IJ.log("Number of selected samples: "+numSamples);
+                boolean someChannelSelected = false;
                 Object c = ( Object ) clustererEditor.getValue();
                 String options = "";
                 String[] optionsArray = ((OptionHandler)c).getOptions();
@@ -86,27 +86,35 @@ public class Color_Clustering implements PlugIn{
                 {
                     IJ.log("Error when setting clusterer");
                 }
-                numSamples=30;
                 selectedChannels = new boolean[numChannels];
                 numChannels = ColorClustering.Channel.numChannels();
                 for(int i=0;i<numChannels;++i){
                     JCheckBox selected = (JCheckBox) channelSelection.getComponent(i);
                     selectedChannels[i] = selected.isSelected();
-                }
-                ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
-                for (int i = 0; i < numChannels; ++i) {
-                    if (selectedChannels[i]) {
-                        ColorClustering.Channel channel = ColorClustering.Channel.fromLabel(ColorClustering.Channel.getAllLabels()[i]);
-                        channels.add(channel);
+                    if(selected.isSelected()&&!someChannelSelected){
+                        someChannelSelected=true;
                     }
                 }
-                ColorClustering colorClustering = new ColorClustering(image, numSamples, channels);
-                AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
-                colorClustering.setTheClusterer(theClusterer);
-                IJ.log(theClusterer.toString());
-                FeatureStackArray theFeatures = colorClustering.createFSArray(image);
-                ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
-                clusteredImage.show();
+                if(someChannelSelected) {
+                    IJ.log("Number of selected samples: "+numSamples);
+                    ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
+                    for (int i = 0; i < numChannels; ++i) {
+                        if (selectedChannels[i]) {
+                            ColorClustering.Channel channel = ColorClustering.Channel.fromLabel(ColorClustering.Channel.getAllLabels()[i]);
+                            channels.add(channel);
+                        }
+                    }
+                    ColorClustering colorClustering = new ColorClustering(image, numSamples, channels);
+                    AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
+                    colorClustering.setTheClusterer(theClusterer);
+                    IJ.log(theClusterer.toString());
+                    FeatureStackArray theFeatures = colorClustering.createFSArray(image);
+                    ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
+                    clusteredImage.show();
+                }else {
+                    JOptionPane warning = new JOptionPane();
+                    warning.showMessageDialog(all,"Choose at least a channel","Warning",JOptionPane.WARNING_MESSAGE);
+                }
 
             }
 
@@ -164,11 +172,11 @@ public class Color_Clustering implements PlugIn{
             }
 
             samplePanel.add(new Label("Select sample percentage:"));
-            JSlider slider = new JSlider(0,100,50);
+            JSlider slider = new JSlider(1,100,50);
             samplePanel.add(slider,1);
             samplePanel.setBorder(BorderFactory.createTitledBorder("Number of Samples"));
             samplePanel.setToolTipText("Select a percentage of pixels to be used when training the clusterer");
-            JTextArea txtNumSamples = new JTextArea("50");
+            JTextArea txtNumSamples = new JTextArea("50% ("+Integer.toString(((image.getHeight()*image.getWidth()) * slider.getValue() / 100))+") px");
             samplePanel.add(txtNumSamples,2);
             slider.addChangeListener(sampleChange);
             all.add(samplePanel,allConstraints);
@@ -219,93 +227,6 @@ public class Color_Clustering implements PlugIn{
             image=IJ.openImage();
         }
         win = new CustomWindow(image);
-
-        /*if(showDialog()){
-            process();
-        }*/
-    }
-
-    private boolean showDialog() {
-        boolean someSelected = false;
-        GenericDialogPlus gd = new GenericDialogPlus("Clusterize");
-        gd.addNumericField("Number of samples",30,0);
-        numChannels = ColorClustering.Channel.numChannels();
-        selectedChannels = new boolean[numChannels];
-        for(int i=0;i<numChannels;++i){
-            selectedChannels[i]=false;
-        }
-        gd.addCheckboxGroup(3,numChannels / 3,ColorClustering.Channel.getAllLabels(),selectedChannels);
-
-        clusterer = new SimpleKMeans();
-        GenericObjectEditor clustererEditor = new GenericObjectEditor();
-        PropertyPanel clustererEditorPanel = new PropertyPanel( clustererEditor );
-        clustererEditor.setClassType( Clusterer.class );
-        clustererEditor.setValue( clusterer );
-        gd.addComponent( clustererEditorPanel,  GridBagConstraints.HORIZONTAL , 1 );
-
-        gd.addCheckbox("Save instances to a file",false);
-        gd.showDialog();
-
-        if(gd.wasCanceled()){
-            return false;
-        }
-
-        numSamples = (int) gd.getNextNumber();
-        Vector<Checkbox> checkboxes = gd.getCheckboxes();
-
-        for(int i=0;i<numChannels;++i){
-            selectedChannels[i] = checkboxes.get(i).getState();
-            if(checkboxes.get(i).getState()){
-                someSelected=true;
-            }
-        }
-
-        Object c = ( Object ) clustererEditor.getValue();
-        String options = "";
-        String[] optionsArray = ((OptionHandler)c).getOptions();
-        if ( c instanceof OptionHandler )
-        {
-            options = Utils.joinOptions( optionsArray );
-        }
-        try{
-            clusterer = (AbstractClusterer) (c.getClass().newInstance());
-            clusterer.setOptions( optionsArray );
-        }
-        catch(Exception ex)
-        {
-            IJ.log("Error when setting clusterer");
-            return false;
-        }
-
-        file = checkboxes.get(numChannels).getState();
-
-        if(someSelected){
-            IJ.log("Finished getting elements");
-            return true;
-        }else{
-            IJ.log("Select at least a channel");
-            return false;
-        }
-    }
-
-    public void process(){
-        ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
-        for (int i = 0; i < numChannels; ++i) {
-            if (selectedChannels[i]) {
-                ColorClustering.Channel channel = ColorClustering.Channel.fromLabel(ColorClustering.Channel.getAllLabels()[i]);
-                channels.add(channel);
-            }
-        }
-        ColorClustering colorClustering = new ColorClustering(image, numSamples, channels);
-        AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
-        colorClustering.setTheClusterer(theClusterer);
-        IJ.log(theClusterer.toString());
-        FeatureStackArray theFeatures = colorClustering.createFSArray(image);
-        ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
-        clusteredImage.show();
-        if(file){
-            colorClustering.createFile(image.getShortTitle()+"clustered.arff",colorClustering.getFeaturesInstances());
-        }
 
     }
 
