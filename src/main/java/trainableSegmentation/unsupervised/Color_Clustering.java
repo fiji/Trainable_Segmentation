@@ -177,6 +177,7 @@ public class Color_Clustering implements PlugIn{
             samplePanel.setBorder(BorderFactory.createTitledBorder("Number of Samples"));
             samplePanel.setToolTipText("Select a percentage of pixels to be used when training the clusterer");
             JTextArea txtNumSamples = new JTextArea("50% ("+Integer.toString(((image.getHeight()*image.getWidth()) * slider.getValue() / 100))+") px");
+            numSamples=image.getHeight()*image.getWidth()* slider.getValue() / 100;
             samplePanel.add(txtNumSamples,2);
             slider.addChangeListener(sampleChange);
             all.add(samplePanel,allConstraints);
