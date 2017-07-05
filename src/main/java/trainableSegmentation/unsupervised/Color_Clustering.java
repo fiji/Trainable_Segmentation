@@ -1,5 +1,7 @@
 package trainableSegmentation.unsupervised;
 
+
+
 import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
 import ij.ImageJ;
@@ -62,7 +64,7 @@ public class Color_Clustering implements PlugIn{
             @Override
             public void stateChanged(ChangeEvent e) {
                 JSlider slider = (JSlider) samplePanel.getComponent(1);
-                numSamples = (image.getHeight()*image.getWidth()) * slider.getValue() / 100;
+                numSamples = ((image.getHeight()*image.getWidth())*image.getNSlices()) * slider.getValue() / 100;
                 JTextArea textArea = (JTextArea) samplePanel.getComponent(2);
                 textArea.setText(Integer.toString(slider.getValue())+"% ("+numSamples+") " + "px");
             }
@@ -70,6 +72,7 @@ public class Color_Clustering implements PlugIn{
         ActionListener clusterize = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                JOptionPane warning = new JOptionPane();
                 boolean someChannelSelected = false;
                 Object c = ( Object ) clustererEditor.getValue();
                 String options = "";
@@ -112,7 +115,6 @@ public class Color_Clustering implements PlugIn{
                     ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
                     clusteredImage.show();
                 }else {
-                    JOptionPane warning = new JOptionPane();
                     warning.showMessageDialog(all,"Choose at least a channel","Warning",JOptionPane.WARNING_MESSAGE);
                 }
 
@@ -177,12 +179,11 @@ public class Color_Clustering implements PlugIn{
             samplePanel.setBorder(BorderFactory.createTitledBorder("Number of Samples"));
             samplePanel.setToolTipText("Select a percentage of pixels to be used when training the clusterer");
             JTextArea txtNumSamples = new JTextArea("50% ("+Integer.toString(((image.getHeight()*image.getWidth()) * slider.getValue() / 100))+") px");
-            numSamples=image.getHeight()*image.getWidth()* slider.getValue() / 100;
+            numSamples=((image.getHeight()*image.getWidth())*image.getNSlices()) * slider.getValue() / 100;
             samplePanel.add(txtNumSamples,2);
             slider.addChangeListener(sampleChange);
             all.add(samplePanel,allConstraints);
             allConstraints.gridy++;
-
 
             clusterer = new SimpleKMeans();
             PropertyPanel clustererEditorPanel = new PropertyPanel( clustererEditor );
@@ -190,7 +191,7 @@ public class Color_Clustering implements PlugIn{
             clustererEditor.setValue( clusterer );
             clusterizerSelection.add(clustererEditorPanel);
             clusterizerSelection.setBorder(BorderFactory.createTitledBorder("Clusterer"));
-            clusterizerSelection.setToolTipText("Choose clusterere to be used");
+            clusterizerSelection.setToolTipText("Choose clusterer to be used");
             all.add(clusterizerSelection,allConstraints);
             allConstraints.gridy++;
 
@@ -227,6 +228,7 @@ public class Color_Clustering implements PlugIn{
         if(image == null){
             image=IJ.openImage();
         }
+        IJ.log("Loading GUI");
         win = new CustomWindow(image);
 
     }

@@ -153,6 +153,9 @@ public class ColorClustering {
      * Creates features based on selected channels, uses private variables.
      */
     public void createFeatures(){
+        IJ.log("Creating Features");
+        int numSlices = image.getNSlices();
+        int samplesPerSlice = numSamples/numSlices;
         for(int slice = 1; slice <= image.getStackSize(); ++slice){
             boolean labactive=false,rgbactive=false,hsbactive=false;
             ImageConverter ic,ic2;
@@ -249,7 +252,7 @@ public class ColorClustering {
                 }
             }
             Collections.shuffle(positions);
-            for(int i=0;i<numSamples;++i){
+            for(int i=0;i<samplesPerSlice;++i){
                 featuresInstances.add(featureStackArray.get(slice-1).createInstance(positions.get(i).x,positions.get(i).y));
                 //IJ.log("Position:"+positions.get(i).toString()+";"+ featureStackArray.get(slice-1).createInstance(positions.get(i).x,positions.get(i).y).toString());//this values are wrong
                 //IJ.log("Added element "+i+" from coordinates "+positions.get(i).x+","+positions.get(i).y);
@@ -263,6 +266,7 @@ public class ColorClustering {
      * @return
      */
     public FeatureStackArray createFSArray(ImagePlus image){
+        IJ.log("Creating Feature Stack Array");
         int height;
         int width;
         int numInstances;
@@ -350,6 +354,7 @@ public class ColorClustering {
      * @return
      */
     public ImagePlus createClusteredImage(FeatureStackArray theFeatures){
+        IJ.log("Creating clustered Image");
         int height;
         int width;
         int numInstances;
@@ -412,6 +417,7 @@ public class ColorClustering {
      * @param theInstances
      */
     public void createFile(String name, Instances theInstances){
+        IJ.log("Creating file");
         BufferedWriter out = null;
         try{
             out = new BufferedWriter(
