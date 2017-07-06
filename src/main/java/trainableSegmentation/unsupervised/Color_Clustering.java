@@ -1,5 +1,6 @@
 package trainableSegmentation.unsupervised;
 
+
 import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
 import ij.ImageJ;
@@ -23,6 +24,7 @@ import weka.clusterers.SimpleKMeans;
 import weka.core.Check;
 import weka.core.OptionHandler;
 import weka.core.Utils;
+import weka.core.stopwords.Null;
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyPanel;
 
@@ -50,6 +52,7 @@ public class Color_Clustering implements PlugIn{
     private boolean file=false;
     private AbstractClusterer clusterer;
     ImagePlus displayImage = null;
+    private Thread currentTask=null;
 
     private CustomWindow win;
 
@@ -61,10 +64,19 @@ public class Color_Clustering implements PlugIn{
         private JPanel executor = new JPanel();
         private JPanel samplePanel = new JPanel();
         private GenericObjectEditor clustererEditor = new GenericObjectEditor();
+        private JButton clusterizeButton = null;
+        private boolean warned=false;
 
         ChangeListener sampleChange = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
+                JOptionPane warning = new JOptionPane();
+                if(!warned&&numSamples>1000000){
+                    warning.showMessageDialog(all, "Pixel count very high!", "Warning", JOptionPane.WARNING_MESSAGE);
+                    warned=true;
+                }else if(warned&&numSamples<1000000){
+                    warned=false;
+                }
                 JSlider slider = (JSlider) samplePanel.getComponent(1);
                 numSamples = ((image.getHeight()*image.getWidth())*image.getNSlices()) * slider.getValue() / 100;
                 JTextArea textArea = (JTextArea) samplePanel.getComponent(2);
@@ -75,66 +87,10 @@ public class Color_Clustering implements PlugIn{
         ActionListener clusterize = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
-                        JOptionPane warning = new JOptionPane();
-                        boolean someChannelSelected = false;
-                        Object c = (Object) clustererEditor.getValue();
-                        String options = "";
-                        String[] optionsArray = ((OptionHandler) c).getOptions();
-                        if (c instanceof OptionHandler)
-
-                        {
-                            options = Utils.joinOptions(optionsArray);
-                        }
-                        try
-
-                        {
-                            clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                            clusterer.setOptions(optionsArray);
-                        } catch (
-                                Exception ex)
-
-                        {
-                            IJ.log("Error when setting clusterer");
-                        }
-
-                        selectedChannels = new boolean[numChannels];
-                        numChannels = ColorClustering.Channel.numChannels();
-                        for (
-                                int i = 0;
-                                i < numChannels; ++i)
-
-                        {
-                            JCheckBox selected = (JCheckBox) channelSelection.getComponent(i);
-                            selectedChannels[i] = selected.isSelected();
-                            if (selected.isSelected() && !someChannelSelected) {
-                                someChannelSelected = true;
-                            }
-                        }
-                        if (someChannelSelected)
-
-                        {
-                            IJ.log("Number of selected samples: " + numSamples);
-                            ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
-                            for (int i = 0; i < numChannels; ++i) {
-                                if (selectedChannels[i]) {
-                                    ColorClustering.Channel channel = ColorClustering.Channel.fromLabel(ColorClustering.Channel.getAllLabels()[i]);
-                                    channels.add(channel);
-                                }
-                            }
-                            ColorClustering colorClustering = new ColorClustering(image, numSamples, channels);
-                            AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
-                            colorClustering.setTheClusterer(theClusterer);
-                            IJ.log(theClusterer.toString());
-                            FeatureStackArray theFeatures = colorClustering.createFSArray(image);
-                            ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
-                            clusteredImage.show();
-                        } else
-
-                        {
-                            warning.showMessageDialog(all, "Choose at least a channel", "Warning", JOptionPane.WARNING_MESSAGE);
-                        }
+                        clusterizeOrStop(command);
                     }
                 });
             }
@@ -213,12 +169,12 @@ public class Color_Clustering implements PlugIn{
             all.add(clusterizerSelection,allConstraints);
             allConstraints.gridy++;
 
-            JButton execute = new JButton("Clusterize!");
-            executor.add(execute);
-            execute.setToolTipText("Clusterize the image!");
+            clusterizeButton = new JButton("Clusterize");
+            executor.add(clusterizeButton);
+            clusterizeButton.setToolTipText("Clusterize the image!");
             all.add(executor,allConstraints);
 
-            execute.addActionListener(clusterize);
+            clusterizeButton.addActionListener(clusterize);
 
 
 
@@ -236,6 +192,88 @@ public class Color_Clustering implements PlugIn{
             setMinimumSize( getPreferredSize() );
 
         }
+
+        void clusterizeOrStop(String command){
+            IJ.log("Command: "+command);
+            if(command.equals("Clusterize")){
+                clusterizeButton.setText("STOP");
+
+                Thread newTask = new Thread() {
+
+                    public void run() {
+                        JOptionPane warning = new JOptionPane();
+                        boolean someChannelSelected = false;
+                        Object c = (Object) clustererEditor.getValue();
+                        String options = "";
+                        String[] optionsArray = ((OptionHandler) c).getOptions();
+                        if (c instanceof OptionHandler)
+
+                        {
+                            options = Utils.joinOptions(optionsArray);
+                        }
+                        try
+
+                        {
+                            clusterer = (AbstractClusterer) (c.getClass().newInstance());
+                            clusterer.setOptions(optionsArray);
+                        } catch (
+                                Exception ex)
+
+                        {
+                            clusterizeButton.setText("Clusterize");
+                            IJ.log("Error when setting clusterer");
+                        }
+
+                        selectedChannels = new boolean[numChannels];
+                        numChannels = ColorClustering.Channel.numChannels();
+                        for (
+                                int i = 0;
+                                i < numChannels; ++i)
+
+                        {
+                            JCheckBox selected = (JCheckBox) channelSelection.getComponent(i);
+                            selectedChannels[i] = selected.isSelected();
+                            if (selected.isSelected() && !someChannelSelected) {
+                                someChannelSelected = true;
+                            }
+                        }
+                        if (someChannelSelected)
+
+                        {
+                            IJ.log("Number of selected samples: " + numSamples);
+                            ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
+                            for (int i = 0; i < numChannels; ++i) {
+                                if (selectedChannels[i]) {
+                                    ColorClustering.Channel channel = ColorClustering.Channel.fromLabel(ColorClustering.Channel.getAllLabels()[i]);
+                                    channels.add(channel);
+                                }
+                            }
+                            ColorClustering colorClustering = new ColorClustering(image, numSamples, channels);
+                            AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
+                            colorClustering.setTheClusterer(theClusterer);
+                            IJ.log(theClusterer.toString());
+                            FeatureStackArray theFeatures = colorClustering.createFSArray(image);
+                            ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
+                            clusteredImage.show();
+                            clusterizeButton.setText("Clusterize");
+                        } else
+
+                        {
+                            warning.showMessageDialog(all, "Choose at least a channel", "Warning", JOptionPane.WARNING_MESSAGE);
+                            clusterizeButton.setText("Clusterize");
+                        }
+                    }
+                };
+                currentTask = newTask;
+                IJ.log(newTask.toString()+"///"+currentTask.toString());
+                newTask.start();
+            }else if(command.equals("STOP")){
+                IJ.log("Clusterization stopped by user");
+                clusterizeButton.setText("Clusterize");
+                currentTask.interrupt();
+            }
+        }
+
     }
 
 
@@ -266,4 +304,5 @@ public class Color_Clustering implements PlugIn{
         IJ.runPlugIn(clazz.getName(),"");
 
     }
+
 }
