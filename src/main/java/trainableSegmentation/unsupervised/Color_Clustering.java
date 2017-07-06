@@ -1,7 +1,5 @@
 package trainableSegmentation.unsupervised;
 
-
-
 import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
 import ij.ImageJ;
@@ -38,9 +36,13 @@ import java.nio.channels.Channel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Color_Clustering implements PlugIn{
 
+
+    private final ExecutorService exec = Executors.newFixedThreadPool(1);
     protected ImagePlus image;
     private boolean[] selectedChannels;
     private int numSamples;
@@ -69,57 +71,73 @@ public class Color_Clustering implements PlugIn{
                 textArea.setText(Integer.toString(slider.getValue())+"% ("+numSamples+") " + "px");
             }
         };
+
         ActionListener clusterize = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane warning = new JOptionPane();
-                boolean someChannelSelected = false;
-                Object c = ( Object ) clustererEditor.getValue();
-                String options = "";
-                String[] optionsArray = ((OptionHandler)c).getOptions();
-                if ( c instanceof OptionHandler )
-                {
-                    options = Utils.joinOptions( optionsArray );
-                }
-                try{
-                    clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                    clusterer.setOptions( optionsArray );
-                }
-                catch(Exception ex)
-                {
-                    IJ.log("Error when setting clusterer");
-                }
-                selectedChannels = new boolean[numChannels];
-                numChannels = ColorClustering.Channel.numChannels();
-                for(int i=0;i<numChannels;++i){
-                    JCheckBox selected = (JCheckBox) channelSelection.getComponent(i);
-                    selectedChannels[i] = selected.isSelected();
-                    if(selected.isSelected()&&!someChannelSelected){
-                        someChannelSelected=true;
-                    }
-                }
-                if(someChannelSelected) {
-                    IJ.log("Number of selected samples: "+numSamples);
-                    ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
-                    for (int i = 0; i < numChannels; ++i) {
-                        if (selectedChannels[i]) {
-                            ColorClustering.Channel channel = ColorClustering.Channel.fromLabel(ColorClustering.Channel.getAllLabels()[i]);
-                            channels.add(channel);
+                exec.submit(new Runnable() {
+                    public void run() {
+                        JOptionPane warning = new JOptionPane();
+                        boolean someChannelSelected = false;
+                        Object c = (Object) clustererEditor.getValue();
+                        String options = "";
+                        String[] optionsArray = ((OptionHandler) c).getOptions();
+                        if (c instanceof OptionHandler)
+
+                        {
+                            options = Utils.joinOptions(optionsArray);
+                        }
+                        try
+
+                        {
+                            clusterer = (AbstractClusterer) (c.getClass().newInstance());
+                            clusterer.setOptions(optionsArray);
+                        } catch (
+                                Exception ex)
+
+                        {
+                            IJ.log("Error when setting clusterer");
+                        }
+
+                        selectedChannels = new boolean[numChannels];
+                        numChannels = ColorClustering.Channel.numChannels();
+                        for (
+                                int i = 0;
+                                i < numChannels; ++i)
+
+                        {
+                            JCheckBox selected = (JCheckBox) channelSelection.getComponent(i);
+                            selectedChannels[i] = selected.isSelected();
+                            if (selected.isSelected() && !someChannelSelected) {
+                                someChannelSelected = true;
+                            }
+                        }
+                        if (someChannelSelected)
+
+                        {
+                            IJ.log("Number of selected samples: " + numSamples);
+                            ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
+                            for (int i = 0; i < numChannels; ++i) {
+                                if (selectedChannels[i]) {
+                                    ColorClustering.Channel channel = ColorClustering.Channel.fromLabel(ColorClustering.Channel.getAllLabels()[i]);
+                                    channels.add(channel);
+                                }
+                            }
+                            ColorClustering colorClustering = new ColorClustering(image, numSamples, channels);
+                            AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
+                            colorClustering.setTheClusterer(theClusterer);
+                            IJ.log(theClusterer.toString());
+                            FeatureStackArray theFeatures = colorClustering.createFSArray(image);
+                            ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
+                            clusteredImage.show();
+                        } else
+
+                        {
+                            warning.showMessageDialog(all, "Choose at least a channel", "Warning", JOptionPane.WARNING_MESSAGE);
                         }
                     }
-                    ColorClustering colorClustering = new ColorClustering(image, numSamples, channels);
-                    AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
-                    colorClustering.setTheClusterer(theClusterer);
-                    IJ.log(theClusterer.toString());
-                    FeatureStackArray theFeatures = colorClustering.createFSArray(image);
-                    ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
-                    clusteredImage.show();
-                }else {
-                    warning.showMessageDialog(all,"Choose at least a channel","Warning",JOptionPane.WARNING_MESSAGE);
-                }
-
+                });
             }
-
         };
 
         CustomWindow(ImagePlus imp) {
