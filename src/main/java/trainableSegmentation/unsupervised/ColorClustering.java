@@ -143,7 +143,8 @@ public class ColorClustering {
      */
     public AbstractClusterer createClusterer(AbstractClusterer selectedClusterer){
         PixelClustering pixelClustering = new PixelClustering(this.getFeaturesInstances(),selectedClusterer);
-        pixelClustering.buildClusterer();
+
+            pixelClustering.buildClusterer();
         AbstractClusterer clusterer = pixelClustering.getSelectedClusterer();
         return clusterer;
     }
@@ -381,7 +382,7 @@ public class ColorClustering {
                     //IJ.log("Adding extra attribute original_neighbor_" + (i+1) + "...");
                     attributes.add( new Attribute( new String( "original_neighbor_" + (i+1) ) ) );
                 }
-            instances = new Instances("segment", attributes, 1);
+            instances = new Instances(image.getTitle()+"-features", attributes, 1);
             final double[] values = new double[features.getSize()];
             final ReusableDenseInstance ins = new ReusableDenseInstance(1.0,values);
             ins.setDataset(instances);

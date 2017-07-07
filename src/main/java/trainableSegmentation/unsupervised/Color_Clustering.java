@@ -34,6 +34,7 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.nio.channels.Channel;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class Color_Clustering implements PlugIn{
 
 
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
-    protected ImagePlus image;
+    protected ImagePlus image=null;
     private boolean[] selectedChannels;
     private int numSamples;
     private int numChannels;
@@ -53,8 +54,10 @@ public class Color_Clustering implements PlugIn{
     private AbstractClusterer clusterer;
     ImagePlus displayImage = null;
     private Thread currentTask=null;
-
+    private ImagePlus clusteredImage=null;
     private CustomWindow win;
+
+    //Morph segm, window closing, check overlay and title
 
     private class CustomWindow extends StackWindow
     {
@@ -66,6 +69,7 @@ public class Color_Clustering implements PlugIn{
         private GenericObjectEditor clustererEditor = new GenericObjectEditor();
         private JButton clusterizeButton = null;
         private boolean warned=false;
+        private JSlider slider;
 
         ChangeListener sampleChange = new ChangeListener() {
             @Override
@@ -90,7 +94,9 @@ public class Color_Clustering implements PlugIn{
                 String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
-                        clusterizeOrStop(command);
+                        if(e.getSource()==clusterizeButton) {
+                            clusterizeOrStop(command);
+                        }
                     }
                 });
             }
@@ -145,10 +151,10 @@ public class Color_Clustering implements PlugIn{
                     allConstraints.gridy++;
                 }
 
-            }
+            } //Add listener para cambiar overlay, como en morph (mouse, wheel key etc)
 
             samplePanel.add(new Label("Select sample percentage:"));
-            JSlider slider = new JSlider(1,100,50);
+            slider = new JSlider(1,100,50);
             samplePanel.add(slider,1);
             samplePanel.setBorder(BorderFactory.createTitledBorder("Number of Samples"));
             samplePanel.setToolTipText("Select a percentage of pixels to be used when training the clusterer");
@@ -197,10 +203,20 @@ public class Color_Clustering implements PlugIn{
             IJ.log("Command: "+command);
             if(command.equals("Clusterize")){
                 clusterizeButton.setText("STOP");
-
+                final Thread oldTask = currentTask;
                 Thread newTask = new Thread() {
 
                     public void run() {
+
+                        if (null != oldTask)
+                        {
+                            try {
+                                IJ.log("Waiting for old task to finish...");
+                                oldTask.join();
+                            }
+                            catch (InterruptedException ie)	{ IJ.log("interrupted"); }
+                        }
+                        //cambiar IJ.error
                         JOptionPane warning = new JOptionPane();
                         boolean someChannelSelected = false;
                         Object c = (Object) clustererEditor.getValue();
@@ -253,7 +269,7 @@ public class Color_Clustering implements PlugIn{
                             colorClustering.setTheClusterer(theClusterer);
                             IJ.log(theClusterer.toString());
                             FeatureStackArray theFeatures = colorClustering.createFSArray(image);
-                            ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
+                            clusteredImage = colorClustering.createClusteredImage(theFeatures);
                             clusteredImage.show();
                             clusterizeButton.setText("Clusterize");
                         } else
@@ -265,12 +281,16 @@ public class Color_Clustering implements PlugIn{
                     }
                 };
                 currentTask = newTask;
-                IJ.log(newTask.toString()+"///"+currentTask.toString());
                 newTask.start();
             }else if(command.equals("STOP")){
                 IJ.log("Clusterization stopped by user");
                 clusterizeButton.setText("Clusterize");
-                currentTask.interrupt();
+                if(null != currentTask) {
+                    currentTask.interrupt();//Should use interrupt but weka does not support interrupt handling.
+                    currentTask.stop();//Interrupt is being used
+                }else{
+                    IJ.log("Error: Interrupting failed because thread was null");
+                }
             }
         }
 
@@ -284,7 +304,7 @@ public class Color_Clustering implements PlugIn{
         if(image == null){
             image=IJ.openImage();
         }
-        IJ.log("Loading GUI");
+        IJ.log("Loading Weka properties");
         win = new CustomWindow(image);
 
     }

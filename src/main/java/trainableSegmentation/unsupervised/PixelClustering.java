@@ -63,8 +63,11 @@ public class PixelClustering {
         IJ.log("Building clusterer");
         try {
             selectedClusterer.buildClusterer(featuresInstances);
+        } catch (InterruptedException ie) {
+            IJ.log("Clusterer building was interrupted");
         } catch (Exception e) {
-            IJ.log("Error when building clusterer");
+            IJ.log(e.getMessage());
+            e.printStackTrace();
         }
 
     }
