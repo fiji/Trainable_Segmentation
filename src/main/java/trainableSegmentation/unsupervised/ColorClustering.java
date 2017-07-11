@@ -121,7 +121,7 @@ public class ColorClustering {
 
 
     /**
-     * Creates ColorClustering, sets image, number of samples and creates featureStackArray accordig to selected channels.
+     * Creates color clustering object based on image, number of samples and selected channels. Creates the features.
      * @param image
      * @param numSamples
      * @param selectedChannels
@@ -413,7 +413,7 @@ public class ColorClustering {
 
 
     /**
-     * Creates file with provided name based on provided instances.
+     * Creates file of features with provided name.
      * @param name
      * @param theInstances
      */

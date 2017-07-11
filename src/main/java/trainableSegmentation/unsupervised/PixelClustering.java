@@ -91,10 +91,18 @@ public class PixelClustering {
         return featuresInstances;
     }
 
+    /**
+     * Get selected clusterer
+     * @return
+     */
     public AbstractClusterer getSelectedClusterer() {
         return selectedClusterer;
     }
 
+    /**
+     * Set selected clusterer
+     * @param selectedClusterer
+     */
     public void setSelectedClusterer(AbstractClusterer selectedClusterer) {
         this.selectedClusterer = selectedClusterer;
     }

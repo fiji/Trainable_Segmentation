@@ -41,8 +41,10 @@ public class Color_Clustering implements PlugIn{
     private CustomWindow win;
     private boolean overlayEnabled = false;
 
-    //Morph segm, window closing, check overlay and title
 
+    /**
+     * Custom window based on JPanel structures
+     */
     private class CustomWindow extends StackWindow
     {
         private Panel all = new Panel();
@@ -57,6 +59,9 @@ public class Color_Clustering implements PlugIn{
         private JSlider pixelSlider;
         private JSlider opacitySlider;
 
+        /**
+         * Change listener for sample pixel count
+         */
         ChangeListener sampleChange = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -72,6 +77,9 @@ public class Color_Clustering implements PlugIn{
                 textArea.setText(Integer.toString(slider.getValue())+"% ("+numSamples+") " + "px");
             }
         };
+        /**
+         * Change listener for overlay opacity percentage
+         */
         ChangeListener opacityChange = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -79,6 +87,9 @@ public class Color_Clustering implements PlugIn{
             }
         };
 
+        /**
+         * Action listener for clusterize button
+         */
         ActionListener clusterize = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -93,6 +104,9 @@ public class Color_Clustering implements PlugIn{
             }
         };
 
+        /**
+         * Action listener for overlay button
+         */
         ActionListener overlay = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -116,6 +130,9 @@ public class Color_Clustering implements PlugIn{
             }
         };
 
+        /**
+         * Update the overlay
+         */
         void updateResultOverlay()
         {
             if( null != clusteredImage )
@@ -129,6 +146,10 @@ public class Color_Clustering implements PlugIn{
             }
         }
 
+        /**
+         * Custom window creator
+         * @param imp
+         */
         CustomWindow(ImagePlus imp) {
             super(imp, new ImageCanvas(imp));
             final ImageCanvas canvas = (ImageCanvas) getCanvas();
@@ -321,23 +342,11 @@ public class Color_Clustering implements PlugIn{
 
         }
 
-        @Override
-        public void windowClosing(WindowEvent e) {
-            super.windowClosing(e);
-            if(null != image){
-                if(null != displayImage){
-                    image.setSlice(displayImage.getCurrentSlice());
-                }
-                image.getWindow().setVisible(true);
-            }
-            clusterizeButton.removeActionListener(clusterize);
-            pixelSlider.removeChangeListener(sampleChange);
-            if(null != displayImage){
-                displayImage=null;
-            }
-            exec.shutdownNow();
-        }
 
+        /**
+         * Based on command clusterize image or stop clusterization procedure
+         * @param command
+         */
         void clusterizeOrStop(String command){
             IJ.log("Command: "+command);
             if(command.equals("Clusterize")){
@@ -435,6 +444,10 @@ public class Color_Clustering implements PlugIn{
     }
 
 
+    /**
+     * Run function for plug-in
+     * @param s
+     */
     @Override
     public void run(String s) {
 
