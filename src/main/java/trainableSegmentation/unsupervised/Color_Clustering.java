@@ -33,13 +33,13 @@ public class Color_Clustering implements PlugIn{
     private boolean[] selectedChannels;
     private int numSamples;
     private int numChannels;
-    private boolean file=false;
     private AbstractClusterer clusterer;
     ImagePlus displayImage = null;
     private Thread currentTask=null;
     private ImagePlus clusteredImage=null;
     private CustomWindow win;
     private boolean overlayEnabled = false;
+    private ColorClustering colorClustering = null;
 
 
     /**
@@ -55,6 +55,7 @@ public class Color_Clustering implements PlugIn{
         private GenericObjectEditor clustererEditor = new GenericObjectEditor();
         private JButton clusterizeButton = null;
         private JButton toggleOverlay = null;
+        private JButton createFile = null;
         private boolean warned=false;
         private JSlider pixelSlider;
         private JSlider opacitySlider;
@@ -99,6 +100,20 @@ public class Color_Clustering implements PlugIn{
                         if(e.getSource()==clusterizeButton) {
                             clusterizeOrStop(command);
                         }
+                    }
+                });
+            }
+        };
+        /**
+         * Action listener for file creation button
+         */
+        ActionListener fileCreation = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String command = e.getActionCommand();
+                exec.submit(new Runnable() {
+                    public void run() {
+                        colorClustering.createFile(image.getShortTitle()+"_clusterized.arff",colorClustering.getFeaturesInstances());
                     }
                 });
             }
@@ -227,6 +242,12 @@ public class Color_Clustering implements PlugIn{
             clusterizeButton.setToolTipText("Clusterize the image!");
 
             clusterizeButton.addActionListener(clusterize);
+
+            createFile = new JButton("Create File");
+            createFile.setToolTipText("Create a file");
+            createFile.setEnabled(false);
+            createFile.addActionListener(fileCreation);
+            executor.add(createFile);
 
             toggleOverlay = new JButton("Overlay");
             executor.add(toggleOverlay);
@@ -411,7 +432,7 @@ public class Color_Clustering implements PlugIn{
                                     channels.add(channel);
                                 }
                             }
-                            ColorClustering colorClustering = new ColorClustering(image, numSamples, channels);
+                            colorClustering = new ColorClustering(image, numSamples, channels);
                             AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
                             colorClustering.setTheClusterer(theClusterer);
                             IJ.log(theClusterer.toString());
@@ -421,6 +442,9 @@ public class Color_Clustering implements PlugIn{
                             clusterizeButton.setText("Clusterize");
                             if(!toggleOverlay.isEnabled()){
                                 toggleOverlay.setEnabled(true);
+                            }
+                            if(!createFile.isEnabled()){
+                                createFile.setEnabled(true);
                             }
                         } else
 
