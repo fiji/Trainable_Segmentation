@@ -161,7 +161,7 @@ public class Color_Clustering implements PlugIn{
             GridBagLayout layout = new GridBagLayout();
             GridBagConstraints allConstraints = new GridBagConstraints();
             all.setLayout(layout);
-            allConstraints.anchor = GridBagConstraints.NORTHWEST;
+            allConstraints.anchor = GridBagConstraints.NORTH;
             allConstraints.fill = GridBagConstraints.BOTH;
             allConstraints.gridwidth = 1;
             allConstraints.gridheight = 1;
@@ -174,7 +174,6 @@ public class Color_Clustering implements PlugIn{
             all.add(channelSelection,allConstraints);
 
             allConstraints.gridy++;
-
             all.add(canvas,allConstraints);
             allConstraints.gridy++;
             // if the input image is 3d, put the
@@ -233,6 +232,7 @@ public class Color_Clustering implements PlugIn{
             executor.add(toggleOverlay);
             toggleOverlay.setToolTipText("Toggle result image overlay!");
             toggleOverlay.addActionListener(overlay);
+            toggleOverlay.setEnabled(false);
 
             opacitySlider = new JSlider(0,100,50);
             executor.add(new Label("Select overlay opacity:"));
@@ -246,7 +246,7 @@ public class Color_Clustering implements PlugIn{
 
             GridBagLayout wingb = new GridBagLayout();
             GridBagConstraints winc = new GridBagConstraints();
-            winc.anchor = GridBagConstraints.NORTHWEST;
+            winc.anchor = GridBagConstraints.NORTH;
             winc.fill = GridBagConstraints.BOTH;
             winc.weightx = 0;
             winc.weighty = 0;
@@ -419,6 +419,9 @@ public class Color_Clustering implements PlugIn{
                             clusteredImage = colorClustering.createClusteredImage(theFeatures);
                             clusteredImage.show();
                             clusterizeButton.setText("Clusterize");
+                            if(!toggleOverlay.isEnabled()){
+                                toggleOverlay.setEnabled(true);
+                            }
                         } else
 
                         {
