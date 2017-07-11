@@ -6,9 +6,7 @@ import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.WindowManager;
-import ij.gui.GenericDialog;
-import ij.gui.ImageCanvas;
-import ij.gui.StackWindow;
+import ij.gui.*;
 import ij.plugin.PlugIn;
 import ij.process.ImageProcessor;
 import javafx.scene.control.CheckBox;
@@ -68,15 +66,15 @@ public class Color_Clustering implements PlugIn{
         private JPanel samplePanel = new JPanel();
         private GenericObjectEditor clustererEditor = new GenericObjectEditor();
         private JButton clusterizeButton = null;
+        private JButton toggleOverlay = null;
         private boolean warned=false;
         private JSlider slider;
 
         ChangeListener sampleChange = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                JOptionPane warning = new JOptionPane();
                 if(!warned&&numSamples>1000000){
-                    warning.showMessageDialog(all, "Pixel count very high!", "Warning", JOptionPane.WARNING_MESSAGE);
+                    IJ.error("Warning","Pixel count very high!");
                     warned=true;
                 }else if(warned&&numSamples<1000000){
                     warned=false;
@@ -101,6 +99,36 @@ public class Color_Clustering implements PlugIn{
                 });
             }
         };
+
+        ActionListener overlay = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String command = e.getActionCommand();
+                exec.submit(new Runnable() {
+                    public void run() {
+                        if(e.getSource()==toggleOverlay) {
+                            updateResultOverlay();
+                        }
+                    }
+                });
+            }
+        };
+
+        void updateResultOverlay()
+        {
+            if( null != clusteredImage )
+            {
+                IJ.log("Setting overlay!");
+                int slice = image.getCurrentSlice();
+
+                ImageRoi roi = null;
+
+                roi = new ImageRoi(0, 0, clusteredImage.getImageStack().getProcessor( slice ) );
+                roi.setOpacity( 0.5 );
+
+                image.setOverlay( new Overlay( roi ) );
+            }
+        }
 
         CustomWindow(ImagePlus imp) {
             super(imp, new ImageCanvas(imp));
@@ -178,10 +206,16 @@ public class Color_Clustering implements PlugIn{
             clusterizeButton = new JButton("Clusterize");
             executor.add(clusterizeButton);
             clusterizeButton.setToolTipText("Clusterize the image!");
-            all.add(executor,allConstraints);
 
             clusterizeButton.addActionListener(clusterize);
 
+            toggleOverlay = new JButton("Overlay");
+            executor.add(toggleOverlay);
+            toggleOverlay.setToolTipText("Toggle result image overlay!");
+            toggleOverlay.addActionListener(overlay);
+
+
+            all.add(executor,allConstraints);
 
 
             GridBagLayout wingb = new GridBagLayout();
@@ -197,6 +231,23 @@ public class Color_Clustering implements PlugIn{
             pack();
             setMinimumSize( getPreferredSize() );
 
+        }
+
+        @Override
+        public void windowClosing(WindowEvent e) {
+            super.windowClosing(e);
+            if(null != image){
+                if(null != displayImage){
+                    image.setSlice(displayImage.getCurrentSlice());
+                }
+                image.getWindow().setVisible(true);
+            }
+            clusterizeButton.removeActionListener(clusterize);
+            slider.removeChangeListener(sampleChange);
+            if(null != displayImage){
+                displayImage=null;
+            }
+            exec.shutdownNow();
         }
 
         void clusterizeOrStop(String command){
@@ -217,7 +268,6 @@ public class Color_Clustering implements PlugIn{
                             catch (InterruptedException ie)	{ IJ.log("interrupted"); }
                         }
                         //cambiar IJ.error
-                        JOptionPane warning = new JOptionPane();
                         boolean someChannelSelected = false;
                         Object c = (Object) clustererEditor.getValue();
                         String options = "";
@@ -275,7 +325,7 @@ public class Color_Clustering implements PlugIn{
                         } else
 
                         {
-                            warning.showMessageDialog(all, "Choose at least a channel", "Warning", JOptionPane.WARNING_MESSAGE);
+                            IJ.error("Warning!","Choose at least a channel");
                             clusterizeButton.setText("Clusterize");
                         }
                     }
