@@ -1,28 +1,18 @@
 package trainableSegmentation.unsupervised;
 
 
-import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.*;
 import ij.plugin.PlugIn;
-import ij.process.ImageProcessor;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.RadioButton;
-import jdk.nashorn.internal.runtime.arrays.NumericElements;
 import trainableSegmentation.FeatureStackArray;
-import trainableSegmentation.Weka_Segmentation;
-import vib.segment.Border;
-import vib.segment.CustomCanvas;
 import weka.clusterers.AbstractClusterer;
 import weka.clusterers.Clusterer;
 import weka.clusterers.SimpleKMeans;
-import weka.core.Check;
 import weka.core.OptionHandler;
 import weka.core.Utils;
-import weka.core.stopwords.Null;
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyPanel;
 
@@ -31,10 +21,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.nio.channels.Channel;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -67,7 +54,8 @@ public class Color_Clustering implements PlugIn{
         private JButton clusterizeButton = null;
         private JButton toggleOverlay = null;
         private boolean warned=false;
-        private JSlider slider;
+        private JSlider pixelSlider;
+        private JSlider opacitySlider;
 
         ChangeListener sampleChange = new ChangeListener() {
             @Override
@@ -82,6 +70,12 @@ public class Color_Clustering implements PlugIn{
                 numSamples = ((image.getHeight()*image.getWidth())*image.getNSlices()) * slider.getValue() / 100;
                 JTextArea textArea = (JTextArea) samplePanel.getComponent(2);
                 textArea.setText(Integer.toString(slider.getValue())+"% ("+numSamples+") " + "px");
+            }
+        };
+        ChangeListener opacityChange = new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                updateResultOverlay();
             }
         };
 
@@ -107,11 +101,13 @@ public class Color_Clustering implements PlugIn{
                     public void run() {
                         if(e.getSource()==toggleOverlay) {
                             if(overlayEnabled){
+                                opacitySlider.setEnabled(false);
                                 overlayEnabled=false;
                                 image.setOverlay(null);
                                 overlayEnabled=false;
-                            }else {
+                            }else{
                                 updateResultOverlay();
+                                opacitySlider.setEnabled(true);
                                 overlayEnabled=true;
                             }
                         }
@@ -128,7 +124,7 @@ public class Color_Clustering implements PlugIn{
                 int slice = image.getCurrentSlice();
                 ImageRoi roi = null;
                 roi = new ImageRoi(0, 0, clusteredImage.getImageStack().getProcessor(slice));
-                roi.setOpacity(0.5);
+                roi.setOpacity((double) opacitySlider.getValue()/100);
                 image.setOverlay(new Overlay(roi));
             }
         }
@@ -185,14 +181,14 @@ public class Color_Clustering implements PlugIn{
             } //Add listener para cambiar overlay, como en morph (mouse, wheel key etc)
 
             samplePanel.add(new Label("Select sample percentage:"));
-            slider = new JSlider(1,100,50);
-            samplePanel.add(slider,1);
+            pixelSlider = new JSlider(1,100,50);
+            samplePanel.add(pixelSlider,1);
             samplePanel.setBorder(BorderFactory.createTitledBorder("Number of Samples"));
             samplePanel.setToolTipText("Select a percentage of pixels to be used when training the clusterer");
-            JTextArea txtNumSamples = new JTextArea("50% ("+Integer.toString(((image.getHeight()*image.getWidth()) * slider.getValue() / 100))+") px");
-            numSamples=((image.getHeight()*image.getWidth())*image.getNSlices()) * slider.getValue() / 100;
+            JTextArea txtNumSamples = new JTextArea("50% ("+Integer.toString(((image.getHeight()*image.getWidth()) * pixelSlider.getValue() / 100))+") px");
+            numSamples=((image.getHeight()*image.getWidth())*image.getNSlices()) * pixelSlider.getValue() / 100;
             samplePanel.add(txtNumSamples,2);
-            slider.addChangeListener(sampleChange);
+            pixelSlider.addChangeListener(sampleChange);
             all.add(samplePanel,allConstraints);
             allConstraints.gridy++;
 
@@ -217,6 +213,12 @@ public class Color_Clustering implements PlugIn{
             toggleOverlay.setToolTipText("Toggle result image overlay!");
             toggleOverlay.addActionListener(overlay);
 
+            opacitySlider = new JSlider(0,100,50);
+            executor.add(new Label("Select overlay opacity:"));
+            opacitySlider.setToolTipText("Select a percentage for the opacity");
+            executor.add(opacitySlider);
+            opacitySlider.addChangeListener(opacityChange);
+            opacitySlider.setEnabled(false);
 
             all.add(executor,allConstraints);
 
@@ -329,7 +331,7 @@ public class Color_Clustering implements PlugIn{
                 image.getWindow().setVisible(true);
             }
             clusterizeButton.removeActionListener(clusterize);
-            slider.removeChangeListener(sampleChange);
+            pixelSlider.removeChangeListener(sampleChange);
             if(null != displayImage){
                 displayImage=null;
             }
