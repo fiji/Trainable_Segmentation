@@ -30,9 +30,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.nio.channels.Channel;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +52,7 @@ public class Color_Clustering implements PlugIn{
     private Thread currentTask=null;
     private ImagePlus clusteredImage=null;
     private CustomWindow win;
+    private boolean overlayEnabled = false;
 
     //Morph segm, window closing, check overlay and title
 
@@ -107,7 +106,14 @@ public class Color_Clustering implements PlugIn{
                 exec.submit(new Runnable() {
                     public void run() {
                         if(e.getSource()==toggleOverlay) {
-                            updateResultOverlay();
+                            if(overlayEnabled){
+                                overlayEnabled=false;
+                                image.setOverlay(null);
+                                overlayEnabled=false;
+                            }else {
+                                updateResultOverlay();
+                                overlayEnabled=true;
+                            }
                         }
                     }
                 });
@@ -118,15 +124,12 @@ public class Color_Clustering implements PlugIn{
         {
             if( null != clusteredImage )
             {
-                IJ.log("Setting overlay!");
+                overlayEnabled=true;
                 int slice = image.getCurrentSlice();
-
                 ImageRoi roi = null;
-
-                roi = new ImageRoi(0, 0, clusteredImage.getImageStack().getProcessor( slice ) );
-                roi.setOpacity( 0.5 );
-
-                image.setOverlay( new Overlay( roi ) );
+                roi = new ImageRoi(0, 0, clusteredImage.getImageStack().getProcessor(slice));
+                roi.setOpacity(0.5);
+                image.setOverlay(new Overlay(roi));
             }
         }
 
@@ -230,6 +233,89 @@ public class Color_Clustering implements PlugIn{
             // Fix minimum size to the preferred size at this point
             pack();
             setMinimumSize( getPreferredSize() );
+
+            if(null != sliceSelector)
+            {
+                // add adjustment listener to the scroll bar
+                sliceSelector.addAdjustmentListener(new AdjustmentListener()
+                {
+
+                    public void adjustmentValueChanged(final AdjustmentEvent e) {
+                        exec.submit(new Runnable() {
+                            public void run() {
+                                if(e.getSource() == sliceSelector)
+                                {
+                                    if( overlayEnabled )
+                                    {
+                                        updateResultOverlay();
+                                        displayImage.updateAndDraw();
+
+                                    }
+                                }
+
+                            }
+                        });
+                    }
+                });
+
+                // mouse wheel listener to update the rois while scrolling
+                addMouseWheelListener(new MouseWheelListener() {
+
+                    @Override
+                    public void mouseWheelMoved(final MouseWheelEvent e) {
+
+                        exec.submit(new Runnable() {
+                            public void run()
+                            {
+                                if( overlayEnabled )
+                                {
+                                    updateResultOverlay();
+                                    displayImage.updateAndDraw();
+                                }
+                            }
+                        });
+
+                    }
+                });
+
+                // key listener to repaint the display image and the traces
+                // when using the keys to scroll the stack
+                KeyListener keyListener = new KeyListener() {
+
+                    @Override
+                    public void keyTyped(KeyEvent e) {}
+
+                    @Override
+                    public void keyReleased(final KeyEvent e) {
+                        exec.submit(new Runnable() {
+                            public void run()
+                            {
+                                if(e.getKeyCode() == KeyEvent.VK_LEFT ||
+                                        e.getKeyCode() == KeyEvent.VK_RIGHT ||
+                                        e.getKeyCode() == KeyEvent.VK_LESS ||
+                                        e.getKeyCode() == KeyEvent.VK_GREATER ||
+                                        e.getKeyCode() == KeyEvent.VK_COMMA ||
+                                        e.getKeyCode() == KeyEvent.VK_PERIOD)
+                                {
+                                    if( overlayEnabled )
+                                    {
+                                        updateResultOverlay();
+                                        displayImage.updateAndDraw();
+                                    }
+                                }
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void keyPressed(KeyEvent e) {}
+                };
+                // add key listener to the window and the canvas
+                addKeyListener(keyListener);
+                canvas.addKeyListener(keyListener);
+
+            }
 
         }
 
