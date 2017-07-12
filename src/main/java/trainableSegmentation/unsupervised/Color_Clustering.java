@@ -27,6 +27,7 @@ import java.util.concurrent.Executors;
 
 public class Color_Clustering implements PlugIn{
 
+    //Mirar si se ha hecho ya el clusterer; graficos; toggle overlay+show clusterized (copia); probability map.
 
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
     protected ImagePlus image=null;
@@ -40,6 +41,8 @@ public class Color_Clustering implements PlugIn{
     private CustomWindow win;
     private boolean overlayEnabled = false;
     private ColorClustering colorClustering = null;
+    private boolean instancesCreated = false;
+    private FeatureStackArray theFeatures = null;
 
 
     /**
@@ -71,6 +74,9 @@ public class Color_Clustering implements PlugIn{
                     warned=true;
                 }else if(warned&&numSamples<1000000){
                     warned=false;
+                }
+                if(instancesCreated){
+                    instancesCreated=false;
                 }
                 JSlider slider = (JSlider) samplePanel.getComponent(1);
                 numSamples = ((image.getHeight()*image.getWidth())*image.getNSlices()) * slider.getValue() / 100;
@@ -104,6 +110,8 @@ public class Color_Clustering implements PlugIn{
                 });
             }
         };
+
+
         /**
          * Action listener for file creation button
          */
@@ -113,7 +121,13 @@ public class Color_Clustering implements PlugIn{
                 String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
-                        colorClustering.createFile(image.getShortTitle()+"_clusterized.arff",colorClustering.getFeaturesInstances());
+                        if(instancesCreated){
+                            colorClustering.createFile(image.getShortTitle()+".arff",colorClustering.getFeaturesInstances());
+                        }else {
+                            if(createFeatures()) {
+                                colorClustering.createFile(image.getShortTitle() + ".arff", colorClustering.getFeaturesInstances());
+                            }
+                        }
                     }
                 });
             }
@@ -145,6 +159,17 @@ public class Color_Clustering implements PlugIn{
             }
         };
 
+        ActionListener channelSelect = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                exec.submit(new Runnable() {
+                    public void run() {
+                        instancesCreated=false;
+                    }
+                });
+            }
+        };
+
         /**
          * Update the overlay
          */
@@ -171,12 +196,15 @@ public class Color_Clustering implements PlugIn{
             numChannels = ColorClustering.Channel.numChannels();
             String[] channelList = ColorClustering.Channel.getAllLabels();
             for(int i=0;i<numChannels;++i){
-               channelSelection.add(new JCheckBox(channelList[i]),i);
+                JCheckBox tmp = new JCheckBox(channelList[i]);
+                tmp.addActionListener(channelSelect);
+               channelSelection.add(tmp,i);
             }
+
             GridBagLayout layout = new GridBagLayout();
             GridBagConstraints allConstraints = new GridBagConstraints();
             all.setLayout(layout);
-            allConstraints.anchor = GridBagConstraints.NORTH;
+            allConstraints.anchor = GridBagConstraints.CENTER;
             allConstraints.fill = GridBagConstraints.BOTH;
             allConstraints.gridwidth = 1;
             allConstraints.gridheight = 1;
@@ -193,7 +221,7 @@ public class Color_Clustering implements PlugIn{
             allConstraints.gridy++;
             // if the input image is 3d, put the
             // slice selectors in place
-            if( null != super.sliceSelector )
+            if( null != super.sliceSelector ) //Adjustment listener añadir a tSelector
             {
                 sliceSelector.setValue( image.getCurrentSlice() );
                 image.setSlice( image.getCurrentSlice() );
@@ -213,7 +241,7 @@ public class Color_Clustering implements PlugIn{
                     allConstraints.gridy++;
                 }
 
-            } //Add listener para cambiar overlay, como en morph (mouse, wheel key etc)
+            }//Add listener para cambiar overlay, como en morph (mouse, wheel key etc)
 
             samplePanel.add(new Label("Select sample percentage:"));
             pixelSlider = new JSlider(1,100,50);
@@ -245,7 +273,6 @@ public class Color_Clustering implements PlugIn{
 
             createFile = new JButton("Create File");
             createFile.setToolTipText("Create a file");
-            createFile.setEnabled(false);
             createFile.addActionListener(fileCreation);
             executor.add(createFile);
 
@@ -267,7 +294,7 @@ public class Color_Clustering implements PlugIn{
 
             GridBagLayout wingb = new GridBagLayout();
             GridBagConstraints winc = new GridBagConstraints();
-            winc.anchor = GridBagConstraints.NORTH;
+            winc.anchor = GridBagConstraints.CENTER;
             winc.fill = GridBagConstraints.BOTH;
             winc.weightx = 0;
             winc.weighty = 0;
@@ -363,6 +390,64 @@ public class Color_Clustering implements PlugIn{
 
         }
 
+        boolean createFeatures(){
+            boolean someChannelSelected = false;
+            Object c = (Object) clustererEditor.getValue();
+            String options = "";
+            String[] optionsArray = ((OptionHandler) c).getOptions();
+            if (c instanceof OptionHandler)
+
+            {
+                options = Utils.joinOptions(optionsArray);
+            }
+            try
+
+            {
+                clusterer = (AbstractClusterer) (c.getClass().newInstance());
+                clusterer.setOptions(optionsArray);
+            } catch (
+                    Exception ex)
+
+            {
+                clusterizeButton.setText("Clusterize");
+                IJ.log("Error when setting clusterer");
+            }
+
+            selectedChannels = new boolean[numChannels];
+            numChannels = ColorClustering.Channel.numChannels();
+            for (
+                    int i = 0;
+                    i < numChannels; ++i)
+
+            {
+                JCheckBox selected = (JCheckBox) channelSelection.getComponent(i);
+                selectedChannels[i] = selected.isSelected();
+                if (selected.isSelected() && !someChannelSelected) {
+                    someChannelSelected = true;
+                }
+            }
+            if (someChannelSelected)
+            {
+                IJ.log("Number of selected samples: " + numSamples);
+                ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
+                for (int i = 0; i < numChannels; ++i) {
+                    if (selectedChannels[i]) {
+                        ColorClustering.Channel channel = ColorClustering.Channel.fromLabel(ColorClustering.Channel.getAllLabels()[i]);
+                        channels.add(channel);
+                    }
+                }
+                colorClustering = new ColorClustering(image, numSamples, channels);
+                IJ.log("Creating features");
+                theFeatures = colorClustering.createFSArray(image);
+                instancesCreated = true;
+                return true;
+            } else {
+                IJ.error("Warning!","Choose at least a channel");
+                clusterizeButton.setText("Clusterize");
+                return false;
+            }
+        }
+
 
         /**
          * Based on command clusterize image or stop clusterization procedure
@@ -385,72 +470,28 @@ public class Color_Clustering implements PlugIn{
                             }
                             catch (InterruptedException ie)	{ IJ.log("interrupted"); }
                         }
-                        //cambiar IJ.error
-                        boolean someChannelSelected = false;
-                        Object c = (Object) clustererEditor.getValue();
-                        String options = "";
-                        String[] optionsArray = ((OptionHandler) c).getOptions();
-                        if (c instanceof OptionHandler)
-
-                        {
-                            options = Utils.joinOptions(optionsArray);
-                        }
-                        try
-
-                        {
-                            clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                            clusterer.setOptions(optionsArray);
-                        } catch (
-                                Exception ex)
-
-                        {
-                            clusterizeButton.setText("Clusterize");
-                            IJ.log("Error when setting clusterer");
-                        }
-
-                        selectedChannels = new boolean[numChannels];
-                        numChannels = ColorClustering.Channel.numChannels();
-                        for (
-                                int i = 0;
-                                i < numChannels; ++i)
-
-                        {
-                            JCheckBox selected = (JCheckBox) channelSelection.getComponent(i);
-                            selectedChannels[i] = selected.isSelected();
-                            if (selected.isSelected() && !someChannelSelected) {
-                                someChannelSelected = true;
-                            }
-                        }
-                        if (someChannelSelected)
-
-                        {
-                            IJ.log("Number of selected samples: " + numSamples);
-                            ArrayList<ColorClustering.Channel> channels = new ArrayList<ColorClustering.Channel>();
-                            for (int i = 0; i < numChannels; ++i) {
-                                if (selectedChannels[i]) {
-                                    ColorClustering.Channel channel = ColorClustering.Channel.fromLabel(ColorClustering.Channel.getAllLabels()[i]);
-                                    channels.add(channel);
-                                }
-                            }
-                            colorClustering = new ColorClustering(image, numSamples, channels);
+                        if(instancesCreated){
                             AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
                             colorClustering.setTheClusterer(theClusterer);
                             IJ.log(theClusterer.toString());
-                            FeatureStackArray theFeatures = colorClustering.createFSArray(image);
                             clusteredImage = colorClustering.createClusteredImage(theFeatures);
                             clusteredImage.show();
                             clusterizeButton.setText("Clusterize");
-                            if(!toggleOverlay.isEnabled()){
+                            if (!toggleOverlay.isEnabled()) {
                                 toggleOverlay.setEnabled(true);
                             }
-                            if(!createFile.isEnabled()){
-                                createFile.setEnabled(true);
+                        }else {
+                            if(createFeatures()) {
+                                AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
+                                colorClustering.setTheClusterer(theClusterer);
+                                IJ.log(theClusterer.toString());
+                                clusteredImage = colorClustering.createClusteredImage(theFeatures);
+                                clusteredImage.show();
+                                clusterizeButton.setText("Clusterize");
+                                if (!toggleOverlay.isEnabled()) {
+                                    toggleOverlay.setEnabled(true);
+                                }
                             }
-                        } else
-
-                        {
-                            IJ.error("Warning!","Choose at least a channel");
-                            clusterizeButton.setText("Clusterize");
                         }
                     }
                 };
