@@ -7,6 +7,7 @@ import ij.process.ImageProcessor;
 import trainableSegmentation.unsupervised.ColorClustering;
 import trainableSegmentation.unsupervised.PixelClustering;
 import weka.clusterers.AbstractClusterer;
+import weka.clusterers.Canopy;
 import weka.clusterers.Clusterer;
 import weka.clusterers.SimpleKMeans;
 import weka.core.Instances;
@@ -35,17 +36,19 @@ public class TestUnsupervised {
         channels.add(ColorClustering.Channel.fromLabel("Hue"));
         channels.add(ColorClustering.Channel.fromLabel("Brightness"));
         channels.add(ColorClustering.Channel.fromLabel("Saturation"));
-        ColorClustering colorClustering = new ColorClustering(image,30, channels);
-        SimpleKMeans kmeans = new SimpleKMeans();
+        ColorClustering colorClustering = new ColorClustering(image,14, channels);
+        Canopy clusterer = new Canopy();
         try {
-            kmeans.setNumClusters(3);
+            clusterer.setNumClusters(2);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        AbstractClusterer theClusterer = colorClustering.createClusterer(kmeans);
+        AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
         colorClustering.setTheClusterer(theClusterer);
-        colorClustering.createFile(colorClustering.getFeaturesInstances());
+        //colorClustering.createFile(colorClustering.getFeaturesInstances());
         FeatureStackArray theFeatures = colorClustering.createFSArray(image);
+        ImagePlus probMap = colorClustering.createProbabilityMaps(colorClustering.getFeatureStackArray());
+        probMap.show();
         ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
         clusteredImage.show();
     }

@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 
 public class Color_Clustering implements PlugIn{
 
-    //graficos; toggle overlay+show clusterized (copia); probability map; GUI reestructurar; crear script para probar
+    //graficos; probability map; GUI reestructurar; crear script para probar
 
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
     protected ImagePlus image=null;
@@ -41,7 +41,7 @@ public class Color_Clustering implements PlugIn{
     private CustomWindow win;
     private boolean overlayEnabled = false;
     private ColorClustering colorClustering = null;
-    private boolean instancesCreated = false;
+    private boolean featuresCreated = false;
     private FeatureStackArray theFeatures = null;
 
 
@@ -60,6 +60,7 @@ public class Color_Clustering implements PlugIn{
         private JButton toggleOverlay = null;
         private JButton createFile = null;
         private JButton createResult = null;
+        private JButton createProbabilityMap = null;
         private boolean warned=false;
         private JSlider pixelSlider;
         private JSlider opacitySlider;
@@ -76,8 +77,8 @@ public class Color_Clustering implements PlugIn{
                 }else if(warned&&numSamples<1000000){
                     warned=false;
                 }
-                if(instancesCreated){
-                    instancesCreated=false;
+                if(featuresCreated){
+                    featuresCreated =false;
                 }
                 JSlider slider = (JSlider) samplePanel.getComponent(1);
                 numSamples = ((image.getHeight()*image.getWidth())*image.getNSlices()) * slider.getValue() / 100;
@@ -122,7 +123,7 @@ public class Color_Clustering implements PlugIn{
                 String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
-                        if(instancesCreated){
+                        if(featuresCreated){
                             colorClustering.createFile(colorClustering.getFeaturesInstances());
                         }else {
                             if(createFeatures()) {
@@ -150,6 +151,22 @@ public class Color_Clustering implements PlugIn{
             }
         };
 
+        ActionListener probMapCreator = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String command = e.getActionCommand();
+                exec.submit(new Runnable() {
+                    public void run() {
+                        createFeatures();
+                        AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
+                        colorClustering.setTheClusterer(theClusterer);
+                        IJ.log(theClusterer.toString());
+                        ImagePlus result = colorClustering.createProbabilityMaps(theFeatures);
+                        result.show();
+                    }
+                });
+            }
+        };
 
         /**
          * Action listener for overlay button
@@ -182,7 +199,7 @@ public class Color_Clustering implements PlugIn{
             public void actionPerformed(ActionEvent e) {
                 exec.submit(new Runnable() {
                     public void run() {
-                        instancesCreated=false;
+                        featuresCreated =false;
                     }
                 });
             }
@@ -311,6 +328,10 @@ public class Color_Clustering implements PlugIn{
             executor.add(createResult);
             createResult.addActionListener(resultCreation);
             createResult.setEnabled(false);
+
+            createProbabilityMap = new JButton("Probability Map");
+            executor.add(createProbabilityMap);
+            createProbabilityMap.addActionListener(probMapCreator);
 
             all.add(executor,allConstraints);
 
@@ -462,7 +483,7 @@ public class Color_Clustering implements PlugIn{
                 colorClustering = new ColorClustering(image, numSamples, channels);
                 IJ.log("Creating features");
                 theFeatures = colorClustering.createFSArray(image);
-                instancesCreated = true;
+                featuresCreated = true;
                 return true;
             } else {
                 IJ.error("Warning!","Choose at least a channel");
@@ -493,7 +514,7 @@ public class Color_Clustering implements PlugIn{
                             }
                             catch (InterruptedException ie)	{ IJ.log("interrupted"); }
                         }
-                        if(instancesCreated){
+                        if(featuresCreated){
                             AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
                             colorClustering.setTheClusterer(theClusterer);
                             IJ.log(theClusterer.toString());

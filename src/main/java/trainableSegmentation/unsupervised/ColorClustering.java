@@ -347,6 +347,79 @@ public class ColorClustering {
         return theFeatures;
     }
 
+    public ImagePlus createProbabilityMaps(FeatureStackArray theFeatures){
+        int height;
+        int width;
+        int numInstances;
+        int numClusters=0;
+        try {
+            numClusters = theClusterer.numberOfClusters();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Calibration calibration = new Calibration();
+        calibration = image.getCalibration();
+        height = theFeatures.getHeight();
+        width = theFeatures.getWidth();
+        numInstances = height*width;
+        ImageStack clusteringResult = new ImageStack(width,height);
+        for(int slice = 1; slice <= theFeatures.getSize(); ++slice){
+            double clusterArray[][] = new double[numClusters][numInstances];
+            FeatureStack features = theFeatures.get(slice-1);
+            ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+            Instances instances;
+            for (int i=1; i<=theFeatures.get(slice-1).getSize(); i++)
+            {
+                String attString = theFeatures.get(slice-1).getSliceLabel(i);
+                attributes.add( new Attribute( attString ) );
+            }
+
+            if( theFeatures.get(slice-1).useNeighborhood() )
+                for (int i=0; i<8; i++)
+                {
+                    //IJ.log("Adding extra attribute original_neighbor_" + (i+1) + "...");
+                    attributes.add( new Attribute( new String( "original_neighbor_" + (i+1) ) ) );
+                }
+            instances = new Instances(image.getTitle()+"-features", attributes, 1);
+            final double[] values = new double[features.getSize()];
+            final ReusableDenseInstance ins = new ReusableDenseInstance(1.0,values);
+            ins.setDataset(instances);
+            String[] classLabels = new String[numClusters];
+            for(int i=0;i<numClusters;++i){
+                classLabels[i]="Cluster "+i;
+            }
+
+            for (int x=0;x<width;++x){
+                for(int y=0;y<height;++y){
+                    features.setInstance(x,y,ins,values);
+                    try {
+                        double[] prob = theClusterer.distributionForInstance( ins );
+                        for(int k = 0 ; k < numClusters; k++)
+                            clusterArray[k][x+y*width] =  prob[k];
+                        //IJ.log(ins.toString());
+                        //IJ.log("Coordinates: "+x+","+y+" Cluster: "+clusterArray[x+y*width]);
+                    }catch (Exception e){
+                        IJ.log("Error when applying clusterer to pixel: "+x+","+y);
+                    }
+                }
+            }
+            for(int k = 0 ; k < numClusters; k++){
+                FloatProcessor processor = new FloatProcessor(width,height,clusterArray[k]);
+                try {
+                    processor.setMinAndMax(0,1);
+                } catch (Exception e) {
+                    IJ.log("Error when setting histogram range in slice: "+slice);
+                }
+                clusteringResult.addSlice(classLabels[k],processor);
+
+            }
+
+        }
+        ImagePlus result = new ImagePlus("Probability map image", clusteringResult);
+        result.setCalibration(calibration);
+        return result;
+    }
+
     /**
      * Creates clustered image based on provided FeatureStackArray and using private clusterer, returns as ImagePlus
      * @param theFeatures
@@ -398,6 +471,7 @@ public class ColorClustering {
             }
             ByteProcessor processor = new ByteProcessor(width,height,clusterArray);
             try {
+                IJ.log("Number of clusters: "+theClusterer.numberOfClusters());
                 processor.setMinAndMax(0,theClusterer.numberOfClusters());
             } catch (Exception e) {
                 IJ.log("Error when setting histogram range in slice: "+slice);
