@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 
 public class Color_Clustering implements PlugIn{
 
-    //graficos; toggle overlay+show clusterized (copia); probability map; file open; GUI reestructurar; crear script para probar
+    //graficos; toggle overlay+show clusterized (copia); probability map; GUI reestructurar; crear script para probar
 
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
     protected ImagePlus image=null;
@@ -59,6 +59,7 @@ public class Color_Clustering implements PlugIn{
         private JButton clusterizeButton = null;
         private JButton toggleOverlay = null;
         private JButton createFile = null;
+        private JButton createResult = null;
         private boolean warned=false;
         private JSlider pixelSlider;
         private JSlider opacitySlider;
@@ -132,6 +133,23 @@ public class Color_Clustering implements PlugIn{
                 });
             }
         };
+
+        /**
+         * Action listener for result creation
+         */
+        ActionListener resultCreation = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String command = e.getActionCommand();
+                exec.submit(new Runnable() {
+                    public void run() {
+                        ImagePlus result = clusteredImage.duplicate();
+                        result.show();
+                    }
+                });
+            }
+        };
+
 
         /**
          * Action listener for overlay button
@@ -288,6 +306,11 @@ public class Color_Clustering implements PlugIn{
             executor.add(opacitySlider);
             opacitySlider.addChangeListener(opacityChange);
             opacitySlider.setEnabled(false);
+
+            createResult = new JButton("Create Result");
+            executor.add(createResult);
+            createResult.addActionListener(resultCreation);
+            createResult.setEnabled(false);
 
             all.add(executor,allConstraints);
 
@@ -475,10 +498,12 @@ public class Color_Clustering implements PlugIn{
                             colorClustering.setTheClusterer(theClusterer);
                             IJ.log(theClusterer.toString());
                             clusteredImage = colorClustering.createClusteredImage(theFeatures);
-                            clusteredImage.show();
+                            overlayEnabled=true;
+                            updateResultOverlay();
                             clusterizeButton.setText("Clusterize");
                             if (!toggleOverlay.isEnabled()) {
                                 toggleOverlay.setEnabled(true);
+                                opacitySlider.setEnabled(true);
                             }
                         }else {
                             if(createFeatures()) {
@@ -486,12 +511,17 @@ public class Color_Clustering implements PlugIn{
                                 colorClustering.setTheClusterer(theClusterer);
                                 IJ.log(theClusterer.toString());
                                 clusteredImage = colorClustering.createClusteredImage(theFeatures);
-                                clusteredImage.show();
+                                overlayEnabled=true;
+                                updateResultOverlay();
                                 clusterizeButton.setText("Clusterize");
                                 if (!toggleOverlay.isEnabled()) {
                                     toggleOverlay.setEnabled(true);
+                                    opacitySlider.setEnabled(true);
                                 }
                             }
+                        }
+                        if(!createResult.isEnabled()){
+                            createResult.setEnabled(true);
                         }
                     }
                 };
