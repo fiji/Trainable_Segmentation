@@ -44,7 +44,7 @@ public class TestUnsupervised {
         }
         AbstractClusterer theClusterer = colorClustering.createClusterer(kmeans);
         colorClustering.setTheClusterer(theClusterer);
-        colorClustering.createFile("test.arff",colorClustering.getFeaturesInstances());
+        colorClustering.createFile(colorClustering.getFeaturesInstances());
         FeatureStackArray theFeatures = colorClustering.createFSArray(image);
         ImagePlus clusteredImage = colorClustering.createClusteredImage(theFeatures);
         clusteredImage.show();

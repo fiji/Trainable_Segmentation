@@ -16,13 +16,11 @@ import weka.clusterers.AbstractClusterer;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.PropertyPath;
 import weka.core.stopwords.Null;
 
 import java.awt.*;
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -417,13 +415,15 @@ public class ColorClustering {
      * @param name
      * @param theInstances
      */
-    public void createFile(String name, Instances theInstances){
+    public void createFile(Instances theInstances){
+        String path = IJ.getFilePath("Choose a path to save the arff file to");
+        File file = new File(path+".arff");
         IJ.log("Creating file");
         BufferedWriter out = null;
         try{
             out = new BufferedWriter(
                     new OutputStreamWriter(
-                            new FileOutputStream( name), StandardCharsets.UTF_8 ) );
+                            new FileOutputStream( file), StandardCharsets.UTF_8 ) );
 
             final Instances header = new Instances(theInstances, 0);
             out.write(header.toString());

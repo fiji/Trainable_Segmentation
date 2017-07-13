@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 
 public class Color_Clustering implements PlugIn{
 
-    //Mirar si se ha hecho ya el clusterer; graficos; toggle overlay+show clusterized (copia); probability map.
+    //graficos; toggle overlay+show clusterized (copia); probability map; file open; GUI reestructurar; crear script para probar
 
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
     protected ImagePlus image=null;
@@ -122,10 +122,10 @@ public class Color_Clustering implements PlugIn{
                 exec.submit(new Runnable() {
                     public void run() {
                         if(instancesCreated){
-                            colorClustering.createFile(image.getShortTitle()+".arff",colorClustering.getFeaturesInstances());
+                            colorClustering.createFile(colorClustering.getFeaturesInstances());
                         }else {
                             if(createFeatures()) {
-                                colorClustering.createFile(image.getShortTitle() + ".arff", colorClustering.getFeaturesInstances());
+                                colorClustering.createFile(colorClustering.getFeaturesInstances());
                             }
                         }
                     }
