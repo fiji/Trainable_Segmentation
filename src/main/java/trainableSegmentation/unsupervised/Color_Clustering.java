@@ -326,12 +326,12 @@ public class Color_Clustering implements PlugIn{
 
             clusterizeButton.addActionListener(clusterize);
 
-            createFile = new JButton("Create File");
+            createFile = new JButton("Create ARFF file");
             createFile.setToolTipText("Create a file");
             createFile.addActionListener(fileCreation);
             executor.add(createFile);
 
-            toggleOverlay = new JButton("Overlay");
+            toggleOverlay = new JButton("Toggle overlay");
             executor.add(toggleOverlay);
             toggleOverlay.setToolTipText("Toggle result image overlay!");
             toggleOverlay.addActionListener(overlay);
@@ -344,7 +344,7 @@ public class Color_Clustering implements PlugIn{
             opacitySlider.addChangeListener(opacityChange);
             opacitySlider.setEnabled(false);
 
-            createResult = new JButton("Create Result");
+            createResult = new JButton("Show result");
             executor.add(createResult);
             createResult.addActionListener(resultCreation);
             createResult.setEnabled(false);
