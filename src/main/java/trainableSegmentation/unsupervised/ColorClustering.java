@@ -422,6 +422,10 @@ public class ColorClustering {
         }
         ImagePlus result = new ImagePlus("Probability map image", clusteringResult);
         result.setCalibration(calibration);
+        result.setDimensions(numClusters,image.getNSlices(),image.getNFrames());
+        if(image.getNSlices()*image.getNFrames()>1){
+            result.setOpenAsHyperStack(true);
+        }
         return result;
     }
 
@@ -476,7 +480,6 @@ public class ColorClustering {
             }
             ByteProcessor processor = new ByteProcessor(width,height,clusterArray);
             try {
-                IJ.log("Number of clusters: "+theClusterer.numberOfClusters());
                 processor.setMinAndMax(0,theClusterer.numberOfClusters());
             } catch (Exception e) {
                 IJ.log("Error when setting histogram range in slice: "+slice);
@@ -495,37 +498,43 @@ public class ColorClustering {
      * @param theInstances
      */
     public void createFile(Instances theInstances){
+
         String path = IJ.getFilePath("Choose a path to save the arff file to");
-        File file = new File(path+".arff");
-        IJ.log("Creating file");
-        BufferedWriter out = null;
-        try{
-            out = new BufferedWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream( file), StandardCharsets.UTF_8 ) );
+        if(path!=null){
+            File file = new File(path+".arff");
+            IJ.log("Creating file");
+            BufferedWriter out = null;
+            try{
+                out = new BufferedWriter(
+                        new OutputStreamWriter(
+                                new FileOutputStream( file), StandardCharsets.UTF_8 ) );
 
-            final Instances header = new Instances(theInstances, 0);
-            out.write(header.toString());
+                final Instances header = new Instances(theInstances, 0);
+                out.write(header.toString());
 
-            for(int i = 0; i < theInstances.numInstances(); i++)
-            {
-                out.write(theInstances.get(i).toString()+"\n");
+                for(int i = 0; i < theInstances.numInstances(); i++)
+                {
+                    out.write(theInstances.get(i).toString()+"\n");
+                }
+                IJ.log("Created file");
             }
-        }
-        catch(Exception e)
-        {
-            IJ.log("Error: couldn't write instances into .ARFF file.");
-            IJ.showMessage("Exception while saving data as ARFF file");
-            e.printStackTrace();
-        }
-        finally{
-            try {
-                out.close();
-            } catch (IOException e) {
+            catch(Exception e)
+            {
+                IJ.log("Error: couldn't write instances into .ARFF file.");
+                IJ.showMessage("Exception while saving data as ARFF file");
                 e.printStackTrace();
             }
+            finally{
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }else {
+            IJ.log("Error when choosing path");
         }
-        IJ.log("Created file");
+
     }
 
 

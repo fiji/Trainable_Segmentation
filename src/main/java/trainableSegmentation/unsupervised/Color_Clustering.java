@@ -34,7 +34,7 @@ import java.util.concurrent.Executors;
 
 public class Color_Clustering implements PlugIn{
 
-    //graficos; probability map; GUI reestructurar; crear script para probar
+    //GUI reestructurar; crear script para probar
 
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
     protected ImagePlus image=null;
@@ -640,8 +640,12 @@ public class Color_Clustering implements PlugIn{
         if(image == null){
             image=IJ.openImage();
         }
-        IJ.log("Loading Weka properties");
-        win = new CustomWindow(image);
+        if(image == null){
+            IJ.error("Error when opening image");
+        }else {
+            IJ.log("Loading Weka properties");
+            win = new CustomWindow(image);
+        }
 
     }
 
@@ -654,9 +658,6 @@ public class Color_Clustering implements PlugIn{
         String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();
         String pluginsDir = url.substring("file:".length(), url.length() - clazz.getName().length() - ".class".length());
         System.setProperty("plugins.dir", pluginsDir);
-        new ImageJ();
-        ImagePlus image = IJ.openImage();
-        image.show();
         IJ.runPlugIn(clazz.getName(),"");
 
     }
