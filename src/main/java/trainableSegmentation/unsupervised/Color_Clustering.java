@@ -9,19 +9,26 @@ import ij.gui.*;
 import ij.plugin.PlugIn;
 import trainableSegmentation.FeatureStackArray;
 import weka.clusterers.AbstractClusterer;
+import weka.clusterers.ClusterEvaluation;
 import weka.clusterers.Clusterer;
 import weka.clusterers.SimpleKMeans;
+import weka.core.Instances;
 import weka.core.OptionHandler;
 import weka.core.Utils;
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyPanel;
+import weka.gui.explorer.ClustererPanel;
+import weka.gui.explorer.VisualizePanel;
+import weka.gui.visualize.PlotData2D;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -490,6 +497,47 @@ public class Color_Clustering implements PlugIn{
                 clusterizeButton.setText("Clusterize");
                 return false;
             }
+        }
+
+        void visualiseData(){
+            if(!featuresCreated){
+                createFeatures();
+            }
+            Instances train = colorClustering.getFeaturesInstances();
+            ClusterEvaluation eval = new ClusterEvaluation();
+            eval.setClusterer(clusterer);
+            try {
+                eval.evaluateClusterer(train);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            PlotData2D predData = ClustererPanel.setUpVisualizableInstances(train, eval);
+            String name = (new SimpleDateFormat("HH:mm:ss - ")).format(new Date());
+            String cname = clusterer.getClass().getName();
+            if (cname.startsWith("weka.clusterers."))
+                name += cname.substring("weka.clusterers.".length());
+            else
+                name += cname;
+
+            VisualizePanel vp = new VisualizePanel();
+            vp.setName(name + " (" + train.relationName() + ")");
+            predData.setPlotName(name + " (" + train.relationName() + ")");
+            vp.addPlot(predData);
+
+            // display data
+            // taken from: ClustererPanel.visualizeClusterAssignments(VisualizePanel)
+            String plotName = vp.getName();
+            final javax.swing.JFrame jf =
+                    new javax.swing.JFrame("Weka Clusterer Visualize: " + plotName);
+            jf.setSize(500,400);
+            jf.getContentPane().setLayout(new BorderLayout());
+            jf.getContentPane().add(vp, BorderLayout.CENTER);
+            jf.addWindowListener(new java.awt.event.WindowAdapter() {
+                public void windowClosing(java.awt.event.WindowEvent e) {
+                    jf.dispose();
+                }
+            });
+            jf.setVisible(true);
         }
 
 

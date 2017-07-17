@@ -347,6 +347,11 @@ public class ColorClustering {
         return theFeatures;
     }
 
+    /**
+     * Creates probability map based on provided features
+     * @param theFeatures
+     * @return
+     */
     public ImagePlus createProbabilityMaps(FeatureStackArray theFeatures){
         int height;
         int width;
