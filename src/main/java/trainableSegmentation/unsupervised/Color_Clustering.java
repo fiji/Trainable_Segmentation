@@ -17,9 +17,9 @@ import weka.core.OptionHandler;
 import weka.core.Utils;
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyPanel;
-import weka.gui.explorer.ClustererPanel;
-import weka.gui.explorer.VisualizePanel;
-import weka.gui.visualize.PlotData2D;
+import weka.gui.explorer.ClustererAssignmentsPlotInstances;
+
+import weka.gui.visualize.VisualizePanel;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -68,6 +68,7 @@ public class Color_Clustering implements PlugIn{
         private JButton createFile = null;
         private JButton createResult = null;
         private JButton createProbabilityMap = null;
+        private JButton visualizeData = null;
         private boolean warned=false;
         private JSlider pixelSlider;
         private JSlider opacitySlider;
@@ -170,6 +171,18 @@ public class Color_Clustering implements PlugIn{
                         IJ.log(theClusterer.toString());
                         ImagePlus result = colorClustering.createProbabilityMaps(theFeatures);
                         result.show();
+                    }
+                });
+            }
+        };
+
+        ActionListener dataVisualizer = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String command = e.getActionCommand();
+                exec.submit(new Runnable() {
+                    public void run() {
+                        visualiseData();
                     }
                 });
             }
@@ -339,6 +352,10 @@ public class Color_Clustering implements PlugIn{
             createProbabilityMap = new JButton("Probability Map");
             executor.add(createProbabilityMap);
             createProbabilityMap.addActionListener(probMapCreator);
+
+            visualizeData = new JButton("Visualize data");
+            executor.add(visualizeData);
+            visualizeData.addActionListener(dataVisualizer);
 
             all.add(executor,allConstraints);
 
@@ -511,32 +528,33 @@ public class Color_Clustering implements PlugIn{
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            PlotData2D predData = ClustererPanel.setUpVisualizableInstances(train, eval);
+            ClustererAssignmentsPlotInstances plotInstances = new ClustererAssignmentsPlotInstances();
+            plotInstances.setClusterer(clusterer);
+            plotInstances.setInstances(train);
+            plotInstances.setClusterEvaluation(eval);
+            plotInstances.setUp();
             String name = (new SimpleDateFormat("HH:mm:ss - ")).format(new Date());
             String cname = clusterer.getClass().getName();
             if (cname.startsWith("weka.clusterers."))
                 name += cname.substring("weka.clusterers.".length());
             else
                 name += cname;
-
+            name = name + " (" + train.relationName() + ")";
             VisualizePanel vp = new VisualizePanel();
-            vp.setName(name + " (" + train.relationName() + ")");
-            predData.setPlotName(name + " (" + train.relationName() + ")");
-            vp.addPlot(predData);
+            vp.setName(name);
+            try {
+                vp.addPlot(plotInstances.getPlotData(cname));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             // display data
             // taken from: ClustererPanel.visualizeClusterAssignments(VisualizePanel)
-            String plotName = vp.getName();
-            final javax.swing.JFrame jf =
-                    new javax.swing.JFrame("Weka Clusterer Visualize: " + plotName);
-            jf.setSize(500,400);
+            JFrame jf = new JFrame("Weka Clusterer Visualize: " + vp.getName());
+            jf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            jf.setSize(500, 400);
             jf.getContentPane().setLayout(new BorderLayout());
             jf.getContentPane().add(vp, BorderLayout.CENTER);
-            jf.addWindowListener(new java.awt.event.WindowAdapter() {
-                public void windowClosing(java.awt.event.WindowEvent e) {
-                    jf.dispose();
-                }
-            });
             jf.setVisible(true);
         }
 
