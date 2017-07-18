@@ -13,12 +13,15 @@ import sun.security.jca.GetInstance;
 import trainableSegmentation.FeatureStack;
 import trainableSegmentation.FeatureStackArray;
 import trainableSegmentation.ReusableDenseInstance;
+import trainableSegmentation.WekaSegmentation;
+import weka.classifiers.AbstractClassifier;
+import weka.classifiers.pmml.consumer.PMMLClassifier;
 import weka.clusterers.AbstractClusterer;
-import weka.core.Attribute;
-import weka.core.Instance;
-import weka.core.Instances;
-import weka.core.PropertyPath;
+import weka.core.*;
+import weka.core.pmml.PMMLFactory;
+import weka.core.pmml.PMMLModel;
 import weka.core.stopwords.Null;
+import weka.gui.explorer.ClassifierPanel;
 
 import java.awt.*;
 import java.io.*;
@@ -27,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Random;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 
@@ -118,6 +122,15 @@ public class ColorClustering {
     private FeatureStackArray featureStackArray;
     private int numSamples;
     private AbstractClusterer theClusterer;
+
+
+    public ColorClustering(ImagePlus image){
+        featuresInstances=null;
+        this.image=image;
+        featureStackArray=null;
+        numSamples=image.getHeight()*image.getWidth()*image.getNSlices()/2;
+        theClusterer=null;
+    }
 
 
     /**
@@ -573,6 +586,17 @@ public class ColorClustering {
         return saveOK;
     }
 
+    public boolean loadClusterer(String path){
+
+        try {
+            theClusterer = (AbstractClusterer) SerializationHelper.read(new FileInputStream(path));
+        } catch (Exception e) {
+            IJ.log("Error when loading clusterer");
+        }
+
+        IJ.log(theClusterer.toString());
+        return true;
+    }
 
 
     //Getters and setters

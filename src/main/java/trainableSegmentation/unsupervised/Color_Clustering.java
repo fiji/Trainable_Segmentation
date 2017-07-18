@@ -6,6 +6,7 @@ import ij.ImageJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.*;
+import ij.io.OpenDialog;
 import ij.io.SaveDialog;
 import ij.plugin.PlugIn;
 import trainableSegmentation.FeatureStackArray;
@@ -27,6 +28,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,6 +74,7 @@ public class Color_Clustering implements PlugIn{
         private JButton createProbabilityMap = null;
         private JButton visualizeData = null;
         private JButton saveClusterer = null;
+        private JButton loadClusterer = null;
         private boolean warned=false;
         private JSlider pixelSlider;
         private JSlider opacitySlider;
@@ -249,6 +253,21 @@ public class Color_Clustering implements PlugIn{
             }
         };
 
+        AdjustmentListener changeOverlay = new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                updateResultOverlay();
+                IJ.log("Adjustment Listener");
+            }
+        };
+
+        ActionListener clusterLoader = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loadClusterer();
+            }
+        };
+
         ActionListener channelSelect = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -282,6 +301,7 @@ public class Color_Clustering implements PlugIn{
          */
         CustomWindow(ImagePlus imp) {
             super(imp, new ImageCanvas(imp));
+            colorClustering = new ColorClustering(image);
             final ImageCanvas canvas = (ImageCanvas) getCanvas();
             numChannels = ColorClustering.Channel.numChannels();
             String[] channelList = ColorClustering.Channel.getAllLabels();
@@ -309,6 +329,7 @@ public class Color_Clustering implements PlugIn{
             channelSelection.setToolTipText("Choose channels to be used");
             all.add(channelSelection,allConstraints);
 
+
             allConstraints.gridy++;
             all.add(canvas,allConstraints);
             allConstraints.gridy++;
@@ -322,6 +343,18 @@ public class Color_Clustering implements PlugIn{
                 all.add( super.sliceSelector, allConstraints );
                 allConstraints.gridy++;
                 if( null != super.zSelector ) {
+                    /*super.zSelector.addAdjustmentListener(new AdjustmentListener() {
+                        @Override
+                        public void adjustmentValueChanged(AdjustmentEvent e) {
+                            if( overlayEnabled )
+                            {
+                                updateResultOverlay();
+                                displayImage.updateAndDraw();
+
+                            }
+                            IJ.log("Test1");
+                        }
+                    });*/
                     all.add(super.zSelector, allConstraints);
                     allConstraints.gridy++;
                 }
@@ -399,6 +432,10 @@ public class Color_Clustering implements PlugIn{
             executor.add(saveClusterer);
             saveClusterer.addActionListener(saveTheClusterer);
             saveClusterer.setEnabled(false);
+
+            loadClusterer = new JButton("Load clusterer");
+            executor.add(loadClusterer);
+            loadClusterer.addActionListener(clusterLoader);
 
             all.add(executor,allConstraints);
 
@@ -497,7 +534,6 @@ public class Color_Clustering implements PlugIn{
                 // add key listener to the window and the canvas
                 addKeyListener(keyListener);
                 canvas.addKeyListener(keyListener);
-
             }
 
         }
@@ -625,25 +661,29 @@ public class Color_Clustering implements PlugIn{
                             }
                             catch (InterruptedException ie)	{ IJ.log("interrupted"); }
                         }
-                        Object c = (Object) clustererEditor.getValue();
-                        String options = "";
-                        String[] optionsArray = ((OptionHandler) c).getOptions();
-                        if (c instanceof OptionHandler)
+                        clusterer = colorClustering.getTheClusterer();
+                        if(clusterer==null) {
+                            IJ.log("Getting clusterer from chosen one");
+                            Object c = (Object) clustererEditor.getValue();
+                            String options = "";
+                            String[] optionsArray = ((OptionHandler) c).getOptions();
+                            if (c instanceof OptionHandler)
 
-                        {
-                            options = Utils.joinOptions(optionsArray);
-                        }
-                        try
+                            {
+                                options = Utils.joinOptions(optionsArray);
+                            }
+                            try
 
-                        {
-                            clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                            clusterer.setOptions(optionsArray);
-                        } catch (
-                                Exception ex)
+                            {
+                                clusterer = (AbstractClusterer) (c.getClass().newInstance());
+                                clusterer.setOptions(optionsArray);
+                            } catch (
+                                    Exception ex)
 
-                        {
-                            clusterizeButton.setText("Clusterize");
-                            IJ.log("Error when setting clusterer");
+                            {
+                                clusterizeButton.setText("Clusterize");
+                                IJ.log("Error when setting clusterer");
+                            }
                         }
                         if(featuresCreated){
                             AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
@@ -705,6 +745,21 @@ public class Color_Clustering implements PlugIn{
             IJ.error("Error while writing clusterer into a file");
             return;
         }
+    }
+
+    public void loadClusterer(){
+        OpenDialog od = new OpenDialog( "Choose Weka clusterer file", "" );
+        if (od.getFileName()==null)
+            return;
+        IJ.log("Loading Weka clusterer from " + od.getDirectory() + od.getFileName() + "...");
+
+        if(  !colorClustering.loadClusterer(od.getDirectory() + od.getFileName()) )
+        {
+            IJ.error("Error when loading Weka clusterer from file");
+            IJ.log("Error: clusterer could not be loaded.");
+            return;
+        }
+
     }
 
 
