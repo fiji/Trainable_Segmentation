@@ -4,6 +4,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.io.FileInfo;
+import ij.io.SaveDialog;
 import ij.measure.Calibration;
 import ij.plugin.Converter;
 import ij.process.*;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Random;
+import java.util.zip.GZIPOutputStream;
 
 
 public class ColorClustering {
@@ -499,7 +501,8 @@ public class ColorClustering {
      */
     public void createFile(Instances theInstances){
 
-        String path = IJ.getFilePath("Choose a path to save the arff file to");
+        SaveDialog sd = new SaveDialog("Save features as...", "features",".arff");
+        String path =sd.getDirectory() + sd.getFileName();
         if(path!=null){
             File file = new File(path+".arff");
             IJ.log("Creating file");
@@ -535,6 +538,39 @@ public class ColorClustering {
             IJ.log("Error when choosing path");
         }
 
+    }
+
+    public boolean saveClusterer(String filename){
+        File sFile = null;
+        boolean saveOK = true;
+
+
+        IJ.log("Saving model to file...");
+
+        try {
+            sFile = new File(filename);
+            OutputStream os = new FileOutputStream(sFile);
+            if (sFile.getName().endsWith(".gz"))
+            {
+                os = new GZIPOutputStream(os);
+            }
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
+            objectOutputStream.writeObject(theClusterer);
+            featuresInstances = featuresInstances.stringFreeStructure();
+            if (featuresInstances != null)
+                objectOutputStream.writeObject(featuresInstances);
+            objectOutputStream.flush();
+            objectOutputStream.close();
+        }
+        catch (Exception e)
+        {
+            IJ.error("Save Failed", "Error when saving classifier into a file");
+            saveOK = false;
+        }
+        if (saveOK)
+            IJ.log("Saved model into " + filename );
+
+        return saveOK;
     }
 
 

@@ -6,6 +6,7 @@ import ij.ImageJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.*;
+import ij.io.SaveDialog;
 import ij.plugin.PlugIn;
 import trainableSegmentation.FeatureStackArray;
 import weka.clusterers.AbstractClusterer;
@@ -69,6 +70,7 @@ public class Color_Clustering implements PlugIn{
         private JButton createResult = null;
         private JButton createProbabilityMap = null;
         private JButton visualizeData = null;
+        private JButton saveClusterer = null;
         private boolean warned=false;
         private JSlider pixelSlider;
         private JSlider opacitySlider;
@@ -94,6 +96,7 @@ public class Color_Clustering implements PlugIn{
                 textArea.setText(Integer.toString(slider.getValue())+"% ("+numSamples+") " + "px");
             }
         };
+
         /**
          * Change listener for overlay opacity percentage
          */
@@ -116,6 +119,18 @@ public class Color_Clustering implements PlugIn{
                         if(e.getSource()==clusterizeButton) {
                             clusterizeOrStop(command);
                         }
+                    }
+                });
+            }
+        };
+
+        ActionListener saveTheClusterer = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String command = e.getActionCommand();
+                exec.submit(new Runnable() {
+                    public void run() {
+                        saveClusterer();
                     }
                 });
             }
@@ -276,6 +291,9 @@ public class Color_Clustering implements PlugIn{
                channelSelection.add(tmp,i);
             }
 
+            int height = image.getHeight();
+            int width = image.getWidth();
+
             GridBagLayout layout = new GridBagLayout();
             GridBagConstraints allConstraints = new GridBagConstraints();
             all.setLayout(layout);
@@ -376,6 +394,11 @@ public class Color_Clustering implements PlugIn{
             visualizeData = new JButton("Visualize data");
             executor.add(visualizeData);
             visualizeData.addActionListener(dataVisualizer);
+
+            saveClusterer = new JButton("Save clusterer");
+            executor.add(saveClusterer);
+            saveClusterer.addActionListener(saveTheClusterer);
+            saveClusterer.setEnabled(false);
 
             all.add(executor,allConstraints);
 
@@ -633,6 +656,7 @@ public class Color_Clustering implements PlugIn{
                             if (!toggleOverlay.isEnabled()) {
                                 toggleOverlay.setEnabled(true);
                                 opacitySlider.setEnabled(true);
+                                saveClusterer.setEnabled(true);
                             }
                         }else {
                             if(createFeatures()) {
@@ -646,6 +670,7 @@ public class Color_Clustering implements PlugIn{
                                 if (!toggleOverlay.isEnabled()) {
                                     toggleOverlay.setEnabled(true);
                                     opacitySlider.setEnabled(true);
+                                    saveClusterer.setEnabled(true);
                                 }
                             }
                         }
@@ -668,6 +693,18 @@ public class Color_Clustering implements PlugIn{
             }
         }
 
+    }
+
+    public void saveClusterer(){
+        SaveDialog sd = new SaveDialog("Save model as...", "clusterer",".model");
+        if (sd.getFileName()==null)
+            return;
+
+        if( !colorClustering.saveClusterer(sd.getDirectory() + sd.getFileName()) )
+        {
+            IJ.error("Error while writing clusterer into a file");
+            return;
+        }
     }
 
 
