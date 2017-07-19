@@ -21,6 +21,8 @@ import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyPanel;
 import weka.gui.explorer.ClustererAssignmentsPlotInstances;
 
+import weka.gui.explorer.ClustererPanel;
+import weka.gui.visualize.PlotData2D;
 import weka.gui.visualize.VisualizePanel;
 
 import javax.swing.*;
@@ -205,6 +207,26 @@ public class Color_Clustering implements PlugIn{
                 exec.submit(new Runnable() {
                     public void run() {
                         createFeatures();
+                        Object c = (Object) clustererEditor.getValue();
+                        String options = "";
+                        String[] optionsArray = ((OptionHandler) c).getOptions();
+                        if (c instanceof OptionHandler)
+
+                        {
+                            options = Utils.joinOptions(optionsArray);
+                        }
+                        try
+
+                        {
+                            clusterer = (AbstractClusterer) (c.getClass().newInstance());
+                            clusterer.setOptions(optionsArray);
+                        } catch (
+                                Exception ex)
+
+                        {
+                            clusterizeButton.setText("Clusterize");
+                            IJ.log("Error when setting clusterer");
+                        }
                         AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
                         colorClustering.setTheClusterer(theClusterer);
                         IJ.log(theClusterer.toString());
@@ -218,7 +240,6 @@ public class Color_Clustering implements PlugIn{
         ActionListener dataVisualizer = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
                         visualiseData();
@@ -371,10 +392,20 @@ public class Color_Clustering implements PlugIn{
 
             samplePanel.add(new Label("Select sample percentage:"));
             pixelSlider = new JSlider(1,100,50);
-            samplePanel.add(pixelSlider,1);
             samplePanel.setBorder(BorderFactory.createTitledBorder("Number of Samples"));
             samplePanel.setToolTipText("Select a percentage of pixels to be used when training the clusterer");
-            JTextArea txtNumSamples = new JTextArea("50% ("+Integer.toString(((image.getHeight()*image.getWidth()) * pixelSlider.getValue() / 100))+") px");
+            samplePanel.add(pixelSlider,1);
+            JTextArea txtNumSamples = null;
+            if(((image.getHeight()*image.getWidth()*image.getNSlices()) * 0.5) < 30000){
+                txtNumSamples = new JTextArea("50% ("+Integer.toString(((image.getHeight()*image.getWidth()*image.getNSlices()) * pixelSlider.getValue() / 100))+") px");
+            }else{
+                double x = (30000 / (double) (image.getHeight()*image.getWidth()*image.getNSlices()));
+                if(x<0.01){
+                    x=0.01;
+                }
+                txtNumSamples = new JTextArea(Integer.toString( (int) (x*100))+"% ("+Integer.toString(((image.getHeight()*image.getWidth()*image.getNSlices()) * ((int) (x*100))/100))+") px");
+                pixelSlider.setValue( (int) (x*100));
+            }
             numSamples=((image.getHeight()*image.getWidth())*image.getNSlices()) * pixelSlider.getValue() / 100;
             samplePanel.add(txtNumSamples,2);
             pixelSlider.addChangeListener(sampleChange);
@@ -385,6 +416,31 @@ public class Color_Clustering implements PlugIn{
             PropertyPanel clustererEditorPanel = new PropertyPanel( clustererEditor );
             clustererEditor.setClassType( Clusterer.class );
             clustererEditor.setValue( clusterer );
+            clustererEditor.addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    IJ.log("Getting clusterer from chosen one");
+                    Object c = (Object) clustererEditor.getValue();
+                    String options = "";
+                    String[] optionsArray = ((OptionHandler) c).getOptions();
+                    if (c instanceof OptionHandler)
+
+                    {
+                        options = Utils.joinOptions(optionsArray);
+                    }
+                    try
+
+                    {
+                        clusterer = (AbstractClusterer) (c.getClass().newInstance());
+                        clusterer.setOptions(optionsArray);
+                    } catch (
+                            Exception ex)
+
+                    {
+                        IJ.log("Error when setting clusterer");
+                    }
+                }
+            });
             clusterizerSelection.add(clustererEditorPanel);
             clusterizerSelection.setBorder(BorderFactory.createTitledBorder("Clusterer"));
             clusterizerSelection.setToolTipText("Choose clusterer to be used");
