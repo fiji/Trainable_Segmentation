@@ -152,26 +152,7 @@ public class Color_Clustering implements PlugIn{
                 String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
-                        Object c = (Object) clustererEditor.getValue();
-                        String options = "";
-                        String[] optionsArray = ((OptionHandler) c).getOptions();
-                        if (c instanceof OptionHandler)
-
-                        {
-                            options = Utils.joinOptions(optionsArray);
-                        }
-                        try
-
-                        {
-                            clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                            clusterer.setOptions(optionsArray);
-                        } catch (
-                                Exception ex)
-
-                        {
-                            clusterizeButton.setText("Clusterize");
-                            IJ.log("Error when setting clusterer");
-                        }
+                        updateClusterer();
                         if(featuresCreated){
                             colorClustering.createFile(colorClustering.getFeaturesInstances());
                         }else {
@@ -207,26 +188,7 @@ public class Color_Clustering implements PlugIn{
                 exec.submit(new Runnable() {
                     public void run() {
                         createFeatures();
-                        Object c = (Object) clustererEditor.getValue();
-                        String options = "";
-                        String[] optionsArray = ((OptionHandler) c).getOptions();
-                        if (c instanceof OptionHandler)
-
-                        {
-                            options = Utils.joinOptions(optionsArray);
-                        }
-                        try
-
-                        {
-                            clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                            clusterer.setOptions(optionsArray);
-                        } catch (
-                                Exception ex)
-
-                        {
-                            clusterizeButton.setText("Clusterize");
-                            IJ.log("Error when setting clusterer");
-                        }
+                        updateClusterer();
                         AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
                         colorClustering.setTheClusterer(theClusterer);
                         IJ.log(theClusterer.toString());
@@ -420,26 +382,7 @@ public class Color_Clustering implements PlugIn{
             clustererEditor.addPropertyChangeListener(new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
-                    IJ.log("Getting clusterer from chosen one");
-                    Object c = (Object) clustererEditor.getValue();
-                    String options = "";
-                    String[] optionsArray = ((OptionHandler) c).getOptions();
-                    if (c instanceof OptionHandler)
-
-                    {
-                        options = Utils.joinOptions(optionsArray);
-                    }
-                    try
-
-                    {
-                        clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                        clusterer.setOptions(optionsArray);
-                    } catch (
-                            Exception ex)
-
-                    {
-                        IJ.log("Error when setting clusterer");
-                    }
+                    updateClusterer();
                 }
             });
             clusterizerSelection.add(clustererEditorPanel);
@@ -699,27 +642,7 @@ public class Color_Clustering implements PlugIn{
                         }
                         clusterer = colorClustering.getTheClusterer();
                         if(clusterer==null) {
-                            IJ.log("Getting clusterer from chosen one");
-                            Object c = (Object) clustererEditor.getValue();
-                            String options = "";
-                            String[] optionsArray = ((OptionHandler) c).getOptions();
-                            if (c instanceof OptionHandler)
-
-                            {
-                                options = Utils.joinOptions(optionsArray);
-                            }
-                            try
-
-                            {
-                                clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                                clusterer.setOptions(optionsArray);
-                            } catch (
-                                    Exception ex)
-
-                            {
-                                clusterizeButton.setText("Clusterize");
-                                IJ.log("Error when setting clusterer");
-                            }
+                            updateClusterer();
                         }
                         if(featuresCreated){
                             AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
@@ -768,8 +691,31 @@ public class Color_Clustering implements PlugIn{
                 }
             }
         }
+        public void updateClusterer(){
+            Object c = (Object) clustererEditor.getValue();
+            String options = "";
+            String[] optionsArray = ((OptionHandler) c).getOptions();
+            if (c instanceof OptionHandler)
+
+            {
+                options = Utils.joinOptions(optionsArray);
+            }
+            try
+
+            {
+                clusterer = (AbstractClusterer) (c.getClass().newInstance());
+                clusterer.setOptions(optionsArray);
+            } catch (
+                    Exception ex)
+
+            {
+                clusterizeButton.setText("Clusterize");
+                IJ.log("Error when setting clusterer");
+            }
+        }
 
     }
+
 
     public void saveClusterer(){
         SaveDialog sd = new SaveDialog("Save model as...", "clusterer",".model");
