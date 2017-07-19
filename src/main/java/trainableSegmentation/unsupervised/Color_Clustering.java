@@ -240,10 +240,11 @@ public class Color_Clustering implements PlugIn{
         ActionListener dataVisualizer = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
                         visualiseData();
-                    }
+                        }
                 });
             }
         };
@@ -633,27 +634,6 @@ public class Color_Clustering implements PlugIn{
         }
 
         void visualiseData(){
-            Object c = (Object) clustererEditor.getValue();
-            String options = "";
-            String[] optionsArray = ((OptionHandler) c).getOptions();
-            if (c instanceof OptionHandler)
-
-            {
-                options = Utils.joinOptions(optionsArray);
-            }
-            try
-
-            {
-                clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                clusterer.setOptions(optionsArray);
-            } catch (
-                    Exception ex)
-
-            {
-                clusterizeButton.setText("Clusterize");
-                IJ.log("Error when setting clusterer");
-            }
-
             if(!featuresCreated){
                 createFeatures();
             }
