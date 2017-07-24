@@ -40,7 +40,8 @@ import java.util.concurrent.Executors;
 
 public class Color_Clustering implements PlugIn{
 
-    //GUI reestructurar; crear script para probar
+    //GUI reestructurar; crear script para probar; Flag para ver si se ha cargdo el clusterer; A la hora de cargar el clusterer mirr que canales se utilizan, si no es uno de los canales dar error y no cambiar clusterer.
+    //Save clusterer cambiar para guardar el header tambien. Mirar Weka. TrainHeader es un objeto instancias sin instancias. Copia de tamaño 0.
 
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
     protected ImagePlus image=null;
@@ -56,6 +57,7 @@ public class Color_Clustering implements PlugIn{
     private ColorClustering colorClustering = null;
     private boolean featuresCreated = false;
     private FeatureStackArray theFeatures = null;
+    private boolean clustererLoaded = false;
 
 
     /**
@@ -641,7 +643,7 @@ public class Color_Clustering implements PlugIn{
                             catch (InterruptedException ie)	{ IJ.log("interrupted"); }
                         }
                         clusterer = colorClustering.getTheClusterer();
-                        if(clusterer==null) {
+                        if(clusterer==null||clustererLoaded==false) {
                             updateClusterer();
                         }
                         if(featuresCreated){
@@ -691,29 +693,73 @@ public class Color_Clustering implements PlugIn{
                 }
             }
         }
+
         public void updateClusterer(){
-            Object c = (Object) clustererEditor.getValue();
-            String options = "";
-            String[] optionsArray = ((OptionHandler) c).getOptions();
-            if (c instanceof OptionHandler)
+            if(clusterer!=null) {
+                String[] prevOptions = clusterer.getOptions();
+                Object c = (Object) clustererEditor.getValue();
+                String options = "";
+                String[] optionsArray = ((OptionHandler) c).getOptions();
+                if (c instanceof OptionHandler)
 
-            {
-                options = Utils.joinOptions(optionsArray);
-            }
-            try
+                {
+                    options = Utils.joinOptions(optionsArray);
+                }
 
-            {
-                clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                clusterer.setOptions(optionsArray);
-            } catch (
-                    Exception ex)
+                if (optionsArray.length != prevOptions.length) {
+                    clustererLoaded = false;
+                    IJ.log("New clusterer");
+                    try {
+                        clusterer = (AbstractClusterer) (c.getClass().newInstance());
+                        clusterer.setOptions(optionsArray);
+                    } catch (
+                            Exception ex)
 
-            {
-                clusterizeButton.setText("Clusterize");
-                IJ.log("Error when setting clusterer");
+                    {
+                        clusterizeButton.setText("Clusterize");
+                        IJ.log("Error when setting clusterer");
+                    }
+
+                } else {
+                    for (int i = 0; i < optionsArray.length; ++i) {
+                        if (!prevOptions[i].contentEquals(optionsArray[i])) {
+                            clustererLoaded = false;
+                            IJ.log("New clusterer");
+                            try {
+                                clusterer = (AbstractClusterer) (c.getClass().newInstance());
+                                clusterer.setOptions(optionsArray);
+                            } catch (
+                                    Exception ex)
+
+                            {
+                                clusterizeButton.setText("Clusterize");
+                                IJ.log("Error when setting clusterer");
+                            }
+                            break;
+                        }
+                    }
+                }
+            }else{
+                Object c = (Object) clustererEditor.getValue();
+                String options = "";
+                String[] optionsArray = ((OptionHandler) c).getOptions();
+                if (c instanceof OptionHandler)
+
+                {
+                    options = Utils.joinOptions(optionsArray);
+                }
+                try {
+                    clusterer = (AbstractClusterer) (c.getClass().newInstance());
+                    clusterer.setOptions(optionsArray);
+                } catch (
+                        Exception ex)
+
+                {
+                    clusterizeButton.setText("Clusterize");
+                    IJ.log("Error when setting clusterer");
+                }
             }
         }
-
     }
 
 
@@ -740,6 +786,8 @@ public class Color_Clustering implements PlugIn{
             IJ.error("Error when loading Weka clusterer from file");
             IJ.log("Error: clusterer could not be loaded.");
             return;
+        }else {
+            clustererLoaded=true;
         }
 
     }

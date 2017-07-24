@@ -594,6 +594,8 @@ public class ColorClustering {
             IJ.log("Error when loading clusterer");
         }
 
+        //Mirar weka load clusterer
+
         IJ.log(theClusterer.toString());
         return true;
     }
