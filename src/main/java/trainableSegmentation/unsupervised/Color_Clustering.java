@@ -433,6 +433,7 @@ public class Color_Clustering implements PlugIn{
             createProbabilityMap = new JButton("Probability Map");
             executor.add(createProbabilityMap);
             createProbabilityMap.addActionListener(probMapCreator);
+            createProbabilityMap.setEnabled(false);
 
             visualizeData = new JButton("Visualize data");
             executor.add(visualizeData);
@@ -595,7 +596,9 @@ public class Color_Clustering implements PlugIn{
          */
         void visualiseData(){
             if(!featuresCreated){
-                createFeatures();
+                if(!createFeatures()){
+                    return;
+                }
             }
             Instances train = colorClustering.getFeaturesInstances();
             ClusterEvaluation eval = new ClusterEvaluation();
@@ -674,6 +677,8 @@ public class Color_Clustering implements PlugIn{
                                 toggleOverlay.setEnabled(true);
                                 opacitySlider.setEnabled(true);
                                 saveClusterer.setEnabled(true);
+                                createProbabilityMap.setEnabled(true);
+
                             }
                         }else {
                             if(createFeatures()) {
@@ -688,6 +693,7 @@ public class Color_Clustering implements PlugIn{
                                     toggleOverlay.setEnabled(true);
                                     opacitySlider.setEnabled(true);
                                     saveClusterer.setEnabled(true);
+                                    createProbabilityMap.setEnabled(true);
                                 }
                             }
                         }
