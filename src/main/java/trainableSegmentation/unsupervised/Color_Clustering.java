@@ -40,6 +40,7 @@ import java.util.concurrent.Executors;
 
 public class Color_Clustering implements PlugIn{
 
+    //GUI reestructurar; crear script para probar;
 
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
     protected ImagePlus image=null;
@@ -130,6 +131,9 @@ public class Color_Clustering implements PlugIn{
             }
         };
 
+        /**
+         * Action listener for action performed
+         */
         ActionListener saveTheClusterer = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -181,6 +185,9 @@ public class Color_Clustering implements PlugIn{
             }
         };
 
+        /**
+         * Action listener for probability map creation
+         */
         ActionListener probMapCreator = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -201,6 +208,9 @@ public class Color_Clustering implements PlugIn{
             }
         };
 
+        /**
+         * Action listener for data visualization
+         */
         ActionListener dataVisualizer = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -239,14 +249,9 @@ public class Color_Clustering implements PlugIn{
             }
         };
 
-        AdjustmentListener changeOverlay = new AdjustmentListener() {
-            @Override
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                updateResultOverlay();
-                IJ.log("Adjustment Listener");
-            }
-        };
-
+        /**
+         * Action listener for loading clusterers
+         */
         ActionListener clusterLoader = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -254,6 +259,9 @@ public class Color_Clustering implements PlugIn{
             }
         };
 
+        /**
+         * Action lsitener for channel selection, sets featuresCreated flag as false in order to force feature creation on next use.
+         */
         ActionListener channelSelect = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -540,6 +548,10 @@ public class Color_Clustering implements PlugIn{
 
         }
 
+        /**
+         * Creates features based on selected channels and number of samples (from GUI)
+         * @return succes or failure
+         */
         boolean createFeatures(){
             boolean someChannelSelected = false;
 
@@ -578,6 +590,9 @@ public class Color_Clustering implements PlugIn{
             }
         }
 
+        /**
+         * Creates featres and displays the data
+         */
         void visualiseData(){
             if(!featuresCreated){
                 createFeatures();
@@ -622,7 +637,8 @@ public class Color_Clustering implements PlugIn{
 
 
         /**
-         * Based on command clusterize image or stop clusterization procedure
+         * Clusterizes the selected image if the command is "Clusterize", else it stops the custerization.
+         * WARNING: Weka does not support usage of interrupt flag and instead uses deprecated stop function.
          * @param command
          */
         void clusterizeOrStop(String command){
@@ -694,6 +710,9 @@ public class Color_Clustering implements PlugIn{
             }
         }
 
+        /**
+         * Updates clusterer based on selected options on GUI
+         */
         public void updateClusterer(){
             if(clusterer!=null) {
                 String[] prevOptions = clusterer.getOptions();
@@ -760,7 +779,9 @@ public class Color_Clustering implements PlugIn{
         }
     }
 
-
+    /**
+     * Save the clusterer to a file
+     */
     public void saveClusterer(){
         SaveDialog sd = new SaveDialog("Save model as...", "clusterer",".model");
         if (sd.getFileName()==null)
@@ -773,6 +794,9 @@ public class Color_Clustering implements PlugIn{
         }
     }
 
+    /**
+     * Load clusterer from a file and set selected channels
+     */
     public void loadClusterer(){
         OpenDialog od = new OpenDialog( "Choose Weka clusterer file", "" );
         if (od.getFileName()==null)

@@ -125,6 +125,10 @@ public class ColorClustering {
     private AbstractClusterer theClusterer;
 
 
+    /**
+     * Constructor using only image, features and clusterer will be set as null
+     * @param image
+     */
     public ColorClustering(ImagePlus image){
         featuresInstances=null;
         this.image=image;
@@ -554,6 +558,11 @@ public class ColorClustering {
 
     }
 
+    /**
+     * Save clusterer to a file
+     * @param filename path to file to be saved
+     * @return boolean value showing success/failure
+     */
     public boolean saveClusterer(String filename){
         File sFile = null;
         boolean saveOK = true;
@@ -586,6 +595,11 @@ public class ColorClustering {
         return saveOK;
     }
 
+    /**
+     * Load clusterer from path
+     * @param path Path of file to be loaded
+     * @return boolean value showing success/failure
+     */
     public boolean loadClusterer(String path){
 
         File selected = new File(path);
