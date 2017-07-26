@@ -694,11 +694,9 @@ public class Color_Clustering implements PlugIn{
                                     opacitySlider.setEnabled(true);
                                     saveClusterer.setEnabled(true);
                                     createProbabilityMap.setEnabled(true);
+                                    createResult.setEnabled(true);
                                 }
                             }
-                        }
-                        if(!createResult.isEnabled()){
-                            createResult.setEnabled(true);
                         }
                     }
                 };
