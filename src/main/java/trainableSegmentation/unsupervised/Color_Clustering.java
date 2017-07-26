@@ -662,7 +662,7 @@ public class Color_Clustering implements PlugIn{
                         if(!clustererLoaded){
                             updateClusterer();
                         }
-                        if(featuresCreated){
+                        if(featuresCreated&&!clustererLoaded){
                             AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
                             colorClustering.setTheClusterer(theClusterer);
                             IJ.log(theClusterer.toString());
