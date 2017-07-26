@@ -17,6 +17,7 @@ import trainableSegmentation.WekaSegmentation;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.pmml.consumer.PMMLClassifier;
 import weka.clusterers.AbstractClusterer;
+import weka.clusterers.Clusterer;
 import weka.core.*;
 import weka.core.pmml.PMMLFactory;
 import weka.core.pmml.PMMLModel;
@@ -569,9 +570,8 @@ public class ColorClustering {
             }
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
             objectOutputStream.writeObject(theClusterer);
-            featuresInstances = featuresInstances.stringFreeStructure();
-            if (featuresInstances != null)
-                objectOutputStream.writeObject(featuresInstances);
+            Instances trainHeader = new Instances(featuresInstances,0);
+            objectOutputStream.writeObject(trainHeader);
             objectOutputStream.flush();
             objectOutputStream.close();
         }
@@ -588,13 +588,23 @@ public class ColorClustering {
 
     public boolean loadClusterer(String path){
 
-        try {
-            theClusterer = (AbstractClusterer) SerializationHelper.read(new FileInputStream(path));
-        } catch (Exception e) {
-            IJ.log("Error when loading clusterer");
-        }
+        File selected = new File(path);
 
-        //Mirar weka load clusterer
+        try{
+            InputStream is = new FileInputStream(selected);
+            if(selected.getName().endsWith(".gz")){
+                is = new GZIPInputStream(is);
+            }
+            ObjectInputStream objectInputStream = SerializationHelper.getObjectInputStream(is);
+            theClusterer = (AbstractClusterer) objectInputStream.readObject();
+            try{
+                featuresInstances = (Instances) objectInputStream.readObject();
+            }catch (Exception e){
+            }
+            objectInputStream.close();
+        }catch (Exception e){
+            IJ.log("Loading file failed: "+e.getMessage());
+        }
 
         IJ.log(theClusterer.toString());
         return true;

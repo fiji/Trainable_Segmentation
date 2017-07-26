@@ -40,8 +40,6 @@ import java.util.concurrent.Executors;
 
 public class Color_Clustering implements PlugIn{
 
-    //GUI reestructurar; crear script para probar; Flag para ver si se ha cargdo el clusterer; A la hora de cargar el clusterer mirr que canales se utilizan, si no es uno de los canales dar error y no cambiar clusterer.
-    //Save clusterer cambiar para guardar el header tambien. Mirar Weka. TrainHeader es un objeto instancias sin instancias. Copia de tamaño 0.
 
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
     protected ImagePlus image=null;
@@ -190,7 +188,9 @@ public class Color_Clustering implements PlugIn{
                 exec.submit(new Runnable() {
                     public void run() {
                         createFeatures();
-                        updateClusterer();
+                        if(clusterer==null||!clustererLoaded){
+                            updateClusterer();
+                        }
                         AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
                         colorClustering.setTheClusterer(theClusterer);
                         IJ.log(theClusterer.toString());
@@ -643,7 +643,7 @@ public class Color_Clustering implements PlugIn{
                             catch (InterruptedException ie)	{ IJ.log("interrupted"); }
                         }
                         clusterer = colorClustering.getTheClusterer();
-                        if(clusterer==null||clustererLoaded==false) {
+                        if(!clustererLoaded){
                             updateClusterer();
                         }
                         if(featuresCreated){
@@ -701,14 +701,12 @@ public class Color_Clustering implements PlugIn{
                 String options = "";
                 String[] optionsArray = ((OptionHandler) c).getOptions();
                 if (c instanceof OptionHandler)
-
                 {
                     options = Utils.joinOptions(optionsArray);
                 }
 
                 if (optionsArray.length != prevOptions.length) {
                     clustererLoaded = false;
-                    IJ.log("New clusterer");
                     try {
                         clusterer = (AbstractClusterer) (c.getClass().newInstance());
                         clusterer.setOptions(optionsArray);
@@ -724,7 +722,6 @@ public class Color_Clustering implements PlugIn{
                     for (int i = 0; i < optionsArray.length; ++i) {
                         if (!prevOptions[i].contentEquals(optionsArray[i])) {
                             clustererLoaded = false;
-                            IJ.log("New clusterer");
                             try {
                                 clusterer = (AbstractClusterer) (c.getClass().newInstance());
                                 clusterer.setOptions(optionsArray);
@@ -740,6 +737,7 @@ public class Color_Clustering implements PlugIn{
                     }
                 }
             }else{
+                clustererLoaded=false;
                 Object c = (Object) clustererEditor.getValue();
                 String options = "";
                 String[] optionsArray = ((OptionHandler) c).getOptions();
@@ -788,6 +786,48 @@ public class Color_Clustering implements PlugIn{
             return;
         }else {
             clustererLoaded=true;
+            clusterer=colorClustering.getTheClusterer();
+            Instances featuresInstances = colorClustering.getFeaturesInstances();
+            Boolean[] enabledChannels = new Boolean[numChannels];
+            for(int i=0;i<numChannels;++i){
+                enabledChannels[i]=false;
+            }
+            for(int i=0;i<featuresInstances.numAttributes();++i){
+                String name = featuresInstances.attribute(i).name();
+                switch (name){
+                    case "Red":
+                        enabledChannels[0]=true;
+                        break;
+                    case "Green":
+                        enabledChannels[1]=true;
+                        break;
+                    case "Blue":
+                        enabledChannels[2]=true;
+                        break;
+                    case "L":
+                        enabledChannels[3]=true;
+                        break;
+                    case "a":
+                        enabledChannels[4]=true;
+                        break;
+                    case "b":
+                        enabledChannels[5]=true;
+                        break;
+                    case "Hue":
+                        enabledChannels[6]=true;
+                        break;
+                    case "Saturation":
+                        enabledChannels[7]=true;
+                        break;
+                    case "Brightness":
+                        enabledChannels[8]=true;
+                        break;
+                }
+            }
+            for(int i=0;i<numChannels;++i){
+                JCheckBox checkBox = (JCheckBox) win.channelSelection.getComponent(i);
+                checkBox.setSelected(enabledChannels[i]);
+            }
         }
 
     }
