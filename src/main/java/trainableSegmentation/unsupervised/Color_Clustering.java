@@ -179,6 +179,9 @@ public class Color_Clustering implements PlugIn{
                 exec.submit(new Runnable() {
                     public void run() {
                         ImagePlus result = clusteredImage.duplicate();
+                        result.setCalibration(image.getCalibration());
+                        result.setFileInfo(image.getFileInfo());
+                        result.setTitle(image.getShortTitle()+"clusters");
                         result.show();
                     }
                 });
@@ -202,6 +205,9 @@ public class Color_Clustering implements PlugIn{
                         colorClustering.setTheClusterer(theClusterer);
                         IJ.log(theClusterer.toString());
                         ImagePlus result = colorClustering.createProbabilityMaps(theFeatures);
+                        result.setCalibration(image.getCalibration());
+                        result.setFileInfo(image.getFileInfo());
+                        result.setTitle(image.getShortTitle()+"clusterprobmap");
                         result.show();
                     }
                 });

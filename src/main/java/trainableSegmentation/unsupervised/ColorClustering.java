@@ -517,11 +517,11 @@ public class ColorClustering {
      * @param name
      * @param theInstances
      */
-    public void createFile(Instances theInstances){
+    public void createFile(Instances theInstances){ //Mirar created file en el log despues de cancel
 
         SaveDialog sd = new SaveDialog("Save features as...", "features",".arff");
         String path =sd.getDirectory() + sd.getFileName();
-        if(path!=null){
+        if(!path.equals("nullnull")){ //if cancelled directory and fileName are returned as "null" strings, resulting in path "nullnull"
             File file = new File(path+".arff");
             IJ.log("Creating file");
             BufferedWriter out = null;
