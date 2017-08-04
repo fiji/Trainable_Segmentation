@@ -1894,6 +1894,13 @@ public class Weka_Segmentation implements PlugIn
 			win.updateButtonsEnabling();
 			return;
 		}
+		if(  !wekaSegmentation.loadClassifier(od.getDirectory() + od.getFileName()) )
+		{
+			IJ.error("Error when loading Weka classifier from file");
+			IJ.log("Error: classifier could not be loaded.");
+			win.updateButtonsEnabling();
+			return;
+		}
 
 		IJ.log("Read header from " + od.getDirectory() + od.getFileName() + " (number of attributes = " + wekaSegmentation.getTrainHeader().numAttributes() + ")");
 

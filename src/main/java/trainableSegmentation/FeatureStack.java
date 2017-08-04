@@ -3190,6 +3190,53 @@ public class FeatureStack
 		
 		return new DenseInstance(1.0, values);
 	}
+
+	/**
+	 * Create instance (feature vector) of a specific coordinate without a class, to be used on unsupervised clustering.
+	 *
+	 * @param x x- axis coordinate
+	 * @param y y- axis coordinate
+	 * @return corresponding instance
+	 */
+	public DenseInstance createInstance(
+			int x,
+			int y)
+	{
+		final int extra = useNeighbors ? 8 : 0;
+
+		final double[] values = new double[ getSize() + extra ];
+		int n = 0;
+
+		if(!colorFeatures || oldColorFormat)
+		{
+			for (int z=0; z<getSize(); z++, n++)
+				values[ z ] = this.wholeStack.getVoxel( x, y, z );
+		}
+		else
+		{
+			for (int z=0; z < getSize(); z++, n++)
+			{
+				int c  = (int) wholeStack.getVoxel( x, y, z );
+				int r = (c&0xff0000)>>16;
+				int g = (c&0xff00)>>8;
+				int b = c&0xff;
+				values[ z ] = (r + g + b) / 3.0;
+			}
+		}
+		// Test: add neighbors of original image
+		if(useNeighbors)
+		{
+			for(int i=-1;  i < 2; i++)
+				for(int j = -1; j < 2; j++)
+				{
+					if(i==0 && j==0)
+						continue;
+					values[n] = getPixelMirrorConditions(getProcessor(1), x+i, y+j);
+					n++;
+				}
+		}
+		return new DenseInstance(1.0, values);
+	}
 	
 	/**
 	 * Create instance (feature vector) of a specific coordinate in place.
@@ -3205,7 +3252,7 @@ public class FeatureStack
 			int y, 
 			int classValue,
 			DenseInstance ins)
-	{		
+	{
 		if( classValue < 0 )
 		{
 			IJ.log("Error: negative class value.");
@@ -3246,7 +3293,60 @@ public class FeatureStack
 				}
 		}
 		// Assign class		
-		ins.setClassValue(classValue);		
+		ins.setClassValue(classValue);
+	}
+
+	/**
+	 * without class parameter
+	 * @param x
+	 * @param y
+	 * @param ins
+	 * @param auxArray
+	 */
+	public void setInstance(
+			int x,
+			int y,
+			final ReusableDenseInstance ins,
+			final double[] auxArray )
+	{
+		int n = 0;
+
+		// fill auxiliary array
+		if(!colorFeatures || oldColorFormat)
+		{
+			for (int z=0; z<getSize(); z++, n++)
+				auxArray[ z ] = this.wholeStack.getVoxel( x, y, z );
+		}
+		else
+		{
+			for (int z=0; z < getSize(); z++, n++)
+			{
+				int c  = (int) wholeStack.getVoxel( x, y, z );
+				int r = (c&0xff0000)>>16;
+				int g = (c&0xff00)>>8;
+				int b = c&0xff;
+				auxArray[ z ] = (r + g + b) / 3.0;
+			}
+		}
+
+
+		// Test: add neighbors of original image
+		if(useNeighbors)
+		{
+			for(int i=-1;  i < 2; i++)
+				for(int j = -1; j < 2; j++)
+				{
+					if(i==0 && j==0)
+						continue;
+					auxArray[n] =
+							getPixelMirrorConditions(getProcessor(1), x+i, y+j);
+					n++;
+				}
+		}
+
+		// Set attribute values to input instance
+		ins.setValues( 1.0, auxArray );
+		return;
 	}
 	
 	/**
