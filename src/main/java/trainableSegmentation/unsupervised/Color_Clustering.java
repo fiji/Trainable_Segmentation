@@ -2,10 +2,12 @@ package trainableSegmentation.unsupervised;
 
 
 import ij.IJ;
-import ij.ImageJ;
 import ij.ImagePlus;
 import ij.WindowManager;
-import ij.gui.*;
+import ij.gui.ImageCanvas;
+import ij.gui.ImageRoi;
+import ij.gui.Overlay;
+import ij.gui.StackWindow;
 import ij.io.OpenDialog;
 import ij.io.SaveDialog;
 import ij.plugin.PlugIn;
@@ -21,15 +23,31 @@ import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyPanel;
 import weka.gui.explorer.ClustererAssignmentsPlotInstances;
 
-import weka.gui.explorer.ClustererPanel;
-import weka.gui.visualize.PlotData2D;
 import weka.gui.visualize.VisualizePanel;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JTextArea;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
-import java.awt.event.*;
+
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
