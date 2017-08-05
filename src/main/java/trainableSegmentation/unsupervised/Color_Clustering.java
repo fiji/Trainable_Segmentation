@@ -163,7 +163,6 @@ public class Color_Clustering implements PlugIn{
         ActionListener saveTheClusterer = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
                         saveClusterer();
@@ -179,7 +178,6 @@ public class Color_Clustering implements PlugIn{
         ActionListener fileCreation = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
                         updateClusterer();
@@ -201,7 +199,6 @@ public class Color_Clustering implements PlugIn{
         ActionListener resultCreation = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
                         ImagePlus result = clusteredImage.duplicate();
@@ -220,7 +217,6 @@ public class Color_Clustering implements PlugIn{
         ActionListener probMapCreator = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
                         createFeatures();
@@ -246,7 +242,6 @@ public class Color_Clustering implements PlugIn{
         ActionListener dataVisualizer = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
                         visualiseData();
@@ -261,7 +256,6 @@ public class Color_Clustering implements PlugIn{
         ActionListener overlay = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
                         if(e.getSource()==toggleOverlay) {
@@ -336,9 +330,6 @@ public class Color_Clustering implements PlugIn{
                 tmp.addActionListener(channelSelect);
                channelSelection.add(tmp,i);
             }
-
-            int height = image.getHeight();
-            int width = image.getWidth();
 
             GridBagLayout layout = new GridBagLayout();
             GridBagConstraints allConstraints = new GridBagConstraints();
