@@ -290,7 +290,7 @@ public class Color_Clustering implements PlugIn{
         };
 
         /**
-         * Action lsitener for channel selection, sets featuresCreated flag as false in order to force feature creation on next use.
+         * Action listener for channel selection, sets featuresCreated flag as false in order to force feature creation on next use.
          */
         ActionListener channelSelect = new ActionListener() {
             @Override
@@ -909,7 +909,7 @@ public class Color_Clustering implements PlugIn{
     }
 
     /**
-     * Usefull for testing
+     * Useful for testing
      * @param args
      */
     public static void main(String[] args){
