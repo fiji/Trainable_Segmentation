@@ -80,11 +80,7 @@ public class ColorClustering {
          * @return
          */
         public static int numChannels(){
-            int number=0;
-            for(String item : getAllLabels()){
-                number++;
-            }
-            return number;
+            return getAllLabels().length;
         }
 
         /**
