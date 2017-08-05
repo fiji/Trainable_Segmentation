@@ -44,7 +44,7 @@ public class ColorClustering {
 
 
     /**
-     * Names all channels that can be used.
+     * Names of all channels (features) that can be used.
      * */
     public enum Channel{
         Red("Red"),
@@ -57,6 +57,7 @@ public class ColorClustering {
         Saturation("Saturation"),
         Brightness("Brightness");
 
+	/** channel label */
         private final String label;
 
         /**
@@ -117,18 +118,23 @@ public class ColorClustering {
         }
 
     };
-
+    /** list of channels to use as features */
     private ArrayList<Channel> channels = new ArrayList<Channel>();
+    /** instances to build the clusterer */
     private Instances featuresInstances;
+    /** color image to clusterize */
     private ImagePlus image;
+    /** array of feature stacks used to store the image features of each 2D slice */
     private FeatureStackArray featureStackArray;
+    /** number of samples to use to build the clusterer */
     private int numSamples;
+    /** clustering Weka model used to cluster color image */
     private AbstractClusterer theClusterer;
 
 
     /**
      * Constructor using only image, features and clusterer will be set as null
-     * @param image
+     * @param image input color image to clusterize
      */
     public ColorClustering(ImagePlus image){
         featuresInstances=null;
@@ -141,9 +147,9 @@ public class ColorClustering {
 
     /**
      * Creates color clustering object based on image, number of samples and selected channels. Creates the features.
-     * @param image
-     * @param numSamples
-     * @param selectedChannels
+     * @param image input color image
+     * @param numSamples number of samples to use
+     * @param selectedChannels list of color space channels (features) to use
      */
     public ColorClustering(ImagePlus image, int numSamples, ArrayList<Channel> selectedChannels){ //Separar build clusterer del constructor
         for(Channel element: selectedChannels){
@@ -156,9 +162,9 @@ public class ColorClustering {
     }
 
     /**
-     * Create clusterer using features, and provided number of clusters;
-     * @param numClusters
-     * @return
+     * Build clusterer using the current features and the provided number of clusters.
+     * @param selectedClusterer clustering Weka model to build
+     * @return built clustering Weka model
      */
     public AbstractClusterer createClusterer(AbstractClusterer selectedClusterer){
         PixelClustering pixelClustering = new PixelClustering(this.getFeaturesInstances(),selectedClusterer);
@@ -170,7 +176,7 @@ public class ColorClustering {
 
 
     /**
-     * Creates features based on selected channels, uses private variables.
+     * Generate the features based on the selected color space channels.
      */
     public void createFeatures(){
         IJ.log("Creating Features");
@@ -280,9 +286,9 @@ public class ColorClustering {
     }
 
     /**
-     * Creates FeatureStackArray based on provided image and selected channels (private variable)
-     * @param image
-     * @return
+     * Create FeatureStackArray based on provided image and selected channels (private variable)
+     * @param image input color image
+     * @return feature stack array
      */
     public FeatureStackArray createFSArray(ImagePlus image){
         IJ.log("Creating Feature Stack Array");
@@ -360,9 +366,9 @@ public class ColorClustering {
     }
 
     /**
-     * Creates probability map based on provided features
-     * @param theFeatures
-     * @return
+     * Create probability map based on provided features and current cluster.
+     * @param theFeatures input array of feature stacks
+     * @return image containing the probability maps of each cluster
      */
     public ImagePlus createProbabilityMaps(FeatureStackArray theFeatures){
         int height;
@@ -443,8 +449,8 @@ public class ColorClustering {
 
     /**
      * Creates clustered image based on provided FeatureStackArray and using private clusterer, returns as ImagePlus
-     * @param theFeatures
-     * @return
+     * @param theFeatures input array of feature stacks
+     * @return clusterized image (one label per cluster)
      */
     public ImagePlus createClusteredImage(FeatureStackArray theFeatures){
         IJ.log("Creating clustered Image");
@@ -505,7 +511,7 @@ public class ColorClustering {
 
 
     /**
-     * Creates file of features with provided name.
+     * Create ARFF file of features with provided name.
      * @param name
      * @param theInstances
      */
@@ -621,7 +627,7 @@ public class ColorClustering {
 
     /**
      * Get number of samples that is being used
-     * @return
+     * @return number of samples that is being used
      */
     public int getNumSamples() {
         return numSamples;
@@ -629,7 +635,7 @@ public class ColorClustering {
 
     /**
      * Set number of samples that is to be used
-     * @param numSamples
+     * @param numSamples number of samples that is to be used
      */
     public void setNumSamples(int numSamples) {
         this.numSamples = numSamples;
@@ -637,7 +643,7 @@ public class ColorClustering {
 
     /**
      * Get image that is being used
-     * @return
+     * @return color image being used
      */
     public ImagePlus getImage() {
         return image;
@@ -645,7 +651,7 @@ public class ColorClustering {
 
     /**
      * Set image that is to be used
-     * @param image
+     * @param image color image to be clusterized
      */
     public void setImage(ImagePlus image) {
         this.image = image;
@@ -653,7 +659,7 @@ public class ColorClustering {
 
     /**
      * Get FeatureStackArray that is being used
-     * @return
+     * @return array of feature stacks used for clustering
      */
     public FeatureStackArray getFeatureStackArray() {
         return featureStackArray;
@@ -661,7 +667,7 @@ public class ColorClustering {
 
     /**
      * Set FeatureStackArray that is to be used
-     * @param featureStackArray
+     * @param featureStackArray array of feature stacks to use in clustering
      */
     public void setFeatureStackArray(FeatureStackArray featureStackArray) {
         this.featureStackArray = featureStackArray;
@@ -670,7 +676,7 @@ public class ColorClustering {
 
     /**
      * Get features instances that are being used
-     * @return
+     * @return set of instances used for building the clusterer
      */
     public Instances getFeaturesInstances() {
         return featuresInstances;
@@ -678,7 +684,7 @@ public class ColorClustering {
 
     /**
      * Set features instances that are to be used
-     * @param featuresInstances
+     * @param featuresInstances set of instances to be used to build the clusterer
      */
     public void setFeaturesInstances(Instances featuresInstances) {
         this.featuresInstances = featuresInstances;
@@ -687,7 +693,7 @@ public class ColorClustering {
 
     /**
      * Get abstract clusterer that has been created
-     * @return
+     * @return current clusterer
      */
     public AbstractClusterer getTheClusterer() {
         return theClusterer;
@@ -695,7 +701,7 @@ public class ColorClustering {
 
     /**
      * Set abstract clusterer to be used
-     * @param theClusterer
+     * @param theClusterer clustering Weka model to use
      */
     public void setTheClusterer(AbstractClusterer theClusterer) {
         this.theClusterer = theClusterer;
