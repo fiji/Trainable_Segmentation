@@ -4,7 +4,12 @@ import ij.IJ;
 import weka.clusterers.AbstractClusterer;
 import weka.core.Instances;
 
-
+/**
+ * This class contains all the library methods to perform
+ * unsupervised learning on pixels based on the Weka clusterers.
+ * @author Josu Salinas and Ignacio Arganda-Carreras
+ *
+ */
 public class PixelClustering {
 
 

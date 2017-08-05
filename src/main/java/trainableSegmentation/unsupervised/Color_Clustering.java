@@ -56,6 +56,14 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Fiji plugin to perform color clustering on a 2D image
+ * or stack based on different color space representations
+ * (RGB, HSB and Lab) and all available clusterers in Weka.
+ *
+ * @author Josu Salinas and Ignacio Arganda-Carreras
+ *
+ */
 public class Color_Clustering implements PlugIn{
 
     //GUI reestructurar; crear script para probar;

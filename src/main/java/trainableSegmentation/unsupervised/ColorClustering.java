@@ -35,7 +35,12 @@ import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-
+/**
+ * This class contains all the library methods to perform
+ * color clustering based on a few color space transformations
+ * and the Weka clusterers.
+ * @author Josu Salinas and Ignacio Arganda-Carreras
+ */
 public class ColorClustering {
 
 
