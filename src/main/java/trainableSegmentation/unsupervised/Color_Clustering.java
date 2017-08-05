@@ -907,18 +907,4 @@ public class Color_Clustering implements PlugIn{
         }
 
     }
-
-    /**
-     * Useful for testing
-     * @param args
-     */
-    public static void main(String[] args){
-        Class<?> clazz = Color_Clustering.class;
-        String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();
-        String pluginsDir = url.substring("file:".length(), url.length() - clazz.getName().length() - ".class".length());
-        System.setProperty("plugins.dir", pluginsDir);
-        IJ.runPlugIn(clazz.getName(),"");
-
-    }
-
 }
