@@ -31,7 +31,6 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -269,7 +268,6 @@ public class ColorClustering {
                     }
                 featuresInstances = new Instances("segment", attributes, 1);
             }
-            Random rand = new Random();
             ArrayList<Point> positions = new ArrayList<Point>();
             for(int x=0;x<image.getWidth();++x){
                 for(int y=0;y<image.getHeight();++y){
@@ -292,15 +290,7 @@ public class ColorClustering {
      */
     public FeatureStackArray createFSArray(ImagePlus image){
         IJ.log("Creating Feature Stack Array");
-        int height;
-        int width;
-        int numInstances;
-        height = image.getHeight();
-        width = image.getWidth();
-        numInstances = height*width;
         FeatureStackArray theFeatures = new FeatureStackArray(image.getStackSize());
-        ImageStack clusteringResult = new ImageStack(width,height);
-        double clusterArray[] = new double[numInstances];
         for(int slice = 1; slice <= image.getStackSize(); ++slice) {
             boolean labactive = false, rgbactive = false, hsbactive = false;
             ImageConverter ic, ic2;
