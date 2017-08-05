@@ -12,8 +12,9 @@ import weka.core.Instances;
  */
 public class PixelClustering {
 
-
+    /** Set of instances used to create the clusterer */
     private Instances featuresInstances;
+    /** Clustering Weka model */
     private AbstractClusterer selectedClusterer;
 
 
@@ -26,9 +27,10 @@ public class PixelClustering {
     }
 
     /**
-     * Creates clusterer based on number of clusters and featuresInstances
-     * @param featuresInstances
-     * @param numClusters Because it uses K-Means
+     * Construct PixelClustering object with a specific set of instances
+     * and clustering model
+     * @param featuresInstances set of instances to use for building the clusterer
+     * @param clusterer clustering Weka model to be used
      */
     public PixelClustering(Instances featuresInstances, AbstractClusterer clusterer){
         this.setFeaturesInstances(featuresInstances);
@@ -36,7 +38,7 @@ public class PixelClustering {
     }
 
     /**
-     * Builds clusterer based on featuresInstances and number of clusters
+     * Build current clusterer based on the current instances
      */
     public void buildClusterer(){
         IJ.log("Building clusterer");
@@ -55,8 +57,8 @@ public class PixelClustering {
     //Getters and setters
 
     /**
-     * Set features instances to be used
-     * @param featuresInstances
+     * Set feature instances to be used
+     * @param featuresInstances instances to be used
      */
     public void setFeaturesInstances(Instances featuresInstances) {
         this.featuresInstances = featuresInstances;
@@ -64,7 +66,7 @@ public class PixelClustering {
 
     /**
      * Get features instances that are being used
-     * @return
+     * @return instances that are being used
      */
     public Instances getFeaturesInstances() {
         return featuresInstances;
@@ -72,7 +74,7 @@ public class PixelClustering {
 
     /**
      * Get selected clusterer
-     * @return
+     * @return current clusterer
      */
     public AbstractClusterer getSelectedClusterer() {
         return selectedClusterer;
@@ -80,7 +82,7 @@ public class PixelClustering {
 
     /**
      * Set selected clusterer
-     * @param selectedClusterer
+     * @param selectedClusterer clustering Weka model
      */
     public void setSelectedClusterer(AbstractClusterer selectedClusterer) {
         this.selectedClusterer = selectedClusterer;
