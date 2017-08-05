@@ -90,7 +90,11 @@ public class Color_Clustering implements PlugIn{
      */
     private class CustomWindow extends StackWindow
     {
-        private Panel all = new Panel();
+        /**
+	 * Generated serial version UID
+	 */
+	private static final long serialVersionUID = -8066394344204413879L;
+	private Panel all = new Panel();
         private JPanel channelSelection = new JPanel();
         private JPanel clusterizerSelection = new JPanel();
         private JPanel executor = new JPanel();
