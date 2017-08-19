@@ -732,13 +732,30 @@ public class WekaSegmentation {
 		}
 
 		try{
-			// Check if the loaded information corresponds to current state of the segmentator
-			// (the attributes can be adjusted, but the classes must match)
-			if(!adjustSegmentationStateToData(newHeader))
+		    // Check if classifier was trained on the same image type
+		    // (grayscale or color) as the training image
+		    if( containsColorFeatures( newHeader ) )
+		    {
+			if( this.trainingImage.getType() != ImagePlus.COLOR_RGB )
 			{
-				IJ.log("Error: current segmentator state could not be updated to loaded data requirements (attributes and classes)");
-				return false;
+			    IJ.log( "Error: new classifier contains color features " +
+				    "and training image is grayscale." );
+			    return false;
 			}
+		    }
+		    else if( this.trainingImage.getType() == ImagePlus.COLOR_RGB )
+		    {
+			IJ.log( "Error: new classifier was trained on grayscale images " +
+				"and training image is color." );
+			return false;
+		    }
+		    // Check if the loaded information corresponds to current state of the segmentator
+		    // (the attributes can be adjusted, but the classes must match)
+		    if(!adjustSegmentationStateToData(newHeader))
+		    {
+			IJ.log("Error: current segmentator state could not be updated to loaded data requirements (attributes and classes)");
+			return false;
+		    }
 		}catch(Exception e)
 		{
 			IJ.log("Error while adjusting data!");
@@ -751,7 +768,26 @@ public class WekaSegmentation {
 
 		return true;
 	}
-
+	/**
+	 * Check if a set of Weka instances has color attributes
+	 * (given by the presence of the attribute names "Hue",
+	 * "Saturation" or "Brightness").
+	 * @param data set of Weka instances
+	 * @return true if the set contains color attributes, false otherwise
+	 */
+	public boolean containsColorFeatures( Instances data )
+	{
+		Enumeration<Attribute> attributes = data.enumerateAttributes();
+		while(attributes.hasMoreElements())
+		{
+			final Attribute a = attributes.nextElement();
+			if( a.name().equals( "Hue" ) ||
+				a.name().equals( "Saturation" ) ||
+				a.name().equals( "Brightness" ) )
+					return true;
+		}
+		return false;
+	}
 	/**
 	 * Returns the current classifier.
 	 */
