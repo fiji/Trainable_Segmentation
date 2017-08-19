@@ -749,6 +749,20 @@ public class WekaSegmentation {
 				"and training image is color." );
 			return false;
 		    }
+		    // Check if classifier was trained using the same dimensions as
+		    // the training image (2D or 3D).
+		    if( containsExclusive2DFeatures( newHeader ) && isProcessing3D )
+		    {
+			IJ.log( "Error: new classifier was trained on 2D images " +
+				"and you are using Trainable Weka Segmentation 3D." );
+			return false;
+		    }
+		    else if( containsExclusive3DFeatures( newHeader ) && !isProcessing3D )
+		    {
+			IJ.log( "Error: new classifier was trained on 3D images " +
+				"and you are using Trainable Weka Segmentation 2D." );
+			return false;
+		    }
 		    // Check if the loaded information corresponds to current state of the segmentator
 		    // (the attributes can be adjusted, but the classes must match)
 		    if(!adjustSegmentationStateToData(newHeader))
@@ -787,6 +801,64 @@ public class WekaSegmentation {
 					return true;
 		}
 		return false;
+	}
+	/**
+	 * Check if a set of Weka instances has 2D image attributes
+	 * (given by the presence of the attribute names from FeatureStack
+	 * which are not present in FeatureStack3D).
+	 * @param data set of Weka instances
+	 * @return true if the set contains exclusive 2D attributes, false otherwise
+	 */
+	public boolean containsExclusive2DFeatures( Instances data )
+	{
+	    // make list of exclusive 2D feature names
+	    final ArrayList<String> names2D = new ArrayList<String>();
+	    for( int i=0; i<FeatureStack.availableFeatures.length; i++ )
+		names2D.add( FeatureStack.availableFeatures[ i ] );
+	    for( int i=0; i<FeatureStack3D.availableFeatures.length; i++ )
+	    {
+		if( names2D.contains( FeatureStack3D.availableFeatures[ i ] ) )
+		    names2D.remove( FeatureStack3D.availableFeatures[ i ] );
+	    }
+
+	    Enumeration<Attribute> attributes = data.enumerateAttributes();
+	    while(attributes.hasMoreElements())
+	    {
+		final Attribute a = attributes.nextElement();
+		for( String s : names2D )
+		    if( a.name().startsWith( s ) )
+			return true;
+	    }
+	    return false;
+	}
+	/**
+	 * Check if a set of Weka instances has 3D image attributes
+	 * (given by the presence of the attribute names from FeatureStack3D
+	 * which are not present in FeatureStack).
+	 * @param data set of Weka instances
+	 * @return true if the set contains exclusive 3D attributes, false otherwise
+	 */
+	public boolean containsExclusive3DFeatures( Instances data )
+	{
+	    // make list of exclusive 3D feature names
+	    final ArrayList<String> names3D = new ArrayList<String>();
+	    for( int i=0; i<FeatureStack3D.availableFeatures.length; i++ )
+		names3D.add( FeatureStack3D.availableFeatures[ i ] );
+	    for( int i=0; i<FeatureStack.availableFeatures.length; i++ )
+	    {
+		if( names3D.contains( FeatureStack.availableFeatures[ i ] ) )
+		    names3D.remove( FeatureStack.availableFeatures[ i ] );
+	    }
+
+	    Enumeration<Attribute> attributes = data.enumerateAttributes();
+	    while(attributes.hasMoreElements())
+	    {
+		final Attribute a = attributes.nextElement();
+		for( String s : names3D )
+		    if( a.name().startsWith( s ) )
+			return true;
+	    }
+	    return false;
 	}
 	/**
 	 * Returns the current classifier.
