@@ -179,7 +179,8 @@ public class WekaSegmentation {
 			false,	/* Entropy */
 			false	/* Neighbors */
 	};
-
+	/** flags of filters to be used in 3D */
+	private boolean[] enabled3Dfeatures = FeatureStack3D.getDefaultEnabledFeatures();
 	/** use neighborhood flag */
 	private boolean useNeighbors = false;
 
@@ -734,20 +735,23 @@ public class WekaSegmentation {
 		try{
 		    // Check if classifier was trained on the same image type
 		    // (grayscale or color) as the training image
-		    if( containsColorFeatures( newHeader ) )
+		    if( null != trainingImage )
 		    {
-			if( this.trainingImage.getType() != ImagePlus.COLOR_RGB )
+			if( containsColorFeatures( newHeader ) )
 			{
-			    IJ.log( "Error: new classifier contains color features " +
-				    "and training image is grayscale." );
+			    if( trainingImage.getType() != ImagePlus.COLOR_RGB )
+			    {
+				IJ.log( "Error: new classifier contains color features " +
+					"and training image is grayscale." );
+				return false;
+			    }
+			}
+			else if( trainingImage.getType() == ImagePlus.COLOR_RGB )
+			{
+			    IJ.log( "Error: new classifier was trained on grayscale images " +
+				    "and training image is color." );
 			    return false;
 			}
-		    }
-		    else if( this.trainingImage.getType() == ImagePlus.COLOR_RGB )
-		    {
-			IJ.log( "Error: new classifier was trained on grayscale images " +
-				"and training image is color." );
-			return false;
 		    }
 		    // Check if classifier was trained using the same dimensions as
 		    // the training image (2D or 3D).
@@ -4834,7 +4838,7 @@ public class WekaSegmentation {
 			FeatureStack3D fs3d = new FeatureStack3D( imp );
 			fs3d.setMaximumSigma( maximumSigma );
 			fs3d.setMinimumSigma( minimumSigma );
-			fs3d.setEnableFeatures( this.fs3d.getEnabledFeatures() );
+			fs3d.setEnableFeatures( enabled3Dfeatures );
 			fs3d.updateFeaturesMT();
 			FeatureStackArray fsa = fs3d.getFeatureStackArray();
 			long end = System.currentTimeMillis();
@@ -4851,7 +4855,7 @@ public class WekaSegmentation {
 				if( imp.getNSlices() * imp.getNFrames() > 1)
 					result.setOpenAsHyperStack( true );
 			}
-			result.setCalibration( trainingImage.getCalibration() );
+			result.setCalibration( imp.getCalibration() );
 			// force garbage collection
 			fs3d = null;
 			fsa = null;
@@ -4870,7 +4874,7 @@ public class WekaSegmentation {
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				for(int j=0; j<trainingImage.getImageStackSize(); j++)
+				for(int j=0; j<imp.getImageStackSize(); j++)
 					if(!examples[j].get(i).isEmpty())
 					{
 						classNames.add(getClassLabels()[i]);
@@ -5774,6 +5778,7 @@ public class WekaSegmentation {
 		IJ.log("Classifying whole image using " + numThreads + " thread(s)...");
 		try{
 			classifiedImage = applyClassifier( featureStackArray, numThreads, classify );
+			classifiedImage.setCalibration( trainingImage.getCalibration() );
 		}
 		catch(Exception ex)
 		{
@@ -6008,7 +6013,7 @@ public class WekaSegmentation {
 		if (numThreads == 0)
 			numThreads = Prefs.getThreads();
 
-		if( featureStackArray.isOldColorFormat() )
+		if( fsa.isOldColorFormat() )
 			IJ.log("Using old color format...");
 
 		ArrayList<String> classNames = null;
@@ -6046,11 +6051,11 @@ public class WekaSegmentation {
 		// number of classes
 		final int numClasses   = classNames.size();
 		// total number of instances (i.e. feature vectors)
-		final int numInstances = fsa.getSize() * trainingImage.getWidth() * trainingImage.getHeight();
+		final int numInstances = fsa.getSize() * fsa.getWidth() * fsa.getHeight();
 		// number of channels of the result image
 		final int numChannels  = (probabilityMaps ? numClasses : 1);
 		// number of slices of the result image
-		final int numSlices    = (numChannels*numInstances)/(trainingImage.getWidth()*trainingImage.getHeight());
+		final int numSlices    = (numChannels*numInstances)/(fsa.getWidth()*fsa.getHeight());
 
 		IJ.showStatus("Classifying image...");
 
@@ -6129,21 +6134,20 @@ public class WekaSegmentation {
 		final long end = System.currentTimeMillis();
 		IJ.log("Classifying whole image data took: " + (end-start) + "ms");
 
-		double[] classifiedSlice = new double[trainingImage.getWidth() * trainingImage.getHeight()];
-		final ImageStack classStack = new ImageStack(trainingImage.getWidth(), trainingImage.getHeight());
+		double[] classifiedSlice = new double[fsa.getWidth() * fsa.getHeight()];
+		final ImageStack classStack = new ImageStack(fsa.getWidth(), fsa.getHeight());
 
 		for (int i = 0; i < numSlices/numChannels; i++)
 		{
 			for (int c = 0; c < numChannels; c++)
 			{
-				System.arraycopy(classificationResult[c], i*(trainingImage.getWidth()*trainingImage.getHeight()), classifiedSlice, 0, trainingImage.getWidth()*trainingImage.getHeight());
-				ImageProcessor classifiedSliceProcessor = new FloatProcessor(trainingImage.getWidth(), trainingImage.getHeight(), classifiedSlice);
+				System.arraycopy(classificationResult[c], i*(fsa.getWidth()*fsa.getHeight()), classifiedSlice, 0, fsa.getWidth()*fsa.getHeight());
+				ImageProcessor classifiedSliceProcessor = new FloatProcessor(fsa.getWidth(), fsa.getHeight(), classifiedSlice);
 				classStack.addSlice(probabilityMaps ? getClassLabels()[c] : "", classifiedSliceProcessor);
 			}
 		}
 		ImagePlus classImg = new ImagePlus(probabilityMaps ? "Probability maps" : "Classification result", classStack);
 
-		classImg.setCalibration(trainingImage.getCalibration());
 		return classImg;
 	}
 
@@ -6545,7 +6549,11 @@ public class WekaSegmentation {
 	public void setEnabledFeatures(boolean[] newFeatures)
 	{
 		if( isProcessing3D )
-			this.fs3d.setEnableFeatures( newFeatures );
+		{
+		    enabled3Dfeatures = newFeatures;
+		    if( null != fs3d )
+			fs3d.setEnableFeatures( newFeatures );
+		}
 		else
 			this.enabledFeatures = newFeatures;
 		if( null != featureStackArray )
