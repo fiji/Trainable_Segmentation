@@ -177,7 +177,27 @@ public class FeatureStack3D
 		
 		wholeStack.add( new ImagePlus("original", is ) );		
 	}
-	
+	/**
+	 * Get the list of flags for the default features
+	 * @return list of boolean flags for the default features
+	 */
+	public static boolean[] getDefaultEnabledFeatures()
+	{
+	    return new boolean[]{
+			false, 	/* Gaussian_blur */
+			false, 	/* Hessian */
+			false, 	/* Derivatives */
+			false, 	/* Laplacian */
+			false,	/* Structure */
+			false,	/* Edges */
+			false,	/* Difference of Gaussian */
+			false,	/* Minimum */
+			false,	/* Maximum */
+			true,	/* Mean */
+			false,	/* Median */
+			true	/* Variance */
+	    };
+	}
 	
 	/**
 	 * Get derivatives features (to be submitted in an ExecutorService)
