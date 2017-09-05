@@ -48,6 +48,7 @@ import ij.Prefs;
 import ij.plugin.Filters3D;
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
+import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import net.imglib2.RandomAccessible;
 import net.imglib2.algorithm.dog.DifferenceOfGaussian;
@@ -491,7 +492,10 @@ public class FeatureStack3D
 			{
 				final ImagePlus im = originalImage.duplicate();
 				if( originalImage.getType() != ImagePlus.COLOR_RGB )
-					IJ.run( im, "32-bit", "");
+				{
+					ImageConverter ic = new ImageConverter( im );
+					ic.convertToGray32();
+				}
 				
 				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 				
@@ -576,7 +580,10 @@ public class FeatureStack3D
 			{
 				final ImagePlus im = originalImage.duplicate();
 				if( originalImage.getType() != ImagePlus.COLOR_RGB )
-					IJ.run( im, "32-bit", "");
+				{
+					ImageConverter ic = new ImageConverter( im );
+					ic.convertToGray32();
+				}
 
 				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 				
@@ -610,7 +617,10 @@ public class FeatureStack3D
 			{
 				final ImagePlus im = originalImage.duplicate();
 				if( originalImage.getType() != ImagePlus.COLOR_RGB )
-					IJ.run( im, "32-bit", "");
+				{
+					ImageConverter ic = new ImageConverter( im );
+					ic.convertToGray32();
+				}
 
 				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 
@@ -643,7 +653,10 @@ public class FeatureStack3D
 			{
 				final ImagePlus im = originalImage.duplicate();
 				if( originalImage.getType() != ImagePlus.COLOR_RGB )
-					IJ.run( im, "32-bit", "");
+				{
+					ImageConverter ic = new ImageConverter( im );
+					ic.convertToGray32();
+				}
 				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 
 				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.MEDIAN, (float)sigma, (float)sigma, (float)sigma);
@@ -675,7 +688,10 @@ public class FeatureStack3D
 			{
 				final ImagePlus im = originalImage.duplicate();
 				if( originalImage.getType() != ImagePlus.COLOR_RGB )
-					IJ.run( im, "32-bit", "");
+				{
+					ImageConverter ic = new ImageConverter( im );
+					ic.convertToGray32();
+				}
 
 				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 
