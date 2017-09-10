@@ -659,7 +659,7 @@ public class Weka_Segmentation implements PlugIn
 			if(null != sliceSelector)
 			{
 				// set slice selector to the correct number
-				sliceSelector.setValue( imp.getSlice() );
+				sliceSelector.setValue( imp.getCurrentSlice() );
 				// add adjustment listener to the scroll bar
 				sliceSelector.addAdjustmentListener(new AdjustmentListener() 
 				{
@@ -1279,7 +1279,7 @@ public class Weka_Segmentation implements PlugIn
 		
 		// The display image is a copy of the training image (single image or stack)
 		displayImage = trainingImage.duplicate();
-		displayImage.setSlice( trainingImage.getSlice() );
+		displayImage.setSlice( trainingImage.getCurrentSlice() );
 		displayImage.setTitle( Weka_Segmentation.PLUGIN_NAME + " " + Weka_Segmentation.PLUGIN_VERSION );
 
 		ij.gui.Toolbar.getInstance().setTool(ij.gui.Toolbar.FREELINE);
