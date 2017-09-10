@@ -1421,6 +1421,7 @@ public class Weka_Segmentation implements PlugIn
 	 * 
 	 * @param command current text of the training button ("Train classifier" or "STOP")
 	 */
+	@SuppressWarnings("deprecation")
 	void runStopTraining(final String command) 
 	{
 		// If the training is not going on, we start it
@@ -1513,7 +1514,13 @@ public class Weka_Segmentation implements PlugIn
 				trainButton.setText("Train classifier");
 				
 				if(null != trainingTask)
+				{
 					trainingTask.interrupt();
+					// Although not recommended and already deprecated,
+					// use stop command so WEKA classifiers are actually
+					// stopped.
+					trainingTask.stop();
+				}
 				else
 					IJ.log("Error: interrupting training failed becaused the thread is null!");
 				
