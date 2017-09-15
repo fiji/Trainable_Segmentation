@@ -441,8 +441,19 @@ public class Color_Clustering implements PlugIn{
             allConstraints.gridy++;
 
             // === Execution panel ===
+            GridBagConstraints executionConstraints = new GridBagConstraints();
+            executionPanel.setLayout( new GridBagLayout() );
+            executionConstraints.anchor = GridBagConstraints.CENTER;
+            executionConstraints.fill = GridBagConstraints.BOTH;
+            executionConstraints.gridwidth = 1;
+            executionConstraints.gridheight = 1;
+            executionConstraints.gridx = 0;
+            executionConstraints.gridy = 0;
+            executionConstraints.weightx = 0;
+            executionConstraints.weighty = 0;
             clusterizeButton = new JButton("Clusterize");
-            executionPanel.add(clusterizeButton);
+            executionPanel.add(clusterizeButton, executionConstraints);
+            executionConstraints.gridy++;
             clusterizeButton.setToolTipText("Clusterize the image!");
 
             clusterizeButton.addActionListener(clusterize);
@@ -450,42 +461,52 @@ public class Color_Clustering implements PlugIn{
             createFile = new JButton("Create ARFF file");
             createFile.setToolTipText("Create a file");
             createFile.addActionListener(fileCreation);
-            executionPanel.add(createFile);
+            executionPanel.add(createFile, executionConstraints);
+            executionConstraints.gridy++;
 
             toggleOverlay = new JButton("Toggle overlay");
-            executionPanel.add(toggleOverlay);
+            executionPanel.add(toggleOverlay, executionConstraints);
+            executionConstraints.gridy++;
             toggleOverlay.setToolTipText("Toggle result image overlay!");
             toggleOverlay.addActionListener(overlay);
             toggleOverlay.setEnabled(false);
 
+            JPanel opacityPanel = new JPanel();
             opacitySlider = new JSlider(0,100,50);
-            executionPanel.add(new Label("Select overlay opacity:"));
+            opacityPanel.add(new Label("Select overlay opacity:"));
             opacitySlider.setToolTipText("Select a percentage for the opacity");
-            executionPanel.add(opacitySlider);
+            opacityPanel.add(opacitySlider);
+            executionPanel.add( opacityPanel, executionConstraints );
+            executionConstraints.gridy++;
             opacitySlider.addChangeListener(opacityChange);
             opacitySlider.setEnabled(false);
 
             createResult = new JButton("Show result");
-            executionPanel.add(createResult);
+            executionPanel.add(createResult, executionConstraints);
+            executionConstraints.gridy++;
             createResult.addActionListener(resultCreation);
             createResult.setEnabled(false);
 
             createProbabilityMap = new JButton("Probability Map");
-            executionPanel.add(createProbabilityMap);
+            executionPanel.add(createProbabilityMap, executionConstraints);
+            executionConstraints.gridy++;
             createProbabilityMap.addActionListener(probMapCreator);
             createProbabilityMap.setEnabled(false);
 
             visualizeData = new JButton("Visualize data");
-            executionPanel.add(visualizeData);
+            executionPanel.add(visualizeData, executionConstraints);
+            executionConstraints.gridy++;
             visualizeData.addActionListener(dataVisualizer);
 
             saveClusterer = new JButton("Save clusterer");
-            executionPanel.add(saveClusterer);
+            executionPanel.add(saveClusterer, executionConstraints);
+            executionConstraints.gridy++;
             saveClusterer.addActionListener(saveTheClusterer);
             saveClusterer.setEnabled(false);
 
             loadClusterer = new JButton("Load clusterer");
-            executionPanel.add(loadClusterer);
+            executionPanel.add(loadClusterer, executionConstraints);
+            executionConstraints.gridy++;
             loadClusterer.addActionListener(clusterLoader);
 
             all.add(executionPanel,allConstraints);
