@@ -99,7 +99,7 @@ public class Color_Clustering implements PlugIn{
 	/** Panel with the channel options */
         private JPanel channelSelectionPanel = new JPanel();
         /** Panel with the clusterer selection */
-        private JPanel clusterizerSelection = new JPanel();
+        private JPanel clustererPanel = new JPanel();
         private JPanel executor = new JPanel();
         /** Sample selection panel (for number of samples to use) */
         private JPanel samplePanel = new JPanel();
@@ -434,10 +434,10 @@ public class Color_Clustering implements PlugIn{
                     updateClusterer();
                 }
             });
-            clusterizerSelection.add(clustererEditorPanel);
-            clusterizerSelection.setBorder(BorderFactory.createTitledBorder("Clusterer"));
-            clusterizerSelection.setToolTipText("Choose clusterer to be used");
-            all.add(clusterizerSelection,allConstraints);
+            clustererPanel.add(clustererEditorPanel);
+            clustererPanel.setBorder(BorderFactory.createTitledBorder("Clusterer"));
+            clustererPanel.setToolTipText("Choose clusterer to be used");
+            all.add(clustererPanel,allConstraints);
             allConstraints.gridy++;
 
             clusterizeButton = new JButton("Clusterize");
