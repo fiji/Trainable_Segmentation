@@ -398,6 +398,7 @@ public class Color_Clustering implements PlugIn{
 
             }//Add listener para cambiar overlay, como en morph (mouse, wheel key etc)
 
+            // === Sample selection panel ===
             samplePanel.add(new Label("Select sample percentage:"));
             pixelSlider = new JSlider(1,100,50);
             samplePanel.setBorder(BorderFactory.createTitledBorder("Number of Samples"));
@@ -420,6 +421,7 @@ public class Color_Clustering implements PlugIn{
             all.add(samplePanel,allConstraints);
             allConstraints.gridy++;
 
+            // === Clusterer panel ===
             clusterer = new SimpleKMeans();
             PropertyPanel clustererEditorPanel = new PropertyPanel( clustererEditor );
             clustererEditor.setClassType( Clusterer.class );
