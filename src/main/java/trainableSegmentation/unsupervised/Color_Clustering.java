@@ -38,6 +38,7 @@ import javax.swing.event.ChangeListener;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
@@ -95,7 +96,8 @@ public class Color_Clustering implements PlugIn{
 	 */
 	private static final long serialVersionUID = -8066394344204413879L;
 	private Panel all = new Panel();
-        private JPanel channelSelection = new JPanel();
+	/** Panel with the channel options */
+        private JPanel channelSelectionPanel = new JPanel();
         private JPanel clusterizerSelection = new JPanel();
         private JPanel executor = new JPanel();
         private JPanel samplePanel = new JPanel();
@@ -327,12 +329,18 @@ public class Color_Clustering implements PlugIn{
             super(imp, new ImageCanvas(imp));
             colorClustering = new ColorClustering(image);
             final ImageCanvas canvas = (ImageCanvas) getCanvas();
+
+            // === Channel panel ===
+            // read number of available channels from ColorClustering class
             numChannels = ColorClustering.Channel.numChannels();
+            channelSelectionPanel.setLayout(new GridLayout(3, numChannels/3, 6, 0));
+            // get list of channel names
             String[] channelList = ColorClustering.Channel.getAllLabels();
+            // add them to the panel
             for(int i=0;i<numChannels;++i){
                 JCheckBox tmp = new JCheckBox(channelList[i]);
                 tmp.addActionListener(channelSelect);
-               channelSelection.add(tmp,i);
+                channelSelectionPanel.add(tmp,i);
             }
 
             GridBagLayout layout = new GridBagLayout();
@@ -346,9 +354,9 @@ public class Color_Clustering implements PlugIn{
             allConstraints.gridy = 0;
             allConstraints.weightx = 0;
             allConstraints.weighty = 0;
-            channelSelection.setBorder(BorderFactory.createTitledBorder("Channel"));
-            channelSelection.setToolTipText("Choose channels to be used");
-            all.add(channelSelection,allConstraints);
+            channelSelectionPanel.setBorder(BorderFactory.createTitledBorder("Channel"));
+            channelSelectionPanel.setToolTipText("Choose channels to be used");
+            all.add(channelSelectionPanel,allConstraints);
 
 
             allConstraints.gridy++;
@@ -590,7 +598,7 @@ public class Color_Clustering implements PlugIn{
                     i < numChannels; ++i)
 
             {
-                JCheckBox selected = (JCheckBox) channelSelection.getComponent(i);
+                JCheckBox selected = (JCheckBox) channelSelectionPanel.getComponent(i);
                 selectedChannels[i] = selected.isSelected();
                 if (selected.isSelected() && !someChannelSelected) {
                     someChannelSelected = true;
@@ -880,7 +888,7 @@ public class Color_Clustering implements PlugIn{
                 }
             }
             for(int i=0;i<numChannels;++i){
-                JCheckBox checkBox = (JCheckBox) win.channelSelection.getComponent(i);
+                JCheckBox checkBox = (JCheckBox) win.channelSelectionPanel.getComponent(i);
                 checkBox.setSelected(enabledChannels[i]);
             }
         }
