@@ -100,7 +100,7 @@ public class Color_Clustering implements PlugIn{
         private JPanel channelSelectionPanel = new JPanel();
         /** Panel with the clusterer selection */
         private JPanel clustererPanel = new JPanel();
-        private JPanel executor = new JPanel();
+        private JPanel executionPanel = new JPanel();
         /** Sample selection panel (for number of samples to use) */
         private JPanel samplePanel = new JPanel();
         private GenericObjectEditor clustererEditor = new GenericObjectEditor();
@@ -440,8 +440,9 @@ public class Color_Clustering implements PlugIn{
             all.add(clustererPanel,allConstraints);
             allConstraints.gridy++;
 
+            // === Execution panel ===
             clusterizeButton = new JButton("Clusterize");
-            executor.add(clusterizeButton);
+            executionPanel.add(clusterizeButton);
             clusterizeButton.setToolTipText("Clusterize the image!");
 
             clusterizeButton.addActionListener(clusterize);
@@ -449,45 +450,45 @@ public class Color_Clustering implements PlugIn{
             createFile = new JButton("Create ARFF file");
             createFile.setToolTipText("Create a file");
             createFile.addActionListener(fileCreation);
-            executor.add(createFile);
+            executionPanel.add(createFile);
 
             toggleOverlay = new JButton("Toggle overlay");
-            executor.add(toggleOverlay);
+            executionPanel.add(toggleOverlay);
             toggleOverlay.setToolTipText("Toggle result image overlay!");
             toggleOverlay.addActionListener(overlay);
             toggleOverlay.setEnabled(false);
 
             opacitySlider = new JSlider(0,100,50);
-            executor.add(new Label("Select overlay opacity:"));
+            executionPanel.add(new Label("Select overlay opacity:"));
             opacitySlider.setToolTipText("Select a percentage for the opacity");
-            executor.add(opacitySlider);
+            executionPanel.add(opacitySlider);
             opacitySlider.addChangeListener(opacityChange);
             opacitySlider.setEnabled(false);
 
             createResult = new JButton("Show result");
-            executor.add(createResult);
+            executionPanel.add(createResult);
             createResult.addActionListener(resultCreation);
             createResult.setEnabled(false);
 
             createProbabilityMap = new JButton("Probability Map");
-            executor.add(createProbabilityMap);
+            executionPanel.add(createProbabilityMap);
             createProbabilityMap.addActionListener(probMapCreator);
             createProbabilityMap.setEnabled(false);
 
             visualizeData = new JButton("Visualize data");
-            executor.add(visualizeData);
+            executionPanel.add(visualizeData);
             visualizeData.addActionListener(dataVisualizer);
 
             saveClusterer = new JButton("Save clusterer");
-            executor.add(saveClusterer);
+            executionPanel.add(saveClusterer);
             saveClusterer.addActionListener(saveTheClusterer);
             saveClusterer.setEnabled(false);
 
             loadClusterer = new JButton("Load clusterer");
-            executor.add(loadClusterer);
+            executionPanel.add(loadClusterer);
             loadClusterer.addActionListener(clusterLoader);
 
-            all.add(executor,allConstraints);
+            all.add(executionPanel,allConstraints);
 
 
             GridBagLayout wingb = new GridBagLayout();
