@@ -98,8 +98,10 @@ public class Color_Clustering implements PlugIn{
 	private Panel all = new Panel();
 	/** Panel with the channel options */
         private JPanel channelSelectionPanel = new JPanel();
+        /** Panel with the clusterer selection */
         private JPanel clusterizerSelection = new JPanel();
         private JPanel executor = new JPanel();
+        /** Sample selection panel (for number of samples to use) */
         private JPanel samplePanel = new JPanel();
         private GenericObjectEditor clustererEditor = new GenericObjectEditor();
         private JButton clusterizeButton = null;
