@@ -4987,7 +4987,8 @@ public class WekaSegmentation {
 		// assemble classified image
 		for (int i = 0; i < imp.getStackSize(); i++)
 			for (int c = 0; c < numChannels; c++)
-				classified.addSlice("", classifiedSlices[i].getStack().getProcessor(c+1));
+				classified.addSlice( probabilityMaps ? getClassLabel( c ) : "",
+						classifiedSlices[i].getStack().getProcessor( c+1 ) );
 
 		ImagePlus result = new ImagePlus("Classification result", classified);
 
@@ -5232,7 +5233,8 @@ public class WekaSegmentation {
 			if(numChannels > 1)
 			{
 				for (int c = 0; c < numChannels; c++)
-					classified.addSlice("", new FloatProcessor(width, height));
+					classified.addSlice( getClassLabel( c ),
+							new FloatProcessor(width, height));
 			}
 			else
 				classified.addSlice("", new ByteProcessor(width, height));
@@ -5680,7 +5682,8 @@ public class WekaSegmentation {
 		// assemble classified image
 		for (int i = 0; i < imp.getStackSize(); i++)
 			for (int c = 0; c < numChannels; c++)
-				classified.addSlice("", classifiedSlices[i].getStack().getProcessor(c+1));
+				classified.addSlice( probabilityMaps ? getClassLabel( c ) : "",
+						classifiedSlices[i].getStack().getProcessor( c+1 ) );
 
 		ImagePlus result = new ImagePlus("Classification result", classified);
 
