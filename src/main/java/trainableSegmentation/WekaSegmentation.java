@@ -457,7 +457,7 @@ public class WekaSegmentation {
 	 */
 	public void setClassLabel(int classNum, String label)
 	{
-		getClassLabels()[classNum] = label;
+		this.classLabels[ classNum ] = label;
 	}
 
 	/**
@@ -467,7 +467,7 @@ public class WekaSegmentation {
 	 */
 	public String getClassLabel(int classNum)
 	{
-		return getClassLabels()[classNum];
+		return this.classLabels[ classNum ];
 	}
 
 	/**
@@ -518,12 +518,12 @@ public class WekaSegmentation {
 
 			IJ.log("Read class name: " + className);
 			// If classes do not match
-			if( !className.equals(this.getClassLabels()[j]))
+			if( !className.equals( getClassLabel( j )))
 			{
 				// Store current GUI class names
-				String guiClasses = getClassLabels()[0];
+				String guiClasses = getClassLabel( 0 );
 				for(int i = 1; i < numOfClasses; i++)
-					guiClasses = guiClasses.concat(", " + getClassLabels()[i]);
+					guiClasses = guiClasses.concat(", " + getClassLabel( i ));
 				// Store file class names
 				String fileClasses = loadedClassNames.get( 0 );
 				for(int i = 1; i < loadedClassNames.size(); i++)
@@ -1015,7 +1015,7 @@ public class WekaSegmentation {
 		// Detect class index
 		int classIndex = 0;
 		for(classIndex = 0 ; classIndex < this.getClassLabels().length; classIndex++)
-			if(className.equalsIgnoreCase(this.getClassLabels()[classIndex]))
+			if(className.equalsIgnoreCase(this.getClassLabel( classIndex )))
 				break;
 		if(classIndex == this.getClassLabels().length)
 		{
@@ -1036,7 +1036,7 @@ public class WekaSegmentation {
 			// (we assume the first two default class names)
 			loadedClassNames = new ArrayList<String>();
 			for(int i = 0; i < numOfClasses ; i ++)
-				loadedClassNames.add(getClassLabels()[i]);
+				loadedClassNames.add(getClassLabel( i ));
 			attributes.add(new Attribute("class", loadedClassNames));
 			loadedTrainingData = new Instances("segment", attributes, 1);
 
@@ -1104,7 +1104,7 @@ public class WekaSegmentation {
 		// Detect class indexes
 		int classIndex1 = 0;
 		for(classIndex1 = 0 ; classIndex1 < this.getClassLabels().length; classIndex1++)
-			if(className1.equalsIgnoreCase(this.getClassLabels()[classIndex1]))
+			if(className1.equalsIgnoreCase(this.getClassLabel( classIndex1 )))
 				break;
 		if(classIndex1 == this.getClassLabels().length)
 		{
@@ -1113,7 +1113,7 @@ public class WekaSegmentation {
 		}
 		int classIndex2 = 0;
 		for(classIndex2 = 0 ; classIndex2 < this.getClassLabels().length; classIndex2++)
-			if(className2.equalsIgnoreCase(this.getClassLabels()[classIndex2]))
+			if(className2.equalsIgnoreCase(this.getClassLabel( classIndex2 )))
 				break;
 		if(classIndex2 == this.getClassLabels().length)
 		{
@@ -1144,7 +1144,7 @@ public class WekaSegmentation {
 			// (we assume the first two default class names)
 			loadedClassNames = new ArrayList<String>();
 			for(int i = 0; i < numOfClasses ; i ++)
-				loadedClassNames.add(getClassLabels()[i]);
+				loadedClassNames.add(getClassLabel( i ));
 			attributes.add(new Attribute("class", loadedClassNames));
 			loadedTrainingData = new Instances("segment", attributes, 1);
 
@@ -1240,7 +1240,7 @@ public class WekaSegmentation {
 			// (we assume the first two default class names)
 			loadedClassNames = new ArrayList<String>();
 			for( int i = 0; i < numOfClasses ; i ++ )
-				loadedClassNames.add( getClassLabels()[ i ] );
+				loadedClassNames.add( getClassLabel( i ) );
 			attributes.add( new Attribute( "class", loadedClassNames ) );
 			loadedTrainingData = new Instances( "segment", attributes, 1 );
 
@@ -1323,7 +1323,7 @@ public class WekaSegmentation {
 			// Update list of names of loaded classes
 			loadedClassNames = new ArrayList<String>();
 			for(int i = 0; i < numOfClasses ; i ++)
-				loadedClassNames.add(getClassLabels()[i]);
+				loadedClassNames.add(getClassLabel( i ));
 
 			attributes.add(new Attribute("class", loadedClassNames));
 			loadedTrainingData = new Instances("segment", attributes, 1);
@@ -1407,7 +1407,7 @@ public class WekaSegmentation {
 		// Detect class indexes
 		int whiteClassIndex = 0;
 		for(whiteClassIndex = 0 ; whiteClassIndex < this.getClassLabels().length; whiteClassIndex++)
-			if(whiteClassName.equalsIgnoreCase(this.getClassLabels()[whiteClassIndex]))
+			if(whiteClassName.equalsIgnoreCase(this.getClassLabel( whiteClassIndex )))
 				break;
 		if(whiteClassIndex == this.getClassLabels().length)
 		{
@@ -1416,7 +1416,7 @@ public class WekaSegmentation {
 		}
 		int blackClassIndex = 0;
 		for(blackClassIndex = 0 ; blackClassIndex < this.getClassLabels().length; blackClassIndex++)
-			if(blackClassName.equalsIgnoreCase(this.getClassLabels()[blackClassIndex]))
+			if(blackClassName.equalsIgnoreCase(this.getClassLabel( blackClassIndex )))
 				break;
 		if(blackClassIndex == this.getClassLabels().length)
 		{
@@ -1447,7 +1447,7 @@ public class WekaSegmentation {
 			// (we assume the first two default class names)
 			loadedClassNames = new ArrayList<String>();
 			for(int i = 0; i < numOfClasses ; i ++)
-				loadedClassNames.add(getClassLabels()[i]);
+				loadedClassNames.add(getClassLabel( i ));
 
 			attributes.add(new Attribute("class", loadedClassNames));
 			loadedTrainingData = new Instances("segment", attributes, 1);
@@ -1531,7 +1531,7 @@ public class WekaSegmentation {
 		for(int i = 0; i < classIndex.length; i++ )
 		{
 			for( classIndex[ i ] = 0 ; classIndex[ i ] < getClassLabels().length; classIndex[ i ]++ )
-				if( classNames[i].equalsIgnoreCase( getClassLabels()[ classIndex[i] ] ) )
+				if( classNames[i].equalsIgnoreCase( getClassLabel( classIndex[i] ) ) )
 					break;
 			if( classIndex[i] == getClassLabels().length)
 			{
@@ -1563,7 +1563,7 @@ public class WekaSegmentation {
 			// (we assume the first two default class names)
 			loadedClassNames = new ArrayList<String>();
 			for(int i = 0; i < numOfClasses ; i ++)
-				loadedClassNames.add(getClassLabels()[i]);
+				loadedClassNames.add(getClassLabel( i ));
 
 			attributes.add(new Attribute("class", loadedClassNames));
 			loadedTrainingData = new Instances("segment", attributes, 1);
@@ -1647,7 +1647,7 @@ public class WekaSegmentation {
 		// Detect class indexes
 		int whiteClassIndex = 0;
 		for(whiteClassIndex = 0 ; whiteClassIndex < this.getClassLabels().length; whiteClassIndex++)
-			if(whiteClassName.equalsIgnoreCase(this.getClassLabels()[whiteClassIndex]))
+			if(whiteClassName.equalsIgnoreCase(this.getClassLabel( whiteClassIndex )))
 				break;
 		if(whiteClassIndex == this.getClassLabels().length)
 		{
@@ -1656,7 +1656,7 @@ public class WekaSegmentation {
 		}
 		int blackClassIndex = 0;
 		for(blackClassIndex = 0 ; blackClassIndex < this.getClassLabels().length; blackClassIndex++)
-			if(blackClassName.equalsIgnoreCase(this.getClassLabels()[blackClassIndex]))
+			if(blackClassName.equalsIgnoreCase(this.getClassLabel( blackClassIndex )))
 				break;
 		if(blackClassIndex == this.getClassLabels().length)
 		{
@@ -1687,7 +1687,7 @@ public class WekaSegmentation {
 			// (we assume the first two default class names)
 			loadedClassNames = new ArrayList<String>();
 			for(int i = 0; i < numOfClasses ; i ++)
-				loadedClassNames.add(getClassLabels()[i]);
+				loadedClassNames.add(getClassLabel( i ));
 			attributes.add(new Attribute("class", loadedClassNames));
 			loadedTrainingData = new Instances("segment", attributes, 1);
 
@@ -1780,7 +1780,7 @@ public class WekaSegmentation {
 		// Detect class indexes
 		int whiteClassIndex = 0;
 		for(whiteClassIndex = 0 ; whiteClassIndex < this.getClassLabels().length; whiteClassIndex++)
-			if(whiteClassName.equalsIgnoreCase(this.getClassLabels()[whiteClassIndex]))
+			if(whiteClassName.equalsIgnoreCase(this.getClassLabel( whiteClassIndex )))
 				break;
 		if(whiteClassIndex == this.getClassLabels().length)
 		{
@@ -1789,7 +1789,7 @@ public class WekaSegmentation {
 		}
 		int blackClassIndex = 0;
 		for(blackClassIndex = 0 ; blackClassIndex < this.getClassLabels().length; blackClassIndex++)
-			if(blackClassName.equalsIgnoreCase(this.getClassLabels()[blackClassIndex]))
+			if(blackClassName.equalsIgnoreCase(this.getClassLabel( blackClassIndex )))
 				break;
 		if(blackClassIndex == this.getClassLabels().length)
 		{
@@ -1820,7 +1820,7 @@ public class WekaSegmentation {
 			// (we assume the first two default class names)
 			loadedClassNames = new ArrayList<String>();
 			for(int i = 0; i < numOfClasses ; i ++)
-				loadedClassNames.add(getClassLabels()[i]);
+				loadedClassNames.add(getClassLabel( i ));
 			attributes.add(new Attribute("class", loadedClassNames));
 			loadedTrainingData = new Instances("segment", attributes, 1);
 
@@ -1878,7 +1878,7 @@ public class WekaSegmentation {
 		// Detect class indexes
 		int whiteClassIndex = 0;
 		for(whiteClassIndex = 0 ; whiteClassIndex < this.getClassLabels().length; whiteClassIndex++)
-			if(whiteClassName.equalsIgnoreCase(this.getClassLabels()[whiteClassIndex]))
+			if(whiteClassName.equalsIgnoreCase(this.getClassLabel( whiteClassIndex )))
 				break;
 		if(whiteClassIndex == this.getClassLabels().length)
 		{
@@ -1887,7 +1887,7 @@ public class WekaSegmentation {
 		}
 		int blackClassIndex = 0;
 		for(blackClassIndex = 0 ; blackClassIndex < this.getClassLabels().length; blackClassIndex++)
-			if(blackClassName.equalsIgnoreCase(this.getClassLabels()[blackClassIndex]))
+			if(blackClassName.equalsIgnoreCase(this.getClassLabel( blackClassIndex )))
 				break;
 		if(blackClassIndex == this.getClassLabels().length)
 		{
@@ -1918,7 +1918,7 @@ public class WekaSegmentation {
 			// (we assume the first two default class names)
 			loadedClassNames = new ArrayList<String>();
 			for(int i = 0; i < numOfClasses ; i ++)
-				loadedClassNames.add(getClassLabels()[i]);
+				loadedClassNames.add(getClassLabel( i ));
 			attributes.add(new Attribute("class", loadedClassNames));
 			loadedTrainingData = new Instances("segment", attributes, 1);
 
@@ -1976,7 +1976,7 @@ public class WekaSegmentation {
 		// Detect class indexes
 		int whiteClassIndex = 0;
 		for(whiteClassIndex = 0 ; whiteClassIndex < this.getClassLabels().length; whiteClassIndex++)
-			if(whiteClassName.equalsIgnoreCase(this.getClassLabels()[whiteClassIndex]))
+			if(whiteClassName.equalsIgnoreCase(this.getClassLabel( whiteClassIndex )))
 				break;
 		if(whiteClassIndex == this.getClassLabels().length)
 		{
@@ -1985,7 +1985,7 @@ public class WekaSegmentation {
 		}
 		int blackClassIndex = 0;
 		for(blackClassIndex = 0 ; blackClassIndex < this.getClassLabels().length; blackClassIndex++)
-			if(blackClassName.equalsIgnoreCase(this.getClassLabels()[blackClassIndex]))
+			if(blackClassName.equalsIgnoreCase(this.getClassLabel( blackClassIndex )))
 				break;
 		if(blackClassIndex == this.getClassLabels().length)
 		{
@@ -2016,7 +2016,7 @@ public class WekaSegmentation {
 			// (we assume the first two default class names)
 			loadedClassNames = new ArrayList<String>();
 			for(int i = 0; i < numOfClasses ; i ++)
-				loadedClassNames.add(getClassLabels()[i]);
+				loadedClassNames.add(getClassLabel( i ));
 			attributes.add(new Attribute("class", loadedClassNames));
 			loadedTrainingData = new Instances("segment", attributes, 1);
 
@@ -2112,7 +2112,7 @@ public class WekaSegmentation {
 		// Detect class indexes
 		int whiteClassIndex = 0;
 		for(whiteClassIndex = 0 ; whiteClassIndex < this.getClassLabels().length; whiteClassIndex++)
-			if(whiteClassName.equalsIgnoreCase(this.getClassLabels()[whiteClassIndex]))
+			if(whiteClassName.equalsIgnoreCase(this.getClassLabel( whiteClassIndex )))
 				break;
 		if(whiteClassIndex == this.getClassLabels().length)
 		{
@@ -2121,7 +2121,7 @@ public class WekaSegmentation {
 		}
 		int blackClassIndex = 0;
 		for(blackClassIndex = 0 ; blackClassIndex < this.getClassLabels().length; blackClassIndex++)
-			if(blackClassName.equalsIgnoreCase(this.getClassLabels()[blackClassIndex]))
+			if(blackClassName.equalsIgnoreCase(this.getClassLabel( blackClassIndex )))
 				break;
 		if(blackClassIndex == this.getClassLabels().length)
 		{
@@ -2152,7 +2152,7 @@ public class WekaSegmentation {
 			// (we assume the first two default class names)
 			loadedClassNames = new ArrayList<String>();
 			for(int i = 0; i < numOfClasses ; i ++)
-				loadedClassNames.add(getClassLabels()[i]);
+				loadedClassNames.add(getClassLabel( i ));
 			attributes.add(new Attribute("class", loadedClassNames));
 			loadedTrainingData = new Instances("segment", attributes, 1);
 
@@ -2257,7 +2257,7 @@ public class WekaSegmentation {
 		// Detect class indexes
 		int whiteClassIndex = 0;
 		for(whiteClassIndex = 0 ; whiteClassIndex < this.getClassLabels().length; whiteClassIndex++)
-			if(whiteClassName.equalsIgnoreCase(this.getClassLabels()[whiteClassIndex]))
+			if(whiteClassName.equalsIgnoreCase(this.getClassLabel( whiteClassIndex )))
 				break;
 		if(whiteClassIndex == this.getClassLabels().length)
 		{
@@ -2288,7 +2288,7 @@ public class WekaSegmentation {
 			// (we assume the first two default class names)
 			loadedClassNames = new ArrayList<String>();
 			for(int i = 0; i < numOfClasses ; i ++)
-				loadedClassNames.add(getClassLabels()[i]);
+				loadedClassNames.add(getClassLabel( i ));
 			attributes.add(new Attribute("class", loadedClassNames));
 			loadedTrainingData = new Instances("segment", attributes, 1);
 
@@ -3505,7 +3505,7 @@ public class WekaSegmentation {
 		{
 			for(int i = 0; i < numOfClasses; i++)
 				if(!examples[0].get(i).isEmpty())
-					classNames.add(getClassLabels()[i]);
+					classNames.add(getClassLabel( i ));
 		}
 		else
 			classNames = loadedClassNames;
@@ -3601,7 +3601,7 @@ public class WekaSegmentation {
 		{
 			for(int i = 0; i < numOfClasses; i++)
 				if(!examples[0].get(i).isEmpty())
-					classNames.add(getClassLabels()[i]);
+					classNames.add(getClassLabel( i ));
 		}
 		else
 			classNames = loadedClassNames;
@@ -3777,7 +3777,7 @@ public class WekaSegmentation {
 		{
 			for(int i = 0; i < numOfClasses; i++)
 				if(!examples[0].get(i).isEmpty())
-					classNames.add(getClassLabels()[i]);
+					classNames.add(getClassLabel( i ));
 		}
 		else
 			classNames = loadedClassNames;
@@ -3822,7 +3822,7 @@ public class WekaSegmentation {
 		{
 			for(int i = 0; i < numOfClasses; i++)
 				if(!examples[0].get(i).isEmpty())
-					classNames.add(getClassLabels()[i]);
+					classNames.add(getClassLabel( i ));
 		}
 		else
 			classNames = loadedClassNames;
@@ -3908,7 +3908,7 @@ public class WekaSegmentation {
 		// Detect class indexes
 		int classIndex1 = 0;
 		for(classIndex1 = 0 ; classIndex1 < this.getClassLabels().length; classIndex1++)
-			if(className1.equalsIgnoreCase(this.getClassLabels()[classIndex1]))
+			if(className1.equalsIgnoreCase(this.getClassLabel( classIndex1 )))
 				break;
 		if(classIndex1 == this.getClassLabels().length)
 		{
@@ -3917,7 +3917,7 @@ public class WekaSegmentation {
 		}
 		int classIndex2 = 0;
 		for(classIndex2 = 0 ; classIndex2 < this.getClassLabels().length; classIndex2++)
-			if(className2.equalsIgnoreCase(this.getClassLabels()[classIndex2]))
+			if(className2.equalsIgnoreCase(this.getClassLabel( classIndex2 )))
 				break;
 		if(classIndex2 == this.getClassLabels().length)
 		{
@@ -4329,8 +4329,8 @@ public class WekaSegmentation {
 			{
 				for(int n=0; n<trainingImage.getImageStackSize(); n++)
 				{
-					if(!classes.contains(getClassLabels()[i]))
-						classes.add(getClassLabels()[i]);
+					if(!classes.contains(getClassLabel( i )))
+						classes.add(getClassLabel( i ));
 				}
 			}
 		}
@@ -4384,7 +4384,7 @@ public class WekaSegmentation {
 						nl += addShapeRoiInstances( trainingData, classIndex, sliceNum, r );
 				}
 
-			IJ.log("# of pixels selected as " + getClassLabels()[classIndex] + ": " +nl);
+			IJ.log("# of pixels selected as " + getClassLabel( classIndex ) + ": " +nl);
 		}
 
 		if (trainingData.numInstances() == 0)
@@ -4877,7 +4877,7 @@ public class WekaSegmentation {
 				for(int j=0; j<imp.getImageStackSize(); j++)
 					if(!examples[j].get(i).isEmpty())
 					{
-						classNames.add(getClassLabels()[i]);
+						classNames.add(getClassLabel( i ));
 						break;
 					}
 		}
@@ -5037,7 +5037,7 @@ public class WekaSegmentation {
 				for(int j=0; j<trainingImage.getImageStackSize(); j++)
 					if(!examples[j].get(i).isEmpty())
 					{
-						classNames.add(getClassLabels()[i]);
+						classNames.add(getClassLabel( i ));
 						break;
 					}
 		}
@@ -5576,7 +5576,7 @@ public class WekaSegmentation {
 				for(int j=0; j<trainingImage.getImageStackSize(); j++)
 					if(!examples[j].get(i).isEmpty())
 					{
-						classNames.add(getClassLabels()[i]);
+						classNames.add(getClassLabel( i ));
 						break;
 					}
 		}
@@ -5812,8 +5812,8 @@ public class WekaSegmentation {
 
 			for(int j=0; j<trainingImage.getImageStackSize(); j++)
 				for(int i = 0; i < numOfClasses; i++)
-					if(examples[j].get(i).size() > 0 && !classNames.contains(getClassLabels()[i])) {
-                        classNames.add(getClassLabels()[i]);
+					if(examples[j].get(i).size() > 0 && !classNames.contains(getClassLabel( i ))) {
+                        classNames.add(getClassLabel( i ));
                     }
 		}
 
@@ -5986,7 +5986,7 @@ public class WekaSegmentation {
 			{
 				System.arraycopy(classificationResult[c], i*(w*h), classifiedSlice, 0, w*h);
 				ImageProcessor classifiedSliceProcessor = new FloatProcessor(w, h, classifiedSlice);
-				classStack.addSlice(probabilityMaps ? getClassLabels()[c] : "", classifiedSliceProcessor);
+				classStack.addSlice(probabilityMaps ? getClassLabel( c ) : "", classifiedSliceProcessor);
 			}
 		}
 		ImagePlus classImg = new ImagePlus(probabilityMaps ? "Probability maps" : "Classification result", classStack);
@@ -6025,8 +6025,8 @@ public class WekaSegmentation {
 			classNames = new ArrayList<String>();
 
 			for(int i = 0; i < numOfClasses; i++)
-				if(!classNames.contains(getClassLabels()[i]))
-					classNames.add(getClassLabels()[i]);
+				if(!classNames.contains(getClassLabel( i )))
+					classNames.add(getClassLabel( i ));
 		}
 
 		// Create instances information (each instance needs a pointer to this)
@@ -6143,7 +6143,7 @@ public class WekaSegmentation {
 			{
 				System.arraycopy(classificationResult[c], i*(fsa.getWidth()*fsa.getHeight()), classifiedSlice, 0, fsa.getWidth()*fsa.getHeight());
 				ImageProcessor classifiedSliceProcessor = new FloatProcessor(fsa.getWidth(), fsa.getHeight(), classifiedSlice);
-				classStack.addSlice(probabilityMaps ? getClassLabels()[c] : "", classifiedSliceProcessor);
+				classStack.addSlice(probabilityMaps ? getClassLabel( c ) : "", classifiedSliceProcessor);
 			}
 		}
 		ImagePlus classImg = new ImagePlus(probabilityMaps ? "Probability maps" : "Classification result", classStack);
