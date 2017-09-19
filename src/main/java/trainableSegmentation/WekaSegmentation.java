@@ -254,7 +254,9 @@ public class WekaSegmentation {
 
 	/**
 	 * No-image constructor. If you use this constructor, the image has to be
-	 * set using setTrainingImage().
+	 * set using <code>setTrainingImage()</code>. Another option is to use the
+	 * object to load a classifier and apply it to other images without
+	 * additional training.
 	 */
 	public WekaSegmentation()
 	{
@@ -280,7 +282,13 @@ public class WekaSegmentation {
 		addClass();
 		addClass();
 	}
-
+	/**
+	 * Constructor for both 2D and 3D images. No training image is set yet, so
+	 * it can the object can be used by loading a classifier (using
+	 * <code>loadClassifier()</code> or by setting later a training image
+	 * (using <code>setTrainingImage()</code>).
+	 * @param isProcessing3D true to process images in 3D and false to do it in 2D
+	 */
 	public WekaSegmentation( boolean isProcessing3D )
 	{
 		this();
