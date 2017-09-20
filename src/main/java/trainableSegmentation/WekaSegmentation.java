@@ -4249,7 +4249,7 @@ public class WekaSegmentation {
 			featuresChanged = true;
 			if( null != featureStackArray )
 				featureStackArray.setMinimumSigma(minSigma);
-			if( isProcessing3D )
+			if( isProcessing3D && null != fs3d )
 			    this.fs3d.setMinimumSigma( minSigma );
 		}
 		if(maxSigma != this.maximumSigma)
@@ -4258,7 +4258,7 @@ public class WekaSegmentation {
 			featuresChanged = true;
 			if( null != featureStackArray )
 				featureStackArray.setMaximumSigma(maxSigma);
-			if( isProcessing3D )
+			if( isProcessing3D && null != fs3d )
 			    this.fs3d.setMaximumSigma( maxSigma );
 		}
 
