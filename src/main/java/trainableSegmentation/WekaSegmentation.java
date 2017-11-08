@@ -50,6 +50,7 @@ import ij.process.ByteProcessor;
 import ij.process.FloatPolygon;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import ij.process.ImageStatistics;
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
 import weka.classifiers.AbstractClassifier;
@@ -284,7 +285,7 @@ public class WekaSegmentation {
 	}
 	/**
 	 * Constructor for both 2D and 3D images. No training image is set yet, so
-	 * it can the object can be used by loading a classifier (using
+	 * it can be used by loading a classifier (using
 	 * <code>loadClassifier()</code> or by setting later a training image
 	 * (using <code>setTrainingImage()</code>).
 	 * @param isProcessing3D true to process images in 3D and false to do it in 2D
@@ -1479,7 +1480,16 @@ public class WekaSegmentation {
 				else
 					blackCoordinates.add(new Point(x, y));
 			}
-
+		if( whiteCoordinates.isEmpty() )
+		{
+			IJ.log( "Error: no white pixels found!" );
+			return false;
+		}
+		if( blackCoordinates.isEmpty() )
+		{
+			IJ.log( "Error: no black pixels found!" );
+			return false;
+		}
 		// Select random samples from both classes
 		Random rand = new Random();
 		for(int i=0; i<numSamples; i++)
@@ -2762,7 +2772,7 @@ public class WekaSegmentation {
 	 * Add binary training data from input and label images in a
 	 * random and balanced way (same number of samples per class).
 	 * Input and label images can be 2D or stacks and their
-	 * sizes must match.
+	 * sizes must match. It works as well for 3D features.
 	 *
 	 * @param inputImage input grayscale image
 	 * @param labelImage binary label image
@@ -2790,28 +2800,57 @@ public class WekaSegmentation {
 
 		final ImageStack inputSlices = inputImage.getImageStack();
 		final ImageStack labelSlices = labelImage.getImageStack();
+		FeatureStackArray featureStackArray = null;
+		if ( isProcessing3D )
+		{
+			FeatureStack3D fs3d = new FeatureStack3D( inputImage );
+			fs3d.setMaximumSigma( maximumSigma );
+			fs3d.setMinimumSigma( minimumSigma );
+			fs3d.setEnableFeatures( enabled3Dfeatures );
+
+			if( !fs3d.updateFeaturesMT() )
+			{
+				IJ.log("Feature stack 3D was not updated.");
+				IJ.showStatus("Feature stack 3D was not updated.");
+				return false;
+			}
+			featureStackArray = fs3d.getFeatureStackArray();
+		}
 
 		for(int i=1; i <= inputSlices.getSize(); i++)
 		{
 			// Process label pixels
-			final ImagePlus labelIP = new ImagePlus ("labels", labelSlices.getProcessor(i).duplicate());
+			final ImageProcessor labelIP =
+					labelSlices.getProcessor(i).duplicate();
 			// Make sure it's binary
-			labelIP.getProcessor().autoThreshold();
+			labelIP.threshold( (int) Math.floor( 
+					ImageStatistics.getStatistics(
+							labelIP).max / 2.0 ) );
 
-			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
-			featureStack.setEnabledFeatures( enabledFeatures );
-			featureStack.setMembranePatchSize(membranePatchSize);
-			featureStack.setMembraneSize(this.membraneThickness);
-			featureStack.setMaximumSigma(this.maximumSigma);
-			featureStack.setMinimumSigma(this.minimumSigma);
-			IJ.log("Creating feature stack for slice "+i+"...");
-			featureStack.updateFeaturesMT();
-			filterFeatureStackByList(this.featureNames, featureStack);
-			IJ.log("Feature stack is now updated.");
+			final FeatureStack featureStack;
 
-			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
+			if( isProcessing3D )
+			{
+				featureStack = featureStackArray.get( i-1 );
+			}
+			else
+			{
+				featureStack = new FeatureStack( new ImagePlus( "slice " + i,
+						inputSlices.getProcessor(i) ) );
+				featureStack.setEnabledFeatures( enabledFeatures );
+				featureStack.setMembranePatchSize( membranePatchSize );
+				featureStack.setMembraneSize( membraneThickness );
+				featureStack.setMaximumSigma( maximumSigma );
+				featureStack.setMinimumSigma( minimumSigma );
+				featureStack.setUseNeighbors( useNeighbors );
+				IJ.log( "Creating feature stack for slice " + i + "..." );
+				featureStack.updateFeaturesMT();
+				filterFeatureStackByList( featureNames, featureStack );
+				IJ.log( "Feature stack is now updated." );
+			}
 
-			if(!addRandomBalancedBinaryData(labelIP.getProcessor(), featureStack, whiteClassName, blackClassName, numSamples))
+			if(!addRandomBalancedBinaryData( labelIP, featureStack,
+					whiteClassName, blackClassName, numSamples ) )
 			{
 				IJ.log("Error while loading binary label data from slice " + i);
 				return false;
@@ -4670,14 +4709,15 @@ public class WekaSegmentation {
 		// At least two lists of different classes of examples need to be non empty
 		int nonEmpty = 0;
 		int sliceWithTraces = -1;
-		for(int i = 0; i < numOfClasses; i++)
-			for(int j=0; j<trainingImage.getImageStackSize(); j++)
-				if(!examples[j].get(i).isEmpty())
-				{
-					nonEmpty++;
-					sliceWithTraces = j; // store index of slice with traces
-					break;
-				}
+		if( null != trainingImage )
+			for(int i = 0; i < numOfClasses; i++)
+				for(int j=0; j<trainingImage.getImageStackSize(); j++)
+					if(!examples[j].get(i).isEmpty())
+					{
+						nonEmpty++;
+						sliceWithTraces = j; // store index of slice with traces
+						break;
+					}
 
 		if (nonEmpty < 2 && null == loadedTrainingData)
 		{
@@ -5716,6 +5756,11 @@ public class WekaSegmentation {
 	 */
 	public void applyClassifier( boolean classify )
 	{
+		if( null == trainingImage )
+		{
+			IJ.log( "Error: no training image has been loaded!");
+			return;
+		}
 		if( Thread.currentThread().isInterrupted() )
 		{
 			IJ.log("Classification was interrupted by the user.");
@@ -5734,6 +5779,12 @@ public class WekaSegmentation {
 	 */
 	public void applyClassifier( int numThreads, boolean classify )
 	{
+		if( null == trainingImage )
+		{
+			IJ.log( "Error: no training image has been loaded!");
+			return;
+		}
+
 		if( Thread.currentThread().isInterrupted() )
 		{
 			IJ.log("Training was interrupted by the user.");
@@ -5789,7 +5840,8 @@ public class WekaSegmentation {
 		IJ.log("Classifying whole image using " + numThreads + " thread(s)...");
 		try{
 			classifiedImage = applyClassifier( featureStackArray, numThreads, classify );
-			classifiedImage.setCalibration( trainingImage.getCalibration() );
+			if( null != trainingImage )
+				classifiedImage.setCalibration( trainingImage.getCalibration() );
 		}
 		catch(Exception ex)
 		{
@@ -6392,8 +6444,9 @@ public class WekaSegmentation {
 	public void setMaximumSigma(float sigma)
 	{
 		maximumSigma = sigma;
-		featureStackArray.setMaximumSigma(sigma);
-		if( isProcessing3D )
+		if( null != featureStackArray )
+			featureStackArray.setMaximumSigma(sigma);
+		if( isProcessing3D && null != fs3d )
 			fs3d.setMaximumSigma( sigma );
 	}
 
