@@ -2647,7 +2647,9 @@ public class WekaSegmentation {
 		// Process label pixels
 		final ImagePlus labelIP = new ImagePlus ("labels", labelImage.getProcessor().duplicate());
 		// Make sure it's binary
-		labelIP.getProcessor().autoThreshold();
+		labelIP.getProcessor().threshold( (int) Math.floor(
+				ImageStatistics.getStatistics(
+						labelIP.getProcessor() ).max / 2.0 ) );
 
 		if(!this.addBinaryData(labelIP, featureStackArray.get(n), whiteClassName, blackClassName))
 		{
@@ -2694,7 +2696,9 @@ public class WekaSegmentation {
 			// Process label pixels
 			final ImagePlus labelIP = new ImagePlus ("labels", labelSlices.getProcessor(i).duplicate());
 			// Make sure it's binary
-			labelIP.getProcessor().autoThreshold();
+			labelIP.getProcessor().threshold( (int) Math.floor(
+					ImageStatistics.getStatistics(
+							labelIP.getProcessor() ).max / 2.0 ) );
 
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
 			featureStack.setEnabledFeatures( enabledFeatures );
@@ -2707,7 +2711,7 @@ public class WekaSegmentation {
 
 			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
 
-			if(!this.addBinaryData(labelIP, featureStack, whiteClassName, blackClassName))
+			if(!addBinaryData(labelIP, featureStack, whiteClassName, blackClassName))
 			{
 				IJ.log("Error while loading binary label data from slice " + i);
 				return false;
@@ -2823,7 +2827,7 @@ public class WekaSegmentation {
 			final ImageProcessor labelIP =
 					labelSlices.getProcessor(i).duplicate();
 			// Make sure it's binary
-			labelIP.threshold( (int) Math.floor( 
+			labelIP.threshold( (int) Math.floor(
 					ImageStatistics.getStatistics(
 							labelIP).max / 2.0 ) );
 
@@ -3018,9 +3022,10 @@ public class WekaSegmentation {
 		{
 
 			// Process label pixels
-			final ImagePlus labelIP = new ImagePlus ("labels", labelSlices.getProcessor(i).duplicate());
+			final ImageProcessor labelIP = labelSlices.getProcessor(i).duplicate();
 			// Make sure it's binary
-			labelIP.getProcessor().autoThreshold();
+			labelIP.threshold( (int) Math.floor(
+					ImageStatistics.getStatistics( labelIP ).max / 2.0 ) );
 
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
 			featureStack.setEnabledFeatures( enabledFeatures );
@@ -3035,7 +3040,7 @@ public class WekaSegmentation {
 
 			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
 
-			if(!addRandomBalancedBinaryData(labelIP.getProcessor(),
+			if(!addRandomBalancedBinaryData( labelIP,
 					null == mask ? null : mask.getImageStack().getProcessor(i),
 					featureStack, whiteClassName, blackClassName, numSamples))
 			{
@@ -3087,9 +3092,10 @@ public class WekaSegmentation {
 		{
 
 			// Process label pixels
-			final ImagePlus labelIP = new ImagePlus ("labels", labelSlices.getProcessor(i).duplicate());
+			final ImageProcessor labelIP = labelSlices.getProcessor(i).duplicate();
 			// Make sure it's binary
-			labelIP.getProcessor().autoThreshold();
+			labelIP.threshold( (int) Math.floor(
+					ImageStatistics.getStatistics( labelIP ).max / 2.0 ) );
 
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
 			featureStack.setEnabledFeatures( enabledFeatures );
@@ -3104,7 +3110,7 @@ public class WekaSegmentation {
 
 			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
 
-			if(!addRandomBalancedBinaryData(labelIP.getProcessor(),
+			if(!addRandomBalancedBinaryData( labelIP,
 					null == mask ? null : mask.getImageStack().getProcessor(i),
 					weights.getImageStack().getProcessor(i),
 					featureStack, whiteClassName, blackClassName, numSamples))
@@ -3153,7 +3159,9 @@ public class WekaSegmentation {
 			// Process label pixels
 			final ImagePlus labelIP = new ImagePlus ("labels", labelSlices.getProcessor(i).duplicate());
 			// Make sure it's binary
-			labelIP.getProcessor().autoThreshold();
+			labelIP.getProcessor().threshold( (int) Math.floor(
+					ImageStatistics.getStatistics(
+							labelIP.getProcessor() ).max / 2.0 ) );
 
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
 			featureStack.setEnabledFeatures( enabledFeatures );
@@ -3218,15 +3226,16 @@ public class WekaSegmentation {
 		{
 
 			// Process label pixels
-			final ImagePlus labelIP = new ImagePlus ("labels", labelSlices.getProcessor(i).duplicate());
+			final ImageProcessor labelIP = labelSlices.getProcessor(i).duplicate();
 			// Make sure it's binary
-			labelIP.getProcessor().autoThreshold();
+			labelIP.threshold( (int) Math.floor(
+					ImageStatistics.getStatistics( labelIP ).max / 2.0 ) );
 
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
 			featureStack.addFeaturesMT( filters );
 
 
-			if(!addRandomBalancedBinaryData(labelIP.getProcessor(), featureStack, whiteClassName, blackClassName, numSamples))
+			if(!addRandomBalancedBinaryData(labelIP, featureStack, whiteClassName, blackClassName, numSamples))
 			{
 				IJ.log("Error while loading binary label data from slice " + i);
 				return false;
@@ -3275,7 +3284,9 @@ public class WekaSegmentation {
 			// Process label pixels
 			final ImagePlus labelIP = new ImagePlus ("labels", labelSlices.getProcessor(i).duplicate());
 			// Make sure it's binary
-			labelIP.getProcessor().autoThreshold();
+			labelIP.getProcessor().threshold( (int) Math.floor(
+					ImageStatistics.getStatistics(
+							labelIP.getProcessor() ).max / 2.0 ) );
 
 			final FeatureStack featureStack = new FeatureStack(new ImagePlus("slice " + i, inputSlices.getProcessor(i)));
 			featureStack.addFeaturesMT( filters );
