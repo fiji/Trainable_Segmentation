@@ -32,12 +32,14 @@ import ij.process.FloatProcessor;
 import ij.process.FloodFiller;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
+import ij.process.LUT;
 
 import java.awt.Color;
 import java.util.ArrayList;
 
 import org.scijava.vecmath.Point3f;
 
+import trainableSegmentation.WekaSegmentation;
 import trainableSegmentation.metrics.ClassificationStatistics;
 import util.FindConnectedRegions;
 import util.FindConnectedRegions.Results;
@@ -806,5 +808,38 @@ public final class Utils {
 		
 		return maxPool;
 	}
-	
+	/**
+	 * Create golden angle LUT (starting in red)
+	 * @return golden angle LUT
+	 */
+	public static LUT getGoldenAngleLUT()
+	{
+		final byte[] red = new byte[ 256 ];
+		final byte[] green = new byte[ 256 ];
+		final byte[] blue = new byte[ 256 ];
+
+		// hue for assigning new color ([0.0-1.0])
+		float hue = 0f;
+		// saturation for assigning new color ([0.5-1.0])
+		float saturation = 1f;
+
+		// first color is red: HSB( 0, 1, 1 )
+		for(int i=0; i<256; i++)
+		{
+			Color c = Color.getHSBColor(hue, saturation, 1);
+
+			red[i] = (byte) c.getRed();
+			green[i] = (byte) c.getGreen();
+			blue[i] = (byte) c.getBlue();
+
+			hue += 0.38197f; // golden angle
+			if (hue > 1)
+				hue -= 1;
+			saturation += 0.38197f; // golden angle
+			if (saturation > 1)
+				saturation -= 1;
+			saturation = 0.5f * saturation + 0.5f;
+		}
+		return new LUT( red, green, blue );
+	}
 }
