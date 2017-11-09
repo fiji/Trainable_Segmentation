@@ -6049,6 +6049,9 @@ public class WekaSegmentation {
 			{
 				System.arraycopy(classificationResult[c], i*(w*h), classifiedSlice, 0, w*h);
 				ImageProcessor classifiedSliceProcessor = new FloatProcessor(w, h, classifiedSlice);
+				if( !probabilityMaps )
+					classifiedSliceProcessor =
+						classifiedSliceProcessor.convertToByte( false );
 				classStack.addSlice(probabilityMaps ? getClassLabel( c ) : "", classifiedSliceProcessor);
 			}
 		}
@@ -6206,6 +6209,9 @@ public class WekaSegmentation {
 			{
 				System.arraycopy(classificationResult[c], i*(fsa.getWidth()*fsa.getHeight()), classifiedSlice, 0, fsa.getWidth()*fsa.getHeight());
 				ImageProcessor classifiedSliceProcessor = new FloatProcessor(fsa.getWidth(), fsa.getHeight(), classifiedSlice);
+				if( !probabilityMaps )
+					classifiedSliceProcessor =
+						classifiedSliceProcessor.convertToByte( false );
 				classStack.addSlice(probabilityMaps ? getClassLabel( c ) : "", classifiedSliceProcessor);
 			}
 		}
