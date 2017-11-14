@@ -4288,8 +4288,16 @@ public class WekaSegmentation {
 				}
 			}
 		}
-
-		IJ.log("Field of view: max sigma = " + maxSigma + ", min sigma = " + minSigma);
+		if( minSigma == Float.MAX_VALUE || maxSigma == Float.MIN_VALUE )
+		{
+			IJ.log( "No sigmas selected." );
+			// Set default values for sigmas
+			minSigma = this.minimumSigma;
+			maxSigma = this.maximumSigma;
+		}
+		else
+			IJ.log( "Field of view: max sigma = "
+					+ maxSigma + ", min sigma = " + minSigma);
 		if( !isProcessing3D )
 			IJ.log("Membrane thickness: " + membraneThickness + ", patch size: "
 					+ membranePatchSize);
