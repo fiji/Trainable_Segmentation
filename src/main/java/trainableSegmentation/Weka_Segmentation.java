@@ -1095,7 +1095,7 @@ public class Weka_Segmentation implements PlugIn
 		 * Enable / disable buttons
 		 * @param s enabling flag
 		 */
-		protected void setButtonsEnabled(Boolean s)
+		protected void setButtonsEnabled(boolean s)
 		{
 			trainButton.setEnabled(s);
 			overlayButton.setEnabled(s);
