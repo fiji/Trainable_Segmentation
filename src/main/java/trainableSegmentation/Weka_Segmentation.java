@@ -2177,7 +2177,8 @@ public class Weka_Segmentation implements PlugIn
 
 		if(wekaSegmentation.getLoadedTrainingData() != null)
 		{
-			for(int i = 0; i < 4; i++)
+			final int nNumericFields = isProcessing3D ? 2 : 4;
+			for(int i = 0; i < nNumericFields; i++)
 				((TextField) gd.getNumericFields().get( i )).setEnabled(false);
 		}
 
