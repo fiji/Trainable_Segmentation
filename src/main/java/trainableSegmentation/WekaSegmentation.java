@@ -3557,13 +3557,13 @@ public class WekaSegmentation {
 			IJ.log("Creating features for test image " + image.getTitle() +  "...");
 
 
-		// Set proper class names (skip empty list ones)
+		// Set proper class names (DO NOT skip classes with empty list of
+		// samples)
 		ArrayList<String> classNames = new ArrayList<String>();
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				if(!examples[0].get(i).isEmpty())
-					classNames.add(getClassLabel( i ));
+				classNames.add(getClassLabel( i ));
 		}
 		else
 			classNames = loadedClassNames;
@@ -3653,13 +3653,13 @@ public class WekaSegmentation {
 			int blackClassIndex)
 	{
 
-		// Set proper class names (skip empty list ones)
+		// Set proper class names (DO NOT skip classes with empty list of
+		// samples)
 		ArrayList<String> classNames = new ArrayList<String>();
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				if(!examples[0].get(i).isEmpty())
-					classNames.add(getClassLabel( i ));
+				classNames.add(getClassLabel( i ));
 		}
 		else
 			classNames = loadedClassNames;
@@ -3829,13 +3829,13 @@ public class WekaSegmentation {
 			int blackClassIndex)
 	{
 
-		// Set proper class names (skip empty list ones)
+		// Set proper class names (DO NOT skip classes with empty list of
+		// samples)
 		ArrayList<String> classNames = new ArrayList<String>();
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				if(!examples[0].get(i).isEmpty())
-					classNames.add(getClassLabel( i ));
+				classNames.add(getClassLabel( i ));
 		}
 		else
 			classNames = loadedClassNames;
@@ -3874,13 +3874,13 @@ public class WekaSegmentation {
 			IJ.log("Creating features for test image " + image.getTitle() +  "...");
 
 
-		// Set proper class names (skip empty list ones)
+		// Set proper class names (DO NOT skip classes with empty list of
+		// samples)
 		ArrayList<String> classNames = new ArrayList<String>();
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				if(!examples[0].get(i).isEmpty())
-					classNames.add(getClassLabel( i ));
+				classNames.add(getClassLabel( i ));
 		}
 		else
 			classNames = loadedClassNames;
@@ -4936,17 +4936,13 @@ public class WekaSegmentation {
 
 		IJ.log("Processing slices of " + imp.getTitle() + " in " + numSliceThreads + " thread(s)...");
 
-		// Set proper class names (skip empty list ones)
+		// Set proper class names (DO NOT skip classes with empty list of
+		// samples)
 		ArrayList<String> classNames = new ArrayList<String>();
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				for(int j=0; j<imp.getImageStackSize(); j++)
-					if(!examples[j].get(i).isEmpty())
-					{
-						classNames.add(getClassLabel( i ));
-						break;
-					}
+				classNames.add(getClassLabel( i ));
 		}
 		else
 			classNames = loadedClassNames;
@@ -5097,17 +5093,13 @@ public class WekaSegmentation {
 
 		IJ.log("Classifying data from image " + imp.getTitle() + " using " + numThreads + " thread(s)...");
 
-		// Set proper class names (skip empty list ones)
+		// Set proper class names (DO NOT skip classes with empty list of
+		// samples)
 		ArrayList<String> classNames = new ArrayList<String>();
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				for(int j=0; j<trainingImage.getImageStackSize(); j++)
-					if(!examples[j].get(i).isEmpty())
-					{
-						classNames.add(getClassLabel( i ));
-						break;
-					}
+				classNames.add(getClassLabel( i ));
 		}
 		else
 			classNames = loadedClassNames;
@@ -5637,17 +5629,13 @@ public class WekaSegmentation {
 
 		IJ.log("Processing slices of " + imp.getTitle() + " in " + numSliceThreads + " thread(s)...");
 
-		// Set proper class names (skip empty list ones)
+		// Set proper class names (DO NOT skip classes with empty list of
+		// samples)
 		ArrayList<String> classNames = new ArrayList<String>();
 		if( null == loadedClassNames )
 		{
 			for(int i = 0; i < numOfClasses; i++)
-				for(int j=0; j<trainingImage.getImageStackSize(); j++)
-					if(!examples[j].get(i).isEmpty())
-					{
-						classNames.add(getClassLabel( i ));
-						break;
-					}
+				classNames.add(getClassLabel( i ));
 		}
 		else
 			classNames = loadedClassNames;
