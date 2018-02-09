@@ -39,6 +39,7 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
@@ -96,6 +97,10 @@ public class Color_Clustering implements PlugIn{
     	 */
     	private static final long serialVersionUID = -8066394344204413879L;
     	private Panel all = new Panel();
+
+    	/** parameters panel (whole left panel) */
+    	JPanel paramsPanel = new JPanel();
+
     	/** Panel with the channel options */
         private JPanel channelSelectionPanel = new JPanel();
         /** Panel with the clusterer selection */
@@ -336,6 +341,8 @@ public class Color_Clustering implements PlugIn{
             // read number of available channels from ColorClustering class
             numChannels = ColorClustering.Channel.numChannels();
             channelSelectionPanel.setLayout(new GridLayout(3, numChannels/3, 6, 0));
+            channelSelectionPanel.setBorder(BorderFactory.createTitledBorder("Channel"));
+            channelSelectionPanel.setToolTipText("Choose channels to be used");
             // get list of channel names
             String[] channelList = ColorClustering.Channel.getAllLabels();
             // add them to the panel
@@ -344,61 +351,6 @@ public class Color_Clustering implements PlugIn{
                 tmp.addActionListener(channelSelect);
                 channelSelectionPanel.add(tmp,i);
             }
-
-            GridBagLayout layout = new GridBagLayout();
-            GridBagConstraints allConstraints = new GridBagConstraints();
-            all.setLayout(layout);
-            allConstraints.anchor = GridBagConstraints.CENTER;
-            allConstraints.fill = GridBagConstraints.BOTH;
-            allConstraints.gridwidth = 1;
-            allConstraints.gridheight = 1;
-            allConstraints.gridx = 0;
-            allConstraints.gridy = 0;
-            allConstraints.weightx = 0;
-            allConstraints.weighty = 0;
-            channelSelectionPanel.setBorder(BorderFactory.createTitledBorder("Channel"));
-            channelSelectionPanel.setToolTipText("Choose channels to be used");
-            all.add(channelSelectionPanel,allConstraints);
-
-
-            allConstraints.gridy++;
-            all.add(canvas,allConstraints);
-            allConstraints.gridy++;
-            // if the input image is 3d, put the
-            // slice selectors in place
-            if( null != super.sliceSelector ) //Adjustment listener añadir a tSelector
-            {
-                sliceSelector.setValue( image.getCurrentSlice() );
-                image.setSlice( image.getCurrentSlice() );
-
-                all.add( super.sliceSelector, allConstraints );
-                allConstraints.gridy++;
-                if( null != super.zSelector ) {
-                    /*super.zSelector.addAdjustmentListener(new AdjustmentListener() {
-                        @Override
-                        public void adjustmentValueChanged(AdjustmentEvent e) {
-                            if( overlayEnabled )
-                            {
-                                updateResultOverlay();
-                                displayImage.updateAndDraw();
-
-                            }
-                            IJ.log("Test1");
-                        }
-                    });*/
-                    all.add(super.zSelector, allConstraints);
-                    allConstraints.gridy++;
-                }
-                if( null != super.tSelector ){
-                    all.add( super.tSelector, allConstraints );
-                    allConstraints.gridy++;
-                }
-                if( null != super.cSelector ){
-                    all.add( super.cSelector, allConstraints );
-                    allConstraints.gridy++;
-                }
-
-            }//Add listener para cambiar overlay, como en morph (mouse, wheel key etc)
 
             // === Sample selection panel ===
             samplePanel.add(new Label("Select sample percentage:"));
@@ -420,8 +372,6 @@ public class Color_Clustering implements PlugIn{
             numSamples=((image.getHeight()*image.getWidth())*image.getNSlices()) * pixelSlider.getValue() / 100;
             samplePanel.add(txtNumSamples,2);
             pixelSlider.addChangeListener(sampleChange);
-            all.add(samplePanel,allConstraints);
-            allConstraints.gridy++;
 
             // === Clusterer panel ===
             clusterer = new SimpleKMeans();
@@ -437,8 +387,6 @@ public class Color_Clustering implements PlugIn{
             clustererPanel.add(clustererEditorPanel);
             clustererPanel.setBorder(BorderFactory.createTitledBorder("Clusterer"));
             clustererPanel.setToolTipText("Choose clusterer to be used");
-            all.add(clustererPanel,allConstraints);
-            allConstraints.gridy++;
 
             // === Execution panel ===
             GridBagConstraints executionConstraints = new GridBagConstraints();
@@ -509,8 +457,88 @@ public class Color_Clustering implements PlugIn{
             executionConstraints.gridy++;
             loadClusterer.addActionListener(clusterLoader);
 
-            all.add(executionPanel,allConstraints);
+            // Whole left panel (parameters panel)
+            GridBagLayout paramsLayout = new GridBagLayout();
+			GridBagConstraints paramsConstraints = new GridBagConstraints();
+			paramsConstraints.insets = new Insets( 5, 5, 6, 6 );
+			paramsPanel.setLayout( paramsLayout );
+			paramsConstraints.anchor = GridBagConstraints.NORTHWEST;
+			paramsConstraints.fill = GridBagConstraints.HORIZONTAL;
+			paramsConstraints.gridwidth = 1;
+			paramsConstraints.gridheight = 1;
+			paramsConstraints.gridx = 0;
+			paramsConstraints.gridy = 0;
+			paramsPanel.add( channelSelectionPanel, paramsConstraints);
+			paramsConstraints.gridy++;
+			paramsPanel.add( samplePanel, paramsConstraints);
+			paramsConstraints.gridy++;
+			paramsPanel.add( clustererPanel, paramsConstraints);
+			paramsConstraints.gridy++;
+			paramsPanel.add( executionPanel, paramsConstraints);
+			paramsConstraints.gridy++;
 
+			// main panel (including parameters panel and canvas)
+			GridBagLayout layout = new GridBagLayout();
+			GridBagConstraints allConstraints = new GridBagConstraints();
+			all.setLayout(layout);
+
+			// put parameter panel in place
+			allConstraints.anchor = GridBagConstraints.NORTHWEST;
+			allConstraints.fill = GridBagConstraints.BOTH;
+			allConstraints.gridwidth = 1;
+			allConstraints.gridheight = 1;
+			allConstraints.gridx = 0;
+			allConstraints.gridy = 0;
+			allConstraints.weightx = 0;
+			allConstraints.weighty = 0;
+
+			all.add( paramsPanel, allConstraints );
+
+			// put canvas in place
+			allConstraints.gridx++;
+			allConstraints.weightx = 1;
+			allConstraints.weighty = 1;
+			all.add( canvas, allConstraints );
+
+			allConstraints.gridy++;
+			allConstraints.weightx = 0;
+			allConstraints.weighty = 0;
+
+            // if the input image is 3d, put the
+            // slice selectors in place
+            if( null != super.sliceSelector ) //Adjustment listener añadir a tSelector
+            {
+                sliceSelector.setValue( image.getCurrentSlice() );
+                image.setSlice( image.getCurrentSlice() );
+
+                all.add( super.sliceSelector, allConstraints );
+                allConstraints.gridy++;
+                if( null != super.zSelector ) {
+                    /*super.zSelector.addAdjustmentListener(new AdjustmentListener() {
+                        @Override
+                        public void adjustmentValueChanged(AdjustmentEvent e) {
+                            if( overlayEnabled )
+                            {
+                                updateResultOverlay();
+                                displayImage.updateAndDraw();
+
+                            }
+                            IJ.log("Test1");
+                        }
+                    });*/
+                    all.add(super.zSelector, allConstraints);
+                    allConstraints.gridy++;
+                }
+                if( null != super.tSelector ){
+                    all.add( super.tSelector, allConstraints );
+                    allConstraints.gridy++;
+                }
+                if( null != super.cSelector ){
+                    all.add( super.cSelector, allConstraints );
+                    allConstraints.gridy++;
+                }
+
+            }//Add listener para cambiar overlay, como en morph (mouse, wheel key etc)
 
             GridBagLayout wingb = new GridBagLayout();
             GridBagConstraints winc = new GridBagConstraints();
