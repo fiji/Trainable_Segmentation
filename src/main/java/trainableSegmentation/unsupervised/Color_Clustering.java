@@ -934,7 +934,8 @@ public class Color_Clustering implements PlugIn{
             image=IJ.openImage();
         }
         if(image == null){
-            IJ.error("Error when opening image");
+            // Dialog closed by user
+        	return;
         }else {
             IJ.log("Loading Weka properties");
             win = new CustomWindow(image);
