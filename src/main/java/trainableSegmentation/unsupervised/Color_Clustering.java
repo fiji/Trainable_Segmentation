@@ -76,7 +76,6 @@ public class Color_Clustering implements PlugIn{
     private int numSamples;
     private int numChannels;
     private AbstractClusterer clusterer;
-    ImagePlus displayImage = null;
     private Thread currentTask=null;
     private ImagePlus clusteredImage=null;
     private CustomWindow win;
@@ -567,7 +566,7 @@ public class Color_Clustering implements PlugIn{
                                     if( overlayEnabled )
                                     {
                                         updateResultOverlay();
-                                        displayImage.updateAndDraw();
+                                        image.updateAndDraw();
 
                                     }
                                 }
@@ -589,7 +588,7 @@ public class Color_Clustering implements PlugIn{
                                 if( overlayEnabled )
                                 {
                                     updateResultOverlay();
-                                    displayImage.updateAndDraw();
+                                    image.updateAndDraw();
                                 }
                             }
                         });
@@ -620,7 +619,7 @@ public class Color_Clustering implements PlugIn{
                                     if( overlayEnabled )
                                     {
                                         updateResultOverlay();
-                                        displayImage.updateAndDraw();
+                                        image.updateAndDraw();
                                     }
                                 }
                             }
