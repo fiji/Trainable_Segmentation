@@ -965,6 +965,7 @@ public class Color_Clustering implements PlugIn{
         	return;
         }else {
             IJ.log("Loading Weka properties");
+            image.setTitle( "Color Clustering" );
             win = new CustomWindow(image);
         }
 
