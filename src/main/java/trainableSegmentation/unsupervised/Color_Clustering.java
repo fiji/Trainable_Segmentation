@@ -99,6 +99,10 @@ public class Color_Clustering implements PlugIn{
 
     	/** parameters panel (whole left panel) */
     	JPanel paramsPanel = new JPanel();
+    	/** clustering parameter panel (top left) */
+    	JPanel clusteringPanel = new JPanel();
+    	/** result options panel (bottom left) */
+    	JPanel resultsPanel = new JPanel();
 
     	/** Panel with the channel options */
         private JPanel channelSelectionPanel = new JPanel();
@@ -373,6 +377,18 @@ public class Color_Clustering implements PlugIn{
             pixelSlider.addChangeListener(sampleChange);
 
             // === Clusterer panel ===
+            GridBagConstraints clustererConstraints = new GridBagConstraints();
+            clustererPanel.setLayout( new GridBagLayout() );
+            clustererConstraints.insets = new Insets( 5, 5, 6, 6 );
+            clustererConstraints.anchor = GridBagConstraints.CENTER;
+            clustererConstraints.fill = GridBagConstraints.BOTH;
+            clustererConstraints.gridwidth = 1;
+            clustererConstraints.gridheight = 1;
+            clustererConstraints.gridx = 0;
+            clustererConstraints.gridy = 0;
+            clustererConstraints.weightx = 0;
+            clustererConstraints.weighty = 0;
+
             clusterer = new SimpleKMeans();
             PropertyPanel clustererEditorPanel = new PropertyPanel( clustererEditor );
             clustererEditor.setClassType( Clusterer.class );
@@ -383,9 +399,17 @@ public class Color_Clustering implements PlugIn{
                     updateClusterer();
                 }
             });
-            clustererPanel.add(clustererEditorPanel);
+            clustererPanel.add(clustererEditorPanel, clustererConstraints);
+            clustererConstraints.gridy++;
             clustererPanel.setBorder(BorderFactory.createTitledBorder("Clusterer"));
             clustererPanel.setToolTipText("Choose clusterer to be used");
+
+            clusterizeButton = new JButton("Clusterize");
+            clustererPanel.add(clusterizeButton, clustererConstraints);
+            clustererConstraints.gridy++;
+            clusterizeButton.setToolTipText("Clusterize the image!");
+
+            clusterizeButton.addActionListener(clusterize);
 
             // === Execution panel ===
             GridBagConstraints executionConstraints = new GridBagConstraints();
@@ -398,12 +422,6 @@ public class Color_Clustering implements PlugIn{
             executionConstraints.gridy = 0;
             executionConstraints.weightx = 0;
             executionConstraints.weighty = 0;
-            clusterizeButton = new JButton("Clusterize");
-            executionPanel.add(clusterizeButton, executionConstraints);
-            executionConstraints.gridy++;
-            clusterizeButton.setToolTipText("Clusterize the image!");
-
-            clusterizeButton.addActionListener(clusterize);
 
             createFile = new JButton("Create ARFF file");
             createFile.setToolTipText("Create a file");
@@ -456,6 +474,40 @@ public class Color_Clustering implements PlugIn{
             executionConstraints.gridy++;
             loadClusterer.addActionListener(clusterLoader);
 
+            // Clustering parameter panel (top left panel)
+            GridBagLayout clusteringLayout = new GridBagLayout();
+			GridBagConstraints clusteringConstraints = new GridBagConstraints();
+			clusteringConstraints.insets = new Insets( 5, 5, 6, 6 );
+			clusteringPanel.setLayout( clusteringLayout );
+			clusteringConstraints.anchor = GridBagConstraints.NORTHWEST;
+			clusteringConstraints.fill = GridBagConstraints.HORIZONTAL;
+			clusteringConstraints.gridwidth = 1;
+			clusteringConstraints.gridheight = 1;
+			clusteringConstraints.gridx = 0;
+			clusteringConstraints.gridy = 0;
+			clusteringPanel.add( channelSelectionPanel, clusteringConstraints);
+			clusteringConstraints.gridy++;
+			clusteringPanel.add( samplePanel, clusteringConstraints);
+			clusteringConstraints.gridy++;
+			clusteringPanel.add( clustererPanel, clusteringConstraints);
+			clusteringConstraints.gridy++;
+
+			// Result options panel (bottom left panel)
+			resultsPanel.setBorder(BorderFactory.createTitledBorder("Results"));
+			resultsPanel.setToolTipText("Result options");
+            GridBagLayout resultsLayout = new GridBagLayout();
+			GridBagConstraints resultConstraints = new GridBagConstraints();
+			resultConstraints.insets = new Insets( 5, 5, 6, 6 );
+			resultsPanel.setLayout( resultsLayout );
+			resultConstraints.anchor = GridBagConstraints.NORTHWEST;
+			resultConstraints.fill = GridBagConstraints.HORIZONTAL;
+			resultConstraints.gridwidth = 1;
+			resultConstraints.gridheight = 1;
+			resultConstraints.gridx = 0;
+			resultConstraints.gridy = 0;
+			resultsPanel.add( executionPanel, resultConstraints);
+			resultConstraints.gridy++;
+
             // Whole left panel (parameters panel)
             GridBagLayout paramsLayout = new GridBagLayout();
 			GridBagConstraints paramsConstraints = new GridBagConstraints();
@@ -467,13 +519,9 @@ public class Color_Clustering implements PlugIn{
 			paramsConstraints.gridheight = 1;
 			paramsConstraints.gridx = 0;
 			paramsConstraints.gridy = 0;
-			paramsPanel.add( channelSelectionPanel, paramsConstraints);
+			paramsPanel.add( clusteringPanel, paramsConstraints);
 			paramsConstraints.gridy++;
-			paramsPanel.add( samplePanel, paramsConstraints);
-			paramsConstraints.gridy++;
-			paramsPanel.add( clustererPanel, paramsConstraints);
-			paramsConstraints.gridy++;
-			paramsPanel.add( executionPanel, paramsConstraints);
+			paramsPanel.add( resultsPanel, paramsConstraints);
 			paramsConstraints.gridy++;
 
 			// main panel (including parameters panel and canvas)
