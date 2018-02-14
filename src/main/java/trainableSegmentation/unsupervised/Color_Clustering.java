@@ -72,7 +72,7 @@ public class Color_Clustering implements PlugIn{
     private boolean[] selectedChannels;
     private int numSamples;
     private int numChannels;
-    private AbstractClusterer clusterer;
+    private AbstractClusterer clusterer=null;
     private Thread currentTask=null;
     private ImagePlus clusteredImage=null;
     private CustomWindow win;
@@ -85,6 +85,8 @@ public class Color_Clustering implements PlugIn{
     String inputImageTitle = null;
     /** input image short title */
     String inputImageShortTitle = null;
+    /** flag to store if the clusterer finished */
+    boolean finishedClustering = false;
 
     /**
      * Custom window based on JPanel structures
@@ -110,6 +112,8 @@ public class Color_Clustering implements PlugIn{
         private JPanel clustererPanel = new JPanel();
         /** Sample selection panel (for number of samples to use) */
         private JPanel samplePanel = new JPanel();
+        /** array of channel checkboxes */
+        JCheckBox[] channelCheckbox = null;
         private GenericObjectEditor clustererEditor = new GenericObjectEditor();
         private JButton runClusterButton = null;
         private JButton createFile = null;
@@ -322,10 +326,11 @@ public class Color_Clustering implements PlugIn{
             // get list of channel names
             String[] channelList = ColorClustering.Channel.getAllLabels();
             // add them to the panel
+            channelCheckbox = new JCheckBox[ numChannels ];
             for(int i=0;i<numChannels;++i){
-                JCheckBox tmp = new JCheckBox(channelList[i]);
-                tmp.addActionListener(channelSelect);
-                channelSelectionPanel.add(tmp,i);
+            	channelCheckbox[ i ] = new JCheckBox(channelList[i]);
+            	channelCheckbox[ i ].addActionListener(channelSelect);
+                channelSelectionPanel.add( channelCheckbox[ i ], i );
             }
 
             // === Sample selection panel ===
@@ -671,7 +676,45 @@ public class Color_Clustering implements PlugIn{
             }
 
         }// end CustomWindow constructor
-
+        /**
+         * Enable/disable GUI components
+         * @param flag boolean flag to enable or disable all GUI components
+         */
+        void enableComponents( boolean flag )
+        {
+        	this.channelSelectionPanel.setEnabled( flag );
+        	for( int i=0; i<channelCheckbox.length; i++ )
+        		channelCheckbox[ i ].setEnabled( flag );
+        	this.pixelSlider.setEnabled( flag );
+        	this.samplePanel.setEnabled( flag );
+        	this.clustererPanel.setEnabled( flag );
+        	this.opacitySlider.setEnabled( flag );
+        	this.createFile.setEnabled( flag );
+        	this.createResult.setEnabled( flag );
+        	this.createProbabilityMap.setEnabled( flag );
+        	this.visualizeData.setEnabled( flag );
+        	this.saveClusterer.setEnabled( flag );
+        	this.loadClusterer.setEnabled( flag );
+        }
+        /**
+         * Update component enabling based on plugin status
+         */
+        void updateComponentEnabling()
+        {
+        	this.channelSelectionPanel.setEnabled( true );
+        	for( int i=0; i<channelCheckbox.length; i++ )
+        		channelCheckbox[ i ].setEnabled( true );
+        	this.pixelSlider.setEnabled( true );
+        	this.samplePanel.setEnabled( true );
+        	this.clustererPanel.setEnabled( true );
+        	this.opacitySlider.setEnabled( true );
+        	this.createFile.setEnabled( true );
+        	this.createResult.setEnabled( finishedClustering );
+        	this.createProbabilityMap.setEnabled( finishedClustering );
+        	this.visualizeData.setEnabled( true );
+        	this.saveClusterer.setEnabled( finishedClustering );
+        	this.loadClusterer.setEnabled( true );
+        }
         /**
          * Creates features based on selected channels and number of samples (from GUI)
          * @return success or failure
@@ -770,6 +813,8 @@ public class Color_Clustering implements PlugIn{
 		void runClusterOrStop(String command){
             IJ.log("Command: "+command);
             if(command.equals("Run")){
+            	// disable GUI components when running clusterer
+            	enableComponents( false );
                 runClusterButton.setText("STOP");
                 final Thread oldTask = currentTask;
                 Thread newTask = new Thread() {
@@ -797,9 +842,7 @@ public class Color_Clustering implements PlugIn{
                             updateResultOverlay();
                             runClusterButton.setText("Run");
 
-                            opacitySlider.setEnabled(true);
-                            saveClusterer.setEnabled(true);
-                            createProbabilityMap.setEnabled(true);
+                            enableComponents( true );
                         }else {
                             if(createFeatures()) {
                                 AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
@@ -809,10 +852,13 @@ public class Color_Clustering implements PlugIn{
                                 overlayEnabled=true;
                                 updateResultOverlay();
                                 runClusterButton.setText("Run");
-                                opacitySlider.setEnabled(true);
-                                saveClusterer.setEnabled(true);
-                                createProbabilityMap.setEnabled(true);
-                                createResult.setEnabled(true);
+                                enableComponents( true );
+                                finishedClustering = true;
+                            }
+                            else
+                            {
+                            	finishedClustering = false;
+                            	updateComponentEnabling();
                             }
                         }
                     }
@@ -822,6 +868,8 @@ public class Color_Clustering implements PlugIn{
             }else if(command.equals("STOP")){
                 IJ.log("Clusterization stopped by user");
                 runClusterButton.setText("Run");
+                // enable GUI components
+            	enableComponents( true );
                 if(null != currentTask) {
                     currentTask.interrupt();//Should use interrupt but weka does not support interrupt handling.
                     currentTask.stop();//Interrupt is being used
