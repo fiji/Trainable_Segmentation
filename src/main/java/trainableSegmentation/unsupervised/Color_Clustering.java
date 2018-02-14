@@ -969,10 +969,13 @@ public class Color_Clustering implements PlugIn{
                         break;
                 }
             }
+            // Update checkbox with enabled channels
             for(int i=0;i<numChannels;++i){
                 JCheckBox checkBox = (JCheckBox) win.channelSelectionPanel.getComponent(i);
                 checkBox.setSelected(enabledChannels[i]);
             }
+            // Update clusterer edition panel
+            win.clustererEditor.setValue( clusterer );
         }
 
     }
