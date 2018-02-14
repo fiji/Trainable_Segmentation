@@ -67,9 +67,6 @@ import java.util.concurrent.Executors;
  *
  */
 public class Color_Clustering implements PlugIn{
-
-    //GUI reestructurar; crear script para probar;
-
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
     protected ImagePlus image=null;
     private boolean[] selectedChannels;
