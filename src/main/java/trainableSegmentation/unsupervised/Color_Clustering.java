@@ -670,7 +670,7 @@ public class Color_Clustering implements PlugIn{
                 canvas.addKeyListener(keyListener);
             }
 
-        }
+        }// end CustomWindow constructor
 
         /**
          * Creates features based on selected channels and number of samples (from GUI)
