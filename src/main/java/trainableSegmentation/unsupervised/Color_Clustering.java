@@ -402,15 +402,18 @@ public class Color_Clustering implements PlugIn{
                     updateClusterer();
                 }
             });
+            clustererConstraints.weightx = 1;
             clustererPanel.add(clustererEditorPanel, clustererConstraints);
             clustererConstraints.gridy++;
             clustererPanel.setBorder(BorderFactory.createTitledBorder("Clusterer"));
             clustererPanel.setToolTipText("Choose clusterer to be used");
 
             clusterizeButton = new JButton("Clusterize");
-            clustererPanel.add(clusterizeButton, clustererConstraints);
-            clustererConstraints.gridy++;
+            JPanel clusterizeButtonPanel = new JPanel();
             clusterizeButton.setToolTipText("Clusterize the image!");
+            clusterizeButtonPanel.add( clusterizeButton );
+            clustererPanel.add(clusterizeButtonPanel, clustererConstraints);
+            clustererConstraints.gridy++;
 
             clusterizeButton.addActionListener(clusterize);
 
