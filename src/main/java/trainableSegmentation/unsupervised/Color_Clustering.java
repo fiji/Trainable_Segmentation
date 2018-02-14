@@ -84,7 +84,10 @@ public class Color_Clustering implements PlugIn{
     private boolean featuresCreated = false;
     private FeatureStackArray theFeatures = null;
     private boolean clustererLoaded = false;
-
+    /** input image title */
+    String inputImageTitle = null;
+    /** input image short title */
+    String inputImageShortTitle = null;
 
     /**
      * Custom window based on JPanel structures
@@ -220,7 +223,7 @@ public class Color_Clustering implements PlugIn{
                         ImagePlus result = clusteredImage.duplicate();
                         result.setCalibration(image.getCalibration());
                         result.setFileInfo(image.getFileInfo());
-                        result.setTitle(image.getShortTitle()+"clusters");
+                        result.setTitle( inputImageShortTitle +"-clusters");
                         result.show();
                     }
                 });
@@ -245,7 +248,7 @@ public class Color_Clustering implements PlugIn{
                         ImagePlus result = colorClustering.createProbabilityMaps(theFeatures);
                         result.setCalibration(image.getCalibration());
                         result.setFileInfo(image.getFileInfo());
-                        result.setTitle(image.getShortTitle()+"clusterprobmap");
+                        result.setTitle( inputImageShortTitle + "-clusterprobmap");
                         result.show();
                     }
                 });
@@ -356,7 +359,7 @@ public class Color_Clustering implements PlugIn{
             }
 
             // === Sample selection panel ===
-            samplePanel.add(new Label("Select sample percentage:"));
+            samplePanel.add(new Label("Sample percentage:"));
             pixelSlider = new JSlider(1,100,50);
             samplePanel.setBorder(BorderFactory.createTitledBorder("Number of Samples"));
             samplePanel.setToolTipText("Select a percentage of pixels to be used when training the clusterer");
@@ -1013,6 +1016,10 @@ public class Color_Clustering implements PlugIn{
         	return;
         }else {
             IJ.log("Loading Weka properties");
+            // store input image title
+            inputImageTitle = image.getTitle();
+            inputImageShortTitle = image.getShortTitle();
+            // rename image so the plugin title is shown
             image.setTitle( "Color Clustering" );
             win = new CustomWindow(image);
         }
