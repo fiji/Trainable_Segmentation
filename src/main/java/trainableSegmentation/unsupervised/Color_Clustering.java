@@ -108,7 +108,6 @@ public class Color_Clustering implements PlugIn{
         private JPanel channelSelectionPanel = new JPanel();
         /** Panel with the clusterer selection */
         private JPanel clustererPanel = new JPanel();
-        private JPanel executionPanel = new JPanel();
         /** Sample selection panel (for number of samples to use) */
         private JPanel samplePanel = new JPanel();
         private GenericObjectEditor clustererEditor = new GenericObjectEditor();
@@ -413,68 +412,85 @@ public class Color_Clustering implements PlugIn{
 
             runClusterButton.addActionListener(runButtonListener);
 
-            // === Execution panel ===
-            GridBagConstraints executionConstraints = new GridBagConstraints();
-            executionPanel.setLayout( new GridBagLayout() );
-            executionConstraints.anchor = GridBagConstraints.CENTER;
-            executionConstraints.fill = GridBagConstraints.BOTH;
-            executionConstraints.gridwidth = 1;
-            executionConstraints.gridheight = 1;
-            executionConstraints.gridx = 0;
-            executionConstraints.gridy = 0;
-            executionConstraints.weightx = 0;
-            executionConstraints.weighty = 0;
-            executionConstraints.insets = new Insets( 5, 5, 6, 6 );
+            // === Overlay panel (toggle button and slider) ===
+            GridBagConstraints overlayConstraints = new GridBagConstraints();
+            JPanel overlayPanel = new JPanel();
+            overlayPanel.setLayout( new GridBagLayout() );
+            overlayConstraints.anchor = GridBagConstraints.CENTER;
+            overlayConstraints.fill = GridBagConstraints.BOTH;
+            overlayConstraints.gridwidth = 1;
+            overlayConstraints.gridheight = 1;
+            overlayConstraints.gridx = 0;
+            overlayConstraints.gridy = 0;
+            overlayConstraints.weightx = 0;
+            overlayConstraints.weighty = 0;
+            overlayConstraints.insets = new Insets( 5, 5, 6, 6 );
 
-            createFile = new JButton("Create ARFF file");
-            createFile.setToolTipText("Create a file");
-            createFile.addActionListener(fileCreation);
-            executionPanel.add(createFile, executionConstraints);
-            executionConstraints.gridy++;
-
+            // Toggle button
             toggleOverlay = new JButton("Toggle overlay");
-            executionPanel.add(toggleOverlay, executionConstraints);
-            executionConstraints.gridy++;
+            overlayPanel.add(toggleOverlay, overlayConstraints);
+            overlayConstraints.gridy++;
             toggleOverlay.setToolTipText("Toggle result image overlay!");
             toggleOverlay.addActionListener(overlay);
             toggleOverlay.setEnabled(false);
 
+            // Opacity slider
             JPanel opacityPanel = new JPanel();
             opacitySlider = new JSlider(0,100,50);
             opacityPanel.add(new Label("Overlay opacity:"));
             opacitySlider.setToolTipText("Select a percentage for the opacity");
             opacityPanel.add(opacitySlider);
-            executionPanel.add( opacityPanel, executionConstraints );
-            executionConstraints.gridy++;
+            overlayPanel.add( opacityPanel, overlayConstraints );
+            overlayConstraints.gridy++;
             opacitySlider.addChangeListener(opacityChange);
             opacitySlider.setEnabled(false);
 
+            // Input/Output options panel
+            JPanel ioPanel = new JPanel();
+            GridBagConstraints ioConstraints = new GridBagConstraints();
+            ioPanel.setLayout( new GridBagLayout() );
+            ioConstraints.anchor = GridBagConstraints.CENTER;
+            ioConstraints.fill = GridBagConstraints.BOTH;
+            ioConstraints.gridwidth = 1;
+            ioConstraints.gridheight = 1;
+            ioConstraints.gridx = 0;
+            ioConstraints.gridy = 0;
+            ioConstraints.weightx = 0;
+            ioConstraints.weighty = 0;
+            ioConstraints.insets = new Insets( 5, 5, 6, 6 );
+
+            createFile = new JButton("Create ARFF file");
+            createFile.setToolTipText("Create a file");
+            createFile.addActionListener(fileCreation);
+            ioPanel.add(createFile, ioConstraints);
+            ioConstraints.gridy++;
+
             createResult = new JButton("Show result");
-            executionPanel.add(createResult, executionConstraints);
-            executionConstraints.gridy++;
+            ioPanel.add(createResult, ioConstraints);
+            ioConstraints.gridy++;
             createResult.addActionListener(resultCreation);
             createResult.setEnabled(false);
 
             createProbabilityMap = new JButton("Probability Map");
-            executionPanel.add(createProbabilityMap, executionConstraints);
-            executionConstraints.gridy++;
+            ioPanel.add(createProbabilityMap, ioConstraints);
+            ioConstraints.gridy++;
             createProbabilityMap.addActionListener(probMapCreator);
             createProbabilityMap.setEnabled(false);
 
             visualizeData = new JButton("Visualize data");
-            executionPanel.add(visualizeData, executionConstraints);
-            executionConstraints.gridy++;
+            ioPanel.add(visualizeData, ioConstraints);
+            ioConstraints.gridy++;
             visualizeData.addActionListener(dataVisualizer);
 
             saveClusterer = new JButton("Save clusterer");
-            executionPanel.add(saveClusterer, executionConstraints);
-            executionConstraints.gridy++;
+            ioPanel.add(saveClusterer, ioConstraints);
+            ioConstraints.gridy++;
             saveClusterer.addActionListener(saveTheClusterer);
             saveClusterer.setEnabled(false);
 
             loadClusterer = new JButton("Load clusterer");
-            executionPanel.add(loadClusterer, executionConstraints);
-            executionConstraints.gridy++;
+            ioPanel.add(loadClusterer, ioConstraints);
+            ioConstraints.gridy++;
             loadClusterer.addActionListener(clusterLoader);
 
             // Clustering parameter panel (top left panel)
@@ -508,7 +524,9 @@ public class Color_Clustering implements PlugIn{
 			resultConstraints.gridheight = 1;
 			resultConstraints.gridx = 0;
 			resultConstraints.gridy = 0;
-			resultsPanel.add( executionPanel, resultConstraints);
+			resultsPanel.add( overlayPanel, resultConstraints);
+			resultConstraints.gridy++;
+			resultsPanel.add( ioPanel, resultConstraints);
 			resultConstraints.gridy++;
 
             // Whole left panel (parameters panel)
