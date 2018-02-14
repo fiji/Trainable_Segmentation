@@ -692,7 +692,7 @@ public class Color_Clustering implements PlugIn{
 
         /**
          * Creates features based on selected channels and number of samples (from GUI)
-         * @return succes or failure
+         * @return success or failure
          */
         boolean createFeatures(){
             boolean someChannelSelected = false;
@@ -733,7 +733,7 @@ public class Color_Clustering implements PlugIn{
         }
 
         /**
-         * Creates featres and displays the data
+         * Creates features and displays the data
          */
         void visualiseData(){
             if(!featuresCreated){
@@ -785,7 +785,7 @@ public class Color_Clustering implements PlugIn{
          * WARNING: Weka does not support usage of interrupt flag and instead uses deprecated stop function.
          * @param command
          */
-        void clusterizeOrStop(String command){
+		void clusterizeOrStop(String command){
             IJ.log("Command: "+command);
             if(command.equals("Clusterize")){
                 clusterizeButton.setText("STOP");
