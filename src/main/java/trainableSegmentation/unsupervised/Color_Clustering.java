@@ -112,7 +112,7 @@ public class Color_Clustering implements PlugIn{
         /** Sample selection panel (for number of samples to use) */
         private JPanel samplePanel = new JPanel();
         private GenericObjectEditor clustererEditor = new GenericObjectEditor();
-        private JButton clusterizeButton = null;
+        private JButton runClusterButton = null;
         private JButton toggleOverlay = null;
         private JButton createFile = null;
         private JButton createResult = null;
@@ -157,16 +157,16 @@ public class Color_Clustering implements PlugIn{
         };
 
         /**
-         * Action listener for clusterize button
+         * Action listener for Run button
          */
-        ActionListener clusterize = new ActionListener() {
+        ActionListener runButtonListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String command = e.getActionCommand();
                 exec.submit(new Runnable() {
                     public void run() {
-                        if(e.getSource()==clusterizeButton) {
-                            clusterizeOrStop(command);
+                        if(e.getSource()==runClusterButton) {
+                            runClusterOrStop(command);
                         }
                     }
                 });
@@ -404,14 +404,14 @@ public class Color_Clustering implements PlugIn{
             clustererPanel.setBorder(BorderFactory.createTitledBorder("Clusterer"));
             clustererPanel.setToolTipText("Choose clusterer to be used");
 
-            clusterizeButton = new JButton("Clusterize");
-            JPanel clusterizeButtonPanel = new JPanel();
-            clusterizeButton.setToolTipText("Clusterize the image!");
-            clusterizeButtonPanel.add( clusterizeButton );
-            clustererPanel.add(clusterizeButtonPanel, clustererConstraints);
+            runClusterButton = new JButton("Run");
+            JPanel runClusterButtonPanel = new JPanel();
+            runClusterButton.setToolTipText("Cluster the image!");
+            runClusterButtonPanel.add( runClusterButton );
+            clustererPanel.add(runClusterButtonPanel, clustererConstraints);
             clustererConstraints.gridy++;
 
-            clusterizeButton.addActionListener(clusterize);
+            runClusterButton.addActionListener(runButtonListener);
 
             // === Execution panel ===
             GridBagConstraints executionConstraints = new GridBagConstraints();
@@ -724,7 +724,7 @@ public class Color_Clustering implements PlugIn{
                 return true;
             } else {
                 IJ.error("Warning!","Choose at least a channel");
-                clusterizeButton.setText("Clusterize");
+                runClusterButton.setText("Run");
                 return false;
             }
         }
@@ -778,14 +778,14 @@ public class Color_Clustering implements PlugIn{
 
 
         /**
-         * Clusterizes the selected image if the command is "Clusterize", else it stops the custerization.
+         * Cluster the selected image if the command is "Run", else it stops the clustering.
          * WARNING: Weka does not support usage of interrupt flag and instead uses deprecated stop function.
          * @param command
          */
-		void clusterizeOrStop(String command){
+		void runClusterOrStop(String command){
             IJ.log("Command: "+command);
-            if(command.equals("Clusterize")){
-                clusterizeButton.setText("STOP");
+            if(command.equals("Run")){
+                runClusterButton.setText("STOP");
                 final Thread oldTask = currentTask;
                 Thread newTask = new Thread() {
 
@@ -810,7 +810,7 @@ public class Color_Clustering implements PlugIn{
                             clusteredImage = colorClustering.createClusteredImage(theFeatures);
                             overlayEnabled=true;
                             updateResultOverlay();
-                            clusterizeButton.setText("Clusterize");
+                            runClusterButton.setText("Run");
                             if (!toggleOverlay.isEnabled()) {
                                 toggleOverlay.setEnabled(true);
                                 opacitySlider.setEnabled(true);
@@ -826,7 +826,7 @@ public class Color_Clustering implements PlugIn{
                                 clusteredImage = colorClustering.createClusteredImage(theFeatures);
                                 overlayEnabled=true;
                                 updateResultOverlay();
-                                clusterizeButton.setText("Clusterize");
+                                runClusterButton.setText("Run");
                                 if (!toggleOverlay.isEnabled()) {
                                     toggleOverlay.setEnabled(true);
                                     opacitySlider.setEnabled(true);
@@ -842,7 +842,7 @@ public class Color_Clustering implements PlugIn{
                 newTask.start();
             }else if(command.equals("STOP")){
                 IJ.log("Clusterization stopped by user");
-                clusterizeButton.setText("Clusterize");
+                runClusterButton.setText("Run");
                 if(null != currentTask) {
                     currentTask.interrupt();//Should use interrupt but weka does not support interrupt handling.
                     currentTask.stop();//Interrupt is being used
@@ -875,7 +875,7 @@ public class Color_Clustering implements PlugIn{
                             Exception ex)
 
                     {
-                        clusterizeButton.setText("Clusterize");
+                        runClusterButton.setText("Run");
                         IJ.log("Error when setting clusterer");
                     }
 
@@ -890,7 +890,7 @@ public class Color_Clustering implements PlugIn{
                                     Exception ex)
 
                             {
-                                clusterizeButton.setText("Clusterize");
+                                runClusterButton.setText("Run");
                                 IJ.log("Error when setting clusterer");
                             }
                             break;
@@ -914,7 +914,7 @@ public class Color_Clustering implements PlugIn{
                         Exception ex)
 
                 {
-                    clusterizeButton.setText("Clusterize");
+                    runClusterButton.setText("Run");
                     IJ.log("Error when setting clusterer");
                 }
             }
