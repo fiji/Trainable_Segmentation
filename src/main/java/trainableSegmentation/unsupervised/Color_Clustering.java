@@ -424,6 +424,7 @@ public class Color_Clustering implements PlugIn{
             executionConstraints.gridy = 0;
             executionConstraints.weightx = 0;
             executionConstraints.weighty = 0;
+            executionConstraints.insets = new Insets( 5, 5, 6, 6 );
 
             createFile = new JButton("Create ARFF file");
             createFile.setToolTipText("Create a file");
