@@ -142,9 +142,9 @@ public class Color_Clustering implements PlugIn{
                 if(featuresCreated){
                     featuresCreated =false;
                 }
-                JSlider slider = (JSlider) samplePanel.getComponent(1);
+                JSlider slider = (JSlider) samplePanel.getComponent(0);
                 numSamples = ((image.getHeight()*image.getWidth())*image.getNSlices()) * slider.getValue() / 100;
-                JTextArea textArea = (JTextArea) samplePanel.getComponent(2);
+                JTextArea textArea = (JTextArea) samplePanel.getComponent(1);
                 textArea.setText(Integer.toString(slider.getValue())+"% ("+numSamples+") " + "px");
             }
         };
@@ -359,11 +359,10 @@ public class Color_Clustering implements PlugIn{
             }
 
             // === Sample selection panel ===
-            samplePanel.add(new Label("Sample percentage:"));
             pixelSlider = new JSlider(1,100,50);
             samplePanel.setBorder(BorderFactory.createTitledBorder("Number of Samples"));
             samplePanel.setToolTipText("Select a percentage of pixels to be used when training the clusterer");
-            samplePanel.add(pixelSlider,1);
+            samplePanel.add(pixelSlider,0);
             JTextArea txtNumSamples = null;
             if(((image.getHeight()*image.getWidth()*image.getNSlices()) * 0.5) < 30000){
                 txtNumSamples = new JTextArea("50% ("+Integer.toString(((image.getHeight()*image.getWidth()*image.getNSlices()) * pixelSlider.getValue() / 100))+") px");
@@ -376,7 +375,7 @@ public class Color_Clustering implements PlugIn{
                 pixelSlider.setValue( (int) (x*100));
             }
             numSamples=((image.getHeight()*image.getWidth())*image.getNSlices()) * pixelSlider.getValue() / 100;
-            samplePanel.add(txtNumSamples,2);
+            samplePanel.add(txtNumSamples,1);
             pixelSlider.addChangeListener(sampleChange);
 
             // === Clusterer panel ===
