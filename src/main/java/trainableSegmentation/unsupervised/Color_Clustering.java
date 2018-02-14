@@ -112,7 +112,6 @@ public class Color_Clustering implements PlugIn{
         private JPanel samplePanel = new JPanel();
         private GenericObjectEditor clustererEditor = new GenericObjectEditor();
         private JButton runClusterButton = null;
-        private JButton toggleOverlay = null;
         private JButton createFile = null;
         private JButton createResult = null;
         private JButton createProbabilityMap = null;
@@ -266,31 +265,6 @@ public class Color_Clustering implements PlugIn{
         };
 
         /**
-         * Action listener for overlay button
-         */
-        ActionListener overlay = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                exec.submit(new Runnable() {
-                    public void run() {
-                        if(e.getSource()==toggleOverlay) {
-                            if(overlayEnabled){
-                                opacitySlider.setEnabled(false);
-                                overlayEnabled=false;
-                                image.setOverlay(null);
-                                overlayEnabled=false;
-                            }else{
-                                updateResultOverlay();
-                                opacitySlider.setEnabled(true);
-                                overlayEnabled=true;
-                            }
-                        }
-                    }
-                });
-            }
-        };
-
-        /**
          * Action listener for loading clusterers
          */
         ActionListener clusterLoader = new ActionListener() {
@@ -425,14 +399,6 @@ public class Color_Clustering implements PlugIn{
             overlayConstraints.weightx = 0;
             overlayConstraints.weighty = 0;
             overlayConstraints.insets = new Insets( 5, 5, 6, 6 );
-
-            // Toggle button
-            toggleOverlay = new JButton("Toggle overlay");
-            overlayPanel.add(toggleOverlay, overlayConstraints);
-            overlayConstraints.gridy++;
-            toggleOverlay.setToolTipText("Toggle result image overlay!");
-            toggleOverlay.addActionListener(overlay);
-            toggleOverlay.setEnabled(false);
 
             // Opacity slider
             JPanel opacityPanel = new JPanel();
@@ -830,13 +796,10 @@ public class Color_Clustering implements PlugIn{
                             overlayEnabled=true;
                             updateResultOverlay();
                             runClusterButton.setText("Run");
-                            if (!toggleOverlay.isEnabled()) {
-                                toggleOverlay.setEnabled(true);
-                                opacitySlider.setEnabled(true);
-                                saveClusterer.setEnabled(true);
-                                createProbabilityMap.setEnabled(true);
 
-                            }
+                            opacitySlider.setEnabled(true);
+                            saveClusterer.setEnabled(true);
+                            createProbabilityMap.setEnabled(true);
                         }else {
                             if(createFeatures()) {
                                 AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
@@ -846,13 +809,10 @@ public class Color_Clustering implements PlugIn{
                                 overlayEnabled=true;
                                 updateResultOverlay();
                                 runClusterButton.setText("Run");
-                                if (!toggleOverlay.isEnabled()) {
-                                    toggleOverlay.setEnabled(true);
-                                    opacitySlider.setEnabled(true);
-                                    saveClusterer.setEnabled(true);
-                                    createProbabilityMap.setEnabled(true);
-                                    createResult.setEnabled(true);
-                                }
+                                opacitySlider.setEnabled(true);
+                                saveClusterer.setEnabled(true);
+                                createProbabilityMap.setEnabled(true);
+                                createResult.setEnabled(true);
                             }
                         }
                     }
