@@ -199,12 +199,19 @@ public class Color_Clustering implements PlugIn{
                 exec.submit(new Runnable() {
                     public void run() {
                         updateClusterer();
-                        if(featuresCreated){
-                            colorClustering.createFile(colorClustering.getFeaturesInstances());
-                        }else {
-                            if(createFeatures()) {
-                                colorClustering.createFile(colorClustering.getFeaturesInstances());
+                        SaveDialog sd = new SaveDialog(
+                     		   "Save features as...", "features", ".arff" );
+                        if( null != sd.getDirectory() )
+                        {
+                        	if( !featuresCreated && !createFeatures() ) {
+                            	IJ.log( "Error while creating features!" );
+                            	return;
                             }
+                        	String path = sd.getDirectory() + sd.getFileName();
+                        	IJ.log( "Saving features to ARFF file...");
+                        	if( colorClustering.createFile( path,
+                        			colorClustering.getFeaturesInstances()) )
+                        		IJ.log( "Saved features as " + path );
                         }
                     }
                 });

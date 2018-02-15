@@ -507,16 +507,20 @@ public class ColorClustering {
 
     /**
      * Create ARFF file of features with provided name.
-     * @param name
-     * @param theInstances
+     * @param path complete path to output ARFF file
+     * @param theInstances dataset of instances to saved to file
+     * @return true if the file was correctly saved, false otherwise
      */
-    public void createFile(Instances theInstances){ //Mirar created file en el log despues de cancel
+    public boolean createFile(
+    		String path,
+    		Instances theInstances )
+    {
+    	boolean saved = false;
 
-        SaveDialog sd = new SaveDialog("Save features as...", "features",".arff");
-        String path =sd.getDirectory() + sd.getFileName();
-        if(!path.equals("nullnull")){ //if cancelled directory and fileName are returned as "null" strings, resulting in path "nullnull"
-            File file = new File(path+".arff");
-            IJ.log("Creating file");
+        if( path != null)
+        {
+            File file = new File( path );
+
             BufferedWriter out = null;
             try{
                 out = new BufferedWriter(
@@ -530,10 +534,11 @@ public class ColorClustering {
                 {
                     out.write(theInstances.get(i).toString()+"\n");
                 }
-                IJ.log("Created file");
+                saved = true;
             }
             catch(Exception e)
             {
+            	saved = false;
                 IJ.log("Error: couldn't write instances into .ARFF file.");
                 IJ.showMessage("Exception while saving data as ARFF file");
                 e.printStackTrace();
@@ -548,7 +553,7 @@ public class ColorClustering {
         }else {
             IJ.log("Error when choosing path");
         }
-
+        return saved;
     }
 
     /**
