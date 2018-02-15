@@ -246,11 +246,8 @@ public class Color_Clustering implements PlugIn{
                             updateClusterer();
                         }
                         if( !finishedClustering )
-                        {
-                        	AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
-                        	colorClustering.setTheClusterer(theClusterer);
-                        	IJ.log(theClusterer.toString());
-                        }
+                        	buildClusterer();
+
                         ImagePlus result = colorClustering.createProbabilityMaps(theFeatures);
                         result.setCalibration(image.getCalibration());
                         result.setFileInfo(image.getFileInfo());
@@ -850,13 +847,7 @@ public class Color_Clustering implements PlugIn{
                         	}
                         }
                         // Build clusterer
-                        IJ.log("Building clusterer...");
-                        long startTime = System.currentTimeMillis();
-                        AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
-                        long endTime = System.currentTimeMillis();
-                        colorClustering.setTheClusterer(theClusterer);
-                        IJ.log(theClusterer.toString());
-                        IJ.log( "Clusterer building took " + (endTime - startTime) + " ms." );
+                        buildClusterer();
                         IJ.log("Creating clustered image...");
                         clusteredImage = colorClustering.createClusteredImage(theFeatures);
                         overlayEnabled=true;
@@ -950,6 +941,18 @@ public class Color_Clustering implements PlugIn{
                 }
             }
         }
+        /**
+         * Build current clusterer
+         */
+		public void buildClusterer() {
+			IJ.log("Building clusterer...");
+			long startTime = System.currentTimeMillis();
+			AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
+			long endTime = System.currentTimeMillis();
+			colorClustering.setTheClusterer(theClusterer);
+			IJ.log(theClusterer.toString());
+			IJ.log( "Clusterer building took " + (endTime - startTime) + " ms." );
+		}
     }
 
     /**
