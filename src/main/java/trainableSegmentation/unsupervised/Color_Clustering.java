@@ -844,9 +844,12 @@ public class Color_Clustering implements PlugIn{
                         }
                         // Build clusterer
                         IJ.log("Building clusterer...");
+                        long startTime = System.currentTimeMillis();
                         AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
+                        long endTime = System.currentTimeMillis();
                         colorClustering.setTheClusterer(theClusterer);
                         IJ.log(theClusterer.toString());
+                        IJ.log( "Clusterer building took " + (endTime - startTime) + " ms." );
                         IJ.log("Creating clustered image...");
                         clusteredImage = colorClustering.createClusteredImage(theFeatures);
                         overlayEnabled=true;
@@ -854,6 +857,7 @@ public class Color_Clustering implements PlugIn{
                         runClusterButton.setText("Run");
                         enableComponents( true );
                         finishedClustering = true;
+                        IJ.log( "Done" );
                     }
                 };
                 currentTask = newTask;
