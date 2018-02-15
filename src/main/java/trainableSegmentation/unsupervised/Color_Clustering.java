@@ -997,7 +997,7 @@ public class Color_Clustering implements PlugIn{
             clustererLoaded=true;
             clusterer=colorClustering.getTheClusterer();
             Instances featuresInstances = colorClustering.getFeaturesInstances();
-            Boolean[] enabledChannels = new Boolean[numChannels];
+            boolean[] enabledChannels = new boolean[numChannels];
             for(int i=0;i<numChannels;++i){
                 enabledChannels[i]=false;
             }
@@ -1035,8 +1035,9 @@ public class Color_Clustering implements PlugIn{
             }
             // Update checkbox with enabled channels
             for(int i=0;i<numChannels;++i){
-                JCheckBox checkBox = (JCheckBox) win.channelSelectionPanel.getComponent(i);
-                checkBox.setSelected(enabledChannels[i]);
+            	if( win.channelCheckbox[ i ].isSelected() !=  enabledChannels[i] )
+            		featuresCreated = false;
+                win.channelCheckbox[ i ].setSelected(enabledChannels[i]);
             }
             // Update clusterer edition panel
             win.clustererEditor.setValue( clusterer );
