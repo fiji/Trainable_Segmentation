@@ -254,12 +254,14 @@ public class Color_Clustering implements PlugIn{
                         }
                         if( !finishedClustering )
                         	buildClusterer();
-
+                        // Generate probability map image
+                        IJ.log( "Creating probability map image..." );
                         ImagePlus result = colorClustering.createProbabilityMaps(theFeatures);
                         result.setCalibration(image.getCalibration());
                         result.setFileInfo(image.getFileInfo());
                         result.setTitle( inputImageShortTitle + "-clusterprobmap");
                         result.show();
+                        IJ.log( "Done" );
                     }
                 });
             }
