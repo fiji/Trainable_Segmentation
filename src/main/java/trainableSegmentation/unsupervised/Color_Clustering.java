@@ -237,13 +237,20 @@ public class Color_Clustering implements PlugIn{
             public void actionPerformed(ActionEvent e) {
                 exec.submit(new Runnable() {
                     public void run() {
-                        createFeatures();
+                        if( !featuresCreated )
+                    	{
+                        	IJ.log( "Creating features..." );
+                        	createFeatures();
+                    	}
                         if(clusterer==null||!clustererLoaded){
                             updateClusterer();
                         }
-                        AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
-                        colorClustering.setTheClusterer(theClusterer);
-                        IJ.log(theClusterer.toString());
+                        if( !finishedClustering )
+                        {
+                        	AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
+                        	colorClustering.setTheClusterer(theClusterer);
+                        	IJ.log(theClusterer.toString());
+                        }
                         ImagePlus result = colorClustering.createProbabilityMaps(theFeatures);
                         result.setCalibration(image.getCalibration());
                         result.setFileInfo(image.getFileInfo());
