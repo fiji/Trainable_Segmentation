@@ -41,7 +41,6 @@ public class PixelClustering {
      * Build current clusterer based on the current instances
      */
     public void buildClusterer(){
-        IJ.log("Building clusterer");
         try {
             selectedClusterer.buildClusterer(featuresInstances);
         } catch (InterruptedException ie) {
@@ -50,7 +49,6 @@ public class PixelClustering {
             IJ.log(e.getMessage());
             e.printStackTrace();
         }
-
     }
 
 

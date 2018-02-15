@@ -168,8 +168,7 @@ public class ColorClustering {
      */
     public AbstractClusterer createClusterer(AbstractClusterer selectedClusterer){
         PixelClustering pixelClustering = new PixelClustering(this.getFeaturesInstances(),selectedClusterer);
-
-            pixelClustering.buildClusterer();
+        pixelClustering.buildClusterer();
         AbstractClusterer clusterer = pixelClustering.getSelectedClusterer();
         return clusterer;
     }
@@ -179,7 +178,6 @@ public class ColorClustering {
      * Generate the features based on the selected color space channels.
      */
     public void createFeatures(){
-        IJ.log("Creating Features");
         int numSlices = image.getNSlices();
         int samplesPerSlice = numSamples/numSlices;
         for(int slice = 1; slice <= image.getStackSize(); ++slice){
@@ -253,7 +251,6 @@ public class ColorClustering {
             featureStackArray.set(features,slice-1);
             if( null == featuresInstances )
             {
-                IJ.log("Initializing loaded data...");
                 // Create instances
                 ArrayList<Attribute> attributes = new ArrayList<Attribute>();
                 for (int i=1; i<=featureStackArray.get(slice-1).getSize(); i++)
@@ -291,7 +288,6 @@ public class ColorClustering {
      * @return feature stack array
      */
     public FeatureStackArray createFSArray(ImagePlus image){
-        IJ.log("Creating Feature Stack Array");
         FeatureStackArray theFeatures = new FeatureStackArray(image.getStackSize());
         for(int slice = 1; slice <= image.getStackSize(); ++slice) {
             boolean labactive = false, rgbactive = false, hsbactive = false;
@@ -453,7 +449,6 @@ public class ColorClustering {
      * @return clusterized image (one label per cluster)
      */
     public ImagePlus createClusteredImage(FeatureStackArray theFeatures){
-        IJ.log("Creating clustered Image");
         int height;
         int width;
         int numInstances;

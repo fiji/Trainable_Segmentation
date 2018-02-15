@@ -746,7 +746,7 @@ public class Color_Clustering implements PlugIn{
                     }
                 }
                 colorClustering = new ColorClustering(image, numSamples, channels);
-                IJ.log("Creating features");
+                IJ.log("Creating features...");
                 theFeatures = colorClustering.createFSArray(image);
                 featuresCreated = true;
                 return true;
@@ -811,7 +811,6 @@ public class Color_Clustering implements PlugIn{
          * @param command
          */
 		void runClusterOrStop(String command){
-            IJ.log("Command: "+command);
             if(command.equals("Run")){
             	// disable GUI components when running clusterer
             	enableComponents( false );
@@ -837,6 +836,7 @@ public class Color_Clustering implements PlugIn{
                             AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
                             colorClustering.setTheClusterer(theClusterer);
                             IJ.log(theClusterer.toString());
+                            IJ.log("Creating clustered image...");
                             clusteredImage = colorClustering.createClusteredImage(theFeatures);
                             overlayEnabled=true;
                             updateResultOverlay();
@@ -845,9 +845,11 @@ public class Color_Clustering implements PlugIn{
                             enableComponents( true );
                         }else {
                             if(createFeatures()) {
+                            	IJ.log("Building clusterer...");
                                 AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
                                 colorClustering.setTheClusterer(theClusterer);
                                 IJ.log(theClusterer.toString());
+                                IJ.log("Creating clustered image...");
                                 clusteredImage = colorClustering.createClusteredImage(theFeatures);
                                 overlayEnabled=true;
                                 updateResultOverlay();
@@ -866,7 +868,7 @@ public class Color_Clustering implements PlugIn{
                 currentTask = newTask;
                 newTask.start();
             }else if(command.equals("STOP")){
-                IJ.log("Clusterization stopped by user");
+                IJ.log("Clustering stopped by user.");
                 runClusterButton.setText("Run");
                 // enable GUI components
             	enableComponents( true );
@@ -874,7 +876,7 @@ public class Color_Clustering implements PlugIn{
                     currentTask.interrupt();//Should use interrupt but weka does not support interrupt handling.
                     currentTask.stop();//Interrupt is being used
                 }else{
-                    IJ.log("Error: Interrupting failed because thread was null");
+                    IJ.log("Error: Interrupting failed because thread was null!");
                 }
             }
         }
@@ -903,7 +905,7 @@ public class Color_Clustering implements PlugIn{
 
                     {
                         runClusterButton.setText("Run");
-                        IJ.log("Error when setting clusterer");
+                        IJ.log("Error when setting clusterer.");
                     }
 
                 } else {
@@ -918,7 +920,7 @@ public class Color_Clustering implements PlugIn{
 
                             {
                                 runClusterButton.setText("Run");
-                                IJ.log("Error when setting clusterer");
+                                IJ.log("Error when setting clusterer.");
                             }
                             break;
                         }
@@ -942,7 +944,7 @@ public class Color_Clustering implements PlugIn{
 
                 {
                     runClusterButton.setText("Run");
-                    IJ.log("Error when setting clusterer");
+                    IJ.log("Error when setting clusterer.");
                 }
             }
         }
@@ -1044,7 +1046,7 @@ public class Color_Clustering implements PlugIn{
             // Dialog closed by user
         	return;
         }else {
-            IJ.log("Loading Weka properties");
+            IJ.log("Loading Weka properties...");
             // store input image title
             inputImageTitle = image.getTitle();
             inputImageShortTitle = image.getShortTitle();
