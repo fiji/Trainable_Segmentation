@@ -823,7 +823,7 @@ public class Color_Clustering implements PlugIn{
                         if (null != oldTask)
                         {
                             try {
-                                IJ.log("Waiting for old task to finish...");
+                                // Waiting for old task to finish
                                 oldTask.join();
                             }
                             catch (InterruptedException ie)	{ IJ.log("interrupted"); }
@@ -832,37 +832,28 @@ public class Color_Clustering implements PlugIn{
                         if(!clustererLoaded){
                             updateClusterer();
                         }
-                        if(featuresCreated&&!clustererLoaded){
-                            AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
-                            colorClustering.setTheClusterer(theClusterer);
-                            IJ.log(theClusterer.toString());
-                            IJ.log("Creating clustered image...");
-                            clusteredImage = colorClustering.createClusteredImage(theFeatures);
-                            overlayEnabled=true;
-                            updateResultOverlay();
-                            runClusterButton.setText("Run");
-
-                            enableComponents( true );
-                        }else {
-                            if(createFeatures()) {
-                            	IJ.log("Building clusterer...");
-                                AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
-                                colorClustering.setTheClusterer(theClusterer);
-                                IJ.log(theClusterer.toString());
-                                IJ.log("Creating clustered image...");
-                                clusteredImage = colorClustering.createClusteredImage(theFeatures);
-                                overlayEnabled=true;
-                                updateResultOverlay();
-                                runClusterButton.setText("Run");
-                                enableComponents( true );
-                                finishedClustering = true;
-                            }
-                            else
-                            {
-                            	finishedClustering = false;
+                        // Create color features when needed
+                        if( !featuresCreated )
+                        {
+                        	if( !createFeatures() )
+                        	{
+                        		finishedClustering = false;
                             	updateComponentEnabling();
-                            }
+                            	return;
+                        	}
                         }
+                        // Build clusterer
+                        IJ.log("Building clusterer...");
+                        AbstractClusterer theClusterer = colorClustering.createClusterer(clusterer);
+                        colorClustering.setTheClusterer(theClusterer);
+                        IJ.log(theClusterer.toString());
+                        IJ.log("Creating clustered image...");
+                        clusteredImage = colorClustering.createClusteredImage(theFeatures);
+                        overlayEnabled=true;
+                        updateResultOverlay();
+                        runClusterButton.setText("Run");
+                        enableComponents( true );
+                        finishedClustering = true;
                     }
                 };
                 currentTask = newTask;
