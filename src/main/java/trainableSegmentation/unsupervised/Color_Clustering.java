@@ -32,6 +32,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -1074,7 +1075,15 @@ public class Color_Clustering implements PlugIn{
             inputImageShortTitle = image.getShortTitle();
             // rename image so the plugin title is shown
             image.setTitle( "Color Clustering" );
-            win = new CustomWindow(image);
+
+            // Build GUI
+            SwingUtilities.invokeLater(
+            		new Runnable() {
+            			public void run() {
+            				win = new CustomWindow( image );
+            				win.pack();
+            			}
+            		});
         }
 
     }
