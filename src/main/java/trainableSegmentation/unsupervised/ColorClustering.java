@@ -179,6 +179,9 @@ public class ColorClustering {
     public void createFeatures(){
         int numSlices = image.getNSlices();
         int samplesPerSlice = numSamples/numSlices;
+        // Initialize feature stack array
+        featureStackArray = new FeatureStackArray(image.getStackSize());
+
         for(int slice = 1; slice <= image.getStackSize(); ++slice){
             boolean labactive=false,rgbactive=false,hsbactive=false;
             ImageConverter ic,ic2;
@@ -247,8 +250,6 @@ public class ColorClustering {
             FeatureStack features = new FeatureStack(stack.getWidth(),stack.getHeight(),false);
             features.setStack(stack);
 
-            // Initialize feature stack array
-            featureStackArray = new FeatureStackArray(image.getStackSize());
             featureStackArray.set(features,slice-1);
             // Create instances
             ArrayList<Attribute> attributes = new ArrayList<Attribute>();
@@ -465,13 +466,7 @@ public class ColorClustering {
                 attributes.add( new Attribute( attString ) );
             }
 
-            if( theFeatures.get(slice-1).useNeighborhood() )
-                for (int i=0; i<8; i++)
-                {
-                    //IJ.log("Adding extra attribute original_neighbor_" + (i+1) + "...");
-                    attributes.add( new Attribute( new String( "original_neighbor_" + (i+1) ) ) );
-                }
-            instances = new Instances(image.getTitle()+"-features", attributes, 1);
+            instances = new Instances(image.getShortTitle()+"-features", attributes, 1);
             final double[] values = new double[features.getSize()];
             final ReusableDenseInstance ins = new ReusableDenseInstance(1.0,values);
             ins.setDataset(instances);
