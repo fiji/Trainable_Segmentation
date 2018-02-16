@@ -80,7 +80,7 @@ public class Color_Clustering implements PlugIn{
     private ColorClustering colorClustering = null;
     private boolean featuresCreated = false;
     private FeatureStackArray theFeatures = null;
-    private boolean clustererLoaded = false;
+
     /** input image title */
     String inputImageTitle = null;
     /** input image short title */
@@ -249,9 +249,9 @@ public class Color_Clustering implements PlugIn{
                         	IJ.log( "Creating features..." );
                         	createFeatures();
                     	}
-                        if(clusterer==null||!clustererLoaded){
+                        if( clusterer == null )
                             updateClusterer();
-                        }
+
                         if( !finishedClustering )
                         	buildClusterer();
                         // Generate probability map image
@@ -287,7 +287,14 @@ public class Color_Clustering implements PlugIn{
         ActionListener clusterLoader = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                loadClusterer();
+            	exec.submit(new Runnable() {
+            		public void run() {
+            			// Disable GUI components until loading is finished
+                    	win.enableComponents( false );
+            			loadClusterer();
+            			win.updateComponentEnabling();
+            		}
+            	});
             }
         };
 
@@ -690,7 +697,7 @@ public class Color_Clustering implements PlugIn{
 
         }// end CustomWindow constructor
         /**
-         * Enable/disable GUI components
+         * Enable/disable all GUI components
          * @param flag boolean flag to enable or disable all GUI components
          */
         void enableComponents( boolean flag )
@@ -701,6 +708,8 @@ public class Color_Clustering implements PlugIn{
         	this.pixelSlider.setEnabled( flag );
         	this.samplePanel.setEnabled( flag );
         	this.clustererPanel.setEnabled( flag );
+        	this.clustererEditor.setEnabled( flag );
+        	this.runClusterButton.setEnabled( flag );
         	this.opacitySlider.setEnabled( flag );
         	this.createFile.setEnabled( flag );
         	this.createResult.setEnabled( flag );
@@ -720,6 +729,8 @@ public class Color_Clustering implements PlugIn{
         	this.pixelSlider.setEnabled( true );
         	this.samplePanel.setEnabled( true );
         	this.clustererPanel.setEnabled( true );
+        	this.clustererEditor.setEnabled( true );
+        	this.runClusterButton.setEnabled( true );
         	this.opacitySlider.setEnabled( true );
         	this.createFile.setEnabled( true );
         	this.createResult.setEnabled( finishedClustering );
@@ -758,9 +769,12 @@ public class Color_Clustering implements PlugIn{
                         channels.add(channel);
                     }
                 }
-                colorClustering = new ColorClustering(image, numSamples, channels);
+                // Update channels to use and number of samples
+                colorClustering.setNumSamples( numSamples );
+                colorClustering.setChannels( channels );
                 IJ.log("Creating features...");
-                theFeatures = colorClustering.createFSArray(image);
+                colorClustering.createFeatures();
+                theFeatures = colorClustering.getFeatureStackArray();
                 featuresCreated = true;
                 return true;
             } else {
@@ -842,9 +856,7 @@ public class Color_Clustering implements PlugIn{
                             catch (InterruptedException ie)	{ IJ.log("interrupted"); }
                         }
                         clusterer = colorClustering.getTheClusterer();
-                        if(!clustererLoaded){
-                            updateClusterer();
-                        }
+                        updateClusterer();
                         // Create color features when needed
                         if( !featuresCreated )
                         {
@@ -886,68 +898,41 @@ public class Color_Clustering implements PlugIn{
         /**
          * Updates clusterer based on selected options on GUI
          */
-        public void updateClusterer(){
+        public void updateClusterer()
+        {
+        	Object c = (Object) clustererEditor.getValue();
+        	String[] optionsArray = ((OptionHandler) c).getOptions();
+            boolean update = false;
+            
             if(clusterer!=null) {
-                String[] prevOptions = clusterer.getOptions();
-                Object c = (Object) clustererEditor.getValue();
-                String options = "";
-                String[] optionsArray = ((OptionHandler) c).getOptions();
-                if (c instanceof OptionHandler)
-                {
-                    options = Utils.joinOptions(optionsArray);
-                }
+            	String[] prevOptions = clusterer.getOptions();
+            	// If different length of options, assume different clusterer
+            	if (optionsArray.length != prevOptions.length)
+            		update = true;
+            	else {
+            		for (int i = 0; i < optionsArray.length; ++i) {
+            			if (!prevOptions[i].contentEquals(optionsArray[i])) {
+            				update = true;
+            				break;
+            			}
+            		}
+            	}
+            }
+            else
+            	update = true;
 
-                if (optionsArray.length != prevOptions.length) {
-                    clustererLoaded = false;
-                    try {
-                        clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                        clusterer.setOptions(optionsArray);
-                    } catch (
-                            Exception ex)
-
-                    {
-                        runClusterButton.setText("Run");
-                        IJ.log("Error when setting clusterer.");
-                    }
-
-                } else {
-                    for (int i = 0; i < optionsArray.length; ++i) {
-                        if (!prevOptions[i].contentEquals(optionsArray[i])) {
-                            clustererLoaded = false;
-                            try {
-                                clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                                clusterer.setOptions(optionsArray);
-                            } catch (
-                                    Exception ex)
-
-                            {
-                                runClusterButton.setText("Run");
-                                IJ.log("Error when setting clusterer.");
-                            }
-                            break;
-                        }
-                    }
-                }
-            }else{
-                clustererLoaded=false;
-                Object c = (Object) clustererEditor.getValue();
-                String options = "";
-                String[] optionsArray = ((OptionHandler) c).getOptions();
-                if (c instanceof OptionHandler)
-
-                {
-                    options = Utils.joinOptions(optionsArray);
-                }
-                try {
-                    clusterer = (AbstractClusterer) (c.getClass().newInstance());
-                    clusterer.setOptions(optionsArray);
-                } catch (
-                        Exception ex)
-
-                {
-                    runClusterButton.setText("Run");
-                    IJ.log("Error when setting clusterer.");
-                }
+            if( update )
+            {
+            	try {
+            		clusterer = (AbstractClusterer) (c.getClass().newInstance());
+            		clusterer.setOptions(optionsArray);
+            	}
+            	catch ( Exception ex )
+            	{
+            		ex.printStackTrace();
+            		runClusterButton.setText("Run");
+            		IJ.log("Error when setting clusterer.");
+            	}
             }
         }
         /**
@@ -995,10 +980,8 @@ public class Color_Clustering implements PlugIn{
             return;
         }
         else
-        {
-        	// Set clusterer loaded flag
-            clustererLoaded=true;
-            // Update current clusterer
+        {        	
+            // Update current clusterer        	
             clusterer = colorClustering.getTheClusterer();
             // Match selected features in GUI with those used to build
             // the clusterer
@@ -1050,6 +1033,22 @@ public class Color_Clustering implements PlugIn{
             // Update clusterer edition panel
             win.clustererEditor.setValue( clusterer );
             IJ.log("Loaded clusterer:" + clusterer);
+            // New clusterer is already built
+            finishedClustering = true;
+            // Update plugin overlay
+            if( !featuresCreated )
+            {
+            	if( !win.createFeatures() )
+            	{
+            		finishedClustering = false;            		
+                	return;
+            	}
+            }
+            IJ.log("Creating new clustered image...");
+            clusteredImage = colorClustering.createClusteredImage(theFeatures);
+            overlayEnabled=true;
+            win.updateResultOverlay();
+            IJ.log("Done");
         }
     }
 
