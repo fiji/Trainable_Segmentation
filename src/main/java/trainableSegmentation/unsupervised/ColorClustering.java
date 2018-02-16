@@ -247,25 +247,21 @@ public class ColorClustering {
             FeatureStack features = new FeatureStack(stack.getWidth(),stack.getHeight(),false);
             features.setStack(stack);
 
+            // Initialize feature stack array
+            featureStackArray = new FeatureStackArray(image.getStackSize());
             featureStackArray.set(features,slice-1);
-            if( null == featuresInstances )
+            // Create instances
+            ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+            for (int i=1; i<=featureStackArray.get(slice-1).getSize(); i++)
             {
-                // Create instances
-                ArrayList<Attribute> attributes = new ArrayList<Attribute>();
-                for (int i=1; i<=featureStackArray.get(slice-1).getSize(); i++)
-                {
-                    String attString = featureStackArray.get(slice-1).getSliceLabel(i);
-                    attributes.add( new Attribute( attString ) );
-                }
-
-                if( featureStackArray.get(slice-1).useNeighborhood() )
-                    for (int i=0; i<8; i++)
-                    {
-                        //IJ.log("Adding extra attribute original_neighbor_" + (i+1) + "...");
-                        attributes.add( new Attribute( new String( "original_neighbor_" + (i+1) ) ) );
-                    }
-                featuresInstances = new Instances("segment", attributes, 1);
+            	String attString = featureStackArray.get(slice-1).getSliceLabel(i);
+            	attributes.add( new Attribute( attString ) );
             }
+
+            featuresInstances =
+            		new Instances( image.getShortTitle() + "-features",
+            				attributes, 1 );
+
             ArrayList<Point> positions = new ArrayList<Point>();
             for(int x=0;x<image.getWidth();++x){
                 for(int y=0;y<image.getHeight();++y){
@@ -711,6 +707,13 @@ public class ColorClustering {
     public void setTheClusterer(AbstractClusterer theClusterer) {
         this.theClusterer = theClusterer;
     }
-
+    /**
+     * Set channels to use
+     * @param selectedChannels list of selected channels
+     */
+    public void setChannels( ArrayList<Channel> selectedChannels )
+    {
+       this.channels = selectedChannels;
+    }
 }
 
