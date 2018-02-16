@@ -417,7 +417,8 @@ public class ColorClustering {
                         //IJ.log(ins.toString());
                         //IJ.log("Coordinates: "+x+","+y+" Cluster: "+clusterArray[x+y*width]);
                     }catch (Exception e){
-                        IJ.log("Error when applying clusterer to pixel: "+x+","+y);
+                        e.printStackTrace();
+                        return null;
                     }
                 }
             }
