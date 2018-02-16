@@ -3,7 +3,6 @@ package trainableSegmentation.unsupervised;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.io.SaveDialog;
 import ij.measure.Calibration;
 import ij.process.ByteProcessor;
 import ij.process.ColorSpaceConverter;
@@ -615,10 +614,9 @@ public class ColorClustering {
             }
             objectInputStream.close();
         }catch (Exception e){
-            IJ.log("Loading file failed: "+e.getMessage());
+            e.printStackTrace();
+            return false;
         }
-
-        IJ.log(theClusterer.toString());
         return true;
     }
 
