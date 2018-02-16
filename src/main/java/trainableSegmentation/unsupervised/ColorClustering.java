@@ -487,7 +487,8 @@ public class ColorClustering {
                         //IJ.log(ins.toString());
                         //IJ.log("Coordinates: "+x+","+y+" Cluster: "+clusterArray[x+y*width]);
                     }catch (Exception e){
-                        IJ.log("Error when applying clusterer to pixel: "+x+","+y);
+                        e.printStackTrace();
+                        return null;
                     }
                 }
             }
@@ -495,7 +496,8 @@ public class ColorClustering {
             try {
                 processor.setMinAndMax(0,theClusterer.numberOfClusters());
             } catch (Exception e) {
-                IJ.log("Error when setting histogram range in slice: "+slice);
+            	e.printStackTrace();
+                return null;
             }
             clusteringResult.addSlice(processor);
         }
@@ -608,11 +610,15 @@ public class ColorClustering {
                 is = new GZIPInputStream(is);
             }
             ObjectInputStream objectInputStream = SerializationHelper.getObjectInputStream(is);
-            theClusterer = (AbstractClusterer) objectInputStream.readObject();
-            try{
-                featuresInstances = (Instances) objectInputStream.readObject();
-            }catch (Exception e){
-            }
+            AbstractClusterer clusterer =
+            		(AbstractClusterer) objectInputStream.readObject();
+            if( null == clusterer )
+            	return false;
+            Instances ins = (Instances) objectInputStream.readObject();
+            if( null == ins )
+            	return false;
+            theClusterer = clusterer;
+            featuresInstances = ins;
             objectInputStream.close();
         }catch (Exception e){
             e.printStackTrace();
