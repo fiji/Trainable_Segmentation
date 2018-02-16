@@ -37,6 +37,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -842,6 +843,7 @@ public class Color_Clustering implements PlugIn{
             if(command.equals("Run")){
             	// disable GUI components when running clusterer
             	enableComponents( false );
+            	runClusterButton.setEnabled( true );
                 runClusterButton.setText("STOP");
                 final Thread oldTask = currentTask;
                 Thread newTask = new Thread() {
