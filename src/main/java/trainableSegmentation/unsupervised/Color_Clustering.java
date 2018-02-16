@@ -993,9 +993,15 @@ public class Color_Clustering implements PlugIn{
             IJ.error("Error when loading Weka clusterer from file");
             IJ.log("Error: clusterer could not be loaded.");
             return;
-        }else {
+        }
+        else
+        {
+        	// Set clusterer loaded flag
             clustererLoaded=true;
-            clusterer=colorClustering.getTheClusterer();
+            // Update current clusterer
+            clusterer = colorClustering.getTheClusterer();
+            // Match selected features in GUI with those used to build
+            // the clusterer
             Instances featuresInstances = colorClustering.getFeaturesInstances();
             boolean[] enabledChannels = new boolean[numChannels];
             for(int i=0;i<numChannels;++i){
@@ -1034,15 +1040,17 @@ public class Color_Clustering implements PlugIn{
                 }
             }
             // Update checkbox with enabled channels
-            for(int i=0;i<numChannels;++i){
+            for(int i=0;i<numChannels;++i)
+            {
+            	// Set flag to create features if any channel is different
             	if( win.channelCheckbox[ i ].isSelected() !=  enabledChannels[i] )
             		featuresCreated = false;
                 win.channelCheckbox[ i ].setSelected(enabledChannels[i]);
             }
             // Update clusterer edition panel
             win.clustererEditor.setValue( clusterer );
+            IJ.log("Loaded clusterer:" + clusterer);
         }
-
     }
 
 
