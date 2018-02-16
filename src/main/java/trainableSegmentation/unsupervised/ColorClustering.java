@@ -150,7 +150,7 @@ public class ColorClustering {
      * @param numSamples number of samples to use
      * @param selectedChannels list of color space channels (features) to use
      */
-    public ColorClustering(ImagePlus image, int numSamples, ArrayList<Channel> selectedChannels){ //Separar build clusterer del constructor
+    public ColorClustering(ImagePlus image, int numSamples, ArrayList<Channel> selectedChannels){
         for(Channel element: selectedChannels){
             this.channels.add(element);
         }
