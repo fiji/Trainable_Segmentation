@@ -711,6 +711,8 @@ public class Color_Clustering implements PlugIn{
         	this.samplePanel.setEnabled( flag );
         	this.clustererPanel.setEnabled( flag );
         	this.clustererEditor.setEnabled( flag );
+        	for( Component c : this.clustererEditor.getCustomPanel().getComponents() )
+        		c.setEnabled( flag );
         	this.runClusterButton.setEnabled( flag );
         	this.opacitySlider.setEnabled( flag );
         	this.createFile.setEnabled( flag );
