@@ -56,7 +56,7 @@ public class ColorClustering {
         Saturation("Saturation"),
         Brightness("Brightness");
 
-	/** channel label */
+    	/** channel label */
         private final String label;
 
         /**
