@@ -68,18 +68,30 @@ import java.util.concurrent.Executors;
  *
  */
 public class Color_Clustering implements PlugIn{
+	/** executor service to manage plugin threads */
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
+    /** input image */
     protected ImagePlus image=null;
+    /** array of booleans indicating the selection of channels */
     private boolean[] selectedChannels;
+    /** number of samples to use in the cluster building */
     private int numSamples;
+    /** number of channels available */
     private int numChannels;
+    /** clustering model to use */
     private AbstractClusterer clusterer=null;
+    /** clusterer building thread */
     private Thread currentTask=null;
+    /** result image with the output clusters */
     private ImagePlus clusteredImage=null;
+    /** main plugin window */
     private CustomWindow win;
     private boolean overlayEnabled = false;
+    /** color clustering backend */
     private ColorClustering colorClustering = null;
+    /** flag indicating if the color features have been created */
     private boolean featuresCreated = false;
+    /** array of color feature stacks (one per slice) */
     private FeatureStackArray theFeatures = null;
 
     /** input image title */
