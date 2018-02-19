@@ -992,34 +992,13 @@ public class Color_Clustering implements PlugIn{
             }
             for(int i=0;i<featuresInstances.numAttributes();++i){
                 String name = featuresInstances.attribute(i).name();
-                switch (name){
-                    case "Red":
-                        enabledChannels[0]=true;
-                        break;
-                    case "Green":
-                        enabledChannels[1]=true;
-                        break;
-                    case "Blue":
-                        enabledChannels[2]=true;
-                        break;
-                    case "L":
-                        enabledChannels[3]=true;
-                        break;
-                    case "a":
-                        enabledChannels[4]=true;
-                        break;
-                    case "b":
-                        enabledChannels[5]=true;
-                        break;
-                    case "Hue":
-                        enabledChannels[6]=true;
-                        break;
-                    case "Saturation":
-                        enabledChannels[7]=true;
-                        break;
-                    case "Brightness":
-                        enabledChannels[8]=true;
-                        break;
+                for(int j = 0; j < numChannels; ++j )
+                {
+                	if( win.channelCheckbox[ j ].getText().equals( name ) )
+                	{
+                		enabledChannels[ j ] = true;
+                		break;
+                	}
                 }
             }
             // Update checkbox with enabled channels
