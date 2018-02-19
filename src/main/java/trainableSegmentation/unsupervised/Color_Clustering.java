@@ -98,6 +98,8 @@ public class Color_Clustering implements PlugIn{
     	 * Generated serial version UID
     	 */
     	private static final long serialVersionUID = -8066394344204413879L;
+    	/** panel containing the whole GUI (buttons on the left and canvas
+    	 * on the right */
     	private Panel all = new Panel();
 
     	/** parameters panel (whole left panel) */
@@ -107,24 +109,35 @@ public class Color_Clustering implements PlugIn{
     	/** result options panel (bottom left) */
     	JPanel resultsPanel = new JPanel();
 
-    	/** Panel with the channel options */
+    	/** panel with the channel options */
         private JPanel channelSelectionPanel = new JPanel();
-        /** Panel with the clusterer selection */
+        /** panel with the clusterer selection */
         private JPanel clustererPanel = new JPanel();
-        /** Sample selection panel (for number of samples to use) */
+        /** sample selection panel (for number of samples to use) */
         private JPanel samplePanel = new JPanel();
         /** array of channel checkboxes */
         JCheckBox[] channelCheckbox = null;
+        /** Weka clusterer edition panel */
         private GenericObjectEditor clustererEditor = new GenericObjectEditor();
+        /** button to run (and stop) clusterer building */
         private JButton runClusterButton = null;
+        /** button to create ARFF file from current settings */
         private JButton createFile = null;
+        /** button to display current result segmentation */
         private JButton createResult = null;
+        /** button to create probability map image */
         private JButton createProbabilityMap = null;
+        /** button to visualize data in Weka visualization window */
         private JButton visualizeData = null;
+        /** button to save clustere to file (.model) */
         private JButton saveClusterer = null;
+        /** button to load clusterer from file (.model) */
         private JButton loadClusterer = null;
+        /** flag to warn about large number of samples */
         private boolean warned=false;
+        /** slider to select the number of samples to use */
         private JSlider pixelSlider;
+        /** slider to change the overlay opacity */
         private JSlider opacitySlider;
 
         /**
