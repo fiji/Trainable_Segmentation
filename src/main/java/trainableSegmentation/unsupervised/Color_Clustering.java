@@ -579,7 +579,7 @@ public class Color_Clustering implements PlugIn{
 
             // if the input image is 3d, put the
             // slice selectors in place
-            if( null != super.sliceSelector ) //Adjustment listener añadir a tSelector
+            if( null != super.sliceSelector )
             {
                 sliceSelector.setValue( image.getCurrentSlice() );
                 image.setSlice( image.getCurrentSlice() );
@@ -611,7 +611,7 @@ public class Color_Clustering implements PlugIn{
                     allConstraints.gridy++;
                 }
 
-            }//Add listener para cambiar overlay, como en morph (mouse, wheel key etc)
+            }
 
             GridBagLayout wingb = new GridBagLayout();
             GridBagConstraints winc = new GridBagConstraints();
