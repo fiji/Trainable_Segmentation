@@ -86,7 +86,6 @@ public class Color_Clustering implements PlugIn{
     private ImagePlus clusteredImage=null;
     /** main plugin window */
     private CustomWindow win;
-    private boolean overlayEnabled = false;
     /** color clustering backend */
     private ColorClustering colorClustering = null;
     /** flag indicating if the color features have been created */
@@ -345,7 +344,6 @@ public class Color_Clustering implements PlugIn{
         {
             if( null != clusteredImage )
             {
-                overlayEnabled=true;
                 int slice = image.getCurrentSlice();
                 ImageRoi roi = null;
                 roi = new ImageRoi(0, 0, clusteredImage.getImageStack().getProcessor(slice));
@@ -633,12 +631,8 @@ public class Color_Clustering implements PlugIn{
                             public void run() {
                                 if(e.getSource() == sliceSelector)
                                 {
-                                    if( overlayEnabled )
-                                    {
-                                        updateResultOverlay();
-                                        image.updateAndDraw();
-
-                                    }
+                                	updateResultOverlay();
+                                	image.updateAndDraw();
                                 }
 
                             }
@@ -655,11 +649,8 @@ public class Color_Clustering implements PlugIn{
                         exec.submit(new Runnable() {
                             public void run()
                             {
-                                if( overlayEnabled )
-                                {
-                                    updateResultOverlay();
-                                    image.updateAndDraw();
-                                }
+                            	updateResultOverlay();
+                            	image.updateAndDraw();
                             }
                         });
 
@@ -686,11 +677,8 @@ public class Color_Clustering implements PlugIn{
                                         e.getKeyCode() == KeyEvent.VK_COMMA ||
                                         e.getKeyCode() == KeyEvent.VK_PERIOD)
                                 {
-                                    if( overlayEnabled )
-                                    {
-                                        updateResultOverlay();
-                                        image.updateAndDraw();
-                                    }
+                                	updateResultOverlay();
+                                	image.updateAndDraw();
                                 }
                             }
                         });
@@ -884,7 +872,6 @@ public class Color_Clustering implements PlugIn{
                         buildClusterer();
                         IJ.log("Creating clustered image...");
                         clusteredImage = colorClustering.createClusteredImage(theFeatures);
-                        overlayEnabled=true;
                         updateResultOverlay();
                         runClusterButton.setText("Run");
                         enableComponents( true );
@@ -1059,7 +1046,6 @@ public class Color_Clustering implements PlugIn{
             }
             IJ.log("Creating new clustered image...");
             clusteredImage = colorClustering.createClusteredImage(theFeatures);
-            overlayEnabled=true;
             win.updateResultOverlay();
             IJ.log("Done");
         }
