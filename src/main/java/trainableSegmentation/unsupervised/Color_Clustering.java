@@ -587,18 +587,6 @@ public class Color_Clustering implements PlugIn{
                 all.add( super.sliceSelector, allConstraints );
                 allConstraints.gridy++;
                 if( null != super.zSelector ) {
-                    /*super.zSelector.addAdjustmentListener(new AdjustmentListener() {
-                        @Override
-                        public void adjustmentValueChanged(AdjustmentEvent e) {
-                            if( overlayEnabled )
-                            {
-                                updateResultOverlay();
-                                displayImage.updateAndDraw();
-
-                            }
-                            IJ.log("Test1");
-                        }
-                    });*/
                     all.add(super.zSelector, allConstraints);
                     allConstraints.gridy++;
                 }
