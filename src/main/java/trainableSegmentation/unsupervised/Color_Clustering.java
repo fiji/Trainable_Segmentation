@@ -585,21 +585,17 @@ public class Color_Clustering implements PlugIn{
                 image.setSlice( image.getCurrentSlice() );
 
                 all.add( super.sliceSelector, allConstraints );
-                allConstraints.gridy++;
                 if( null != super.zSelector ) {
                     all.add(super.zSelector, allConstraints);
-                    allConstraints.gridy++;
                 }
                 if( null != super.tSelector ){
                     all.add( super.tSelector, allConstraints );
-                    allConstraints.gridy++;
                 }
                 if( null != super.cSelector ){
                     all.add( super.cSelector, allConstraints );
-                    allConstraints.gridy++;
                 }
-
             }
+            allConstraints.gridy--;
 
             GridBagLayout wingb = new GridBagLayout();
             GridBagConstraints winc = new GridBagConstraints();
