@@ -74,7 +74,7 @@ public class FeatureStack3D
 	/** image height */
 	private int height = 0;
 	
-	/** minmum sigma/radius used in the filters */
+	/** minimum sigma/radius used in the filters */
 	private float minimumSigma = 1;
 	/** maximum sigma/radius used in the filters */
 	private float maximumSigma = 8;
@@ -261,8 +261,8 @@ public class FeatureStack3D
 	 * Get difference of Gaussian features (to be submitted in an ExecutorService)
 	 *
 	 * @param originalImage input image
-	 * @param sigma1 sigma of the smaller Gausian
-	 * @param sigma2 sigma of the larger Gausian  
+	 * @param sigma1 sigma of the smaller Gaussian
+	 * @param sigma2 sigma of the larger Gaussian
 	 * @return filter image after specific order derivatives
 	 */
 	public Callable<ArrayList<ImagePlus>> getDoG(
@@ -974,13 +974,13 @@ public class FeatureStack3D
 						futures.add(exe.submit( getStructure(originalImage, i, integrationScale )) );
 				}
 				
-				// Maximum
+				// Minimum
 				if(enableFeatures[ MINIMUM ])
 				{
 					futures.add(exe.submit( getMinimum(originalImage, i)) );
 				}
 				
-				// Maxmimum
+				// Maximum
 				if(enableFeatures[ MAXIMUM ])
 				{
 					futures.add(exe.submit( getMaximum(originalImage, i)) );
