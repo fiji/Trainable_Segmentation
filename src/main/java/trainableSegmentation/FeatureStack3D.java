@@ -45,6 +45,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Prefs;
+import ij.measure.Calibration;
 import ij.plugin.Filters3D;
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
@@ -145,6 +146,7 @@ public class FeatureStack3D
 	
 	private int minDerivativeOrder = 1;
 	private int maxDerivativeOrder = 5;
+	private double[] scaleFactor = null;
 
 	private ExecutorService exe;
 
@@ -174,9 +176,15 @@ public class FeatureStack3D
 			for(int i=1; i<=image.getImageStackSize(); i++)
 				is.addSlice("original-slice-" + i, image.getImageStack().getProcessor(i).convertToFloat() );
 		}
-		
-		
-		wholeStack.add( new ImagePlus("original", is ) );		
+		// calculate scale factors to make sigmas isotropic
+		scaleFactor = new double[ 3 ];
+		scaleFactor[ 0 ] = 1.0;
+		scaleFactor[ 1 ] = Double.compare( originalImage.getCalibration().pixelWidth,
+				originalImage.getCalibration().pixelHeight ) == 0 ?
+						1.0 : originalImage.getCalibration().pixelWidth / originalImage.getCalibration().pixelHeight;
+		scaleFactor[ 2 ] = Double.compare( originalImage.getCalibration().pixelWidth,
+				originalImage.getCalibration().pixelDepth ) == 0 ?
+						1.0 : originalImage.getCalibration().pixelWidth / originalImage.getCalibration().pixelDepth;
 	}
 	/**
 	 * Get the list of flags for the default features
@@ -237,6 +245,11 @@ public class FeatureStack3D
 					final ImagePlus channel = channels [ ch ].duplicate();
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
+					// Tweak calibration so ImageScience uses scaled sigma values
+					Calibration c = channel.getCalibration();
+					c.pixelWidth = scaleFactor[ 0 ];
+					c.pixelHeight = scaleFactor[ 1 ];
+					c.pixelDepth = scaleFactor[ 2 ];
 					
 					final ImagePlus ip = ImageScience.computeDifferentialImage(sigma, xOrder, yOrder, zOrder, channel);
 					if( xOrder + yOrder + zOrder == 0)
@@ -258,7 +271,9 @@ public class FeatureStack3D
 	
 	
 	/**
-	 * Get difference of Gaussian features (to be submitted in an ExecutorService)
+	 * Get difference of Gaussian features (to be submitted in
+	 * an ExecutorService). Sigma values will be adjusted
+	 * based on original image calibration.
 	 *
 	 * @param originalImage input image
 	 * @param sigma1 sigma of the smaller Gaussian
@@ -279,7 +294,7 @@ public class FeatureStack3D
 			{
 				// Get channel(s) to process
 				ImagePlus[] channels = extractChannels(originalImage);
-				
+
 				ArrayList<ImagePlus>[] results = new ArrayList[ channels.length ];
 				
 				for(int ch=0; ch < channels.length; ch++)
@@ -295,11 +310,11 @@ public class FeatureStack3D
 					// define the first sigma for each dimension
 					final double[] isoSigma1 = new double[ mirrorImg.numDimensions() ];
 					for ( int d = 0; d < isoSigma1.length; ++d )
-						isoSigma1[ d ] = sigma1;
+						isoSigma1[ d ] = sigma1 * scaleFactor[ d ];
 					// define the second sigma for each dimension
 					final double[] isoSigma2 = new double[ mirrorImg.numDimensions() ];
 					for ( int d = 0; d < isoSigma2.length; ++d )
-						isoSigma2[ d ] = sigma2;
+						isoSigma2[ d ] = sigma2 * scaleFactor[ d ];
 
 					DifferenceOfGaussian.DoG( isoSigma1, isoSigma2, mirrorImg, image2, exe );
 
@@ -350,6 +365,11 @@ public class FeatureStack3D
 					final ImagePlus channel = channels [ ch ].duplicate();
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
+					// Tweak calibration so ImageScience uses scaled sigma values
+					Calibration c = channel.getCalibration();
+					c.pixelWidth = scaleFactor[ 0 ];
+					c.pixelHeight = scaleFactor[ 1 ];
+					c.pixelDepth = scaleFactor[ 2 ];
 					
 					final ArrayList<ImagePlus> result = ImageScience.computeHessianImages(sigma, absolute, channel);
 					final ImageStack smallest = result.get(0).getImageStack();
@@ -394,7 +414,7 @@ public class FeatureStack3D
 				
 				// Get channel(s) to process
 				ImagePlus[] channels = extractChannels(originalImage);
-				
+
 				ArrayList<ImagePlus>[] results = new ArrayList[ channels.length ];
 				
 				for(int ch=0; ch < channels.length; ch++)
@@ -405,6 +425,11 @@ public class FeatureStack3D
 					final ImagePlus channel = channels [ ch ].duplicate();
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
+					// Tweak calibration so ImageScience uses scaled sigma values
+					Calibration c = channel.getCalibration();
+					c.pixelWidth = scaleFactor[ 0 ];
+					c.pixelHeight = scaleFactor[ 1 ];
+					c.pixelDepth = scaleFactor[ 2 ];
 					
 					final ImagePlus ip = ImageScience.computeLaplacianImage(sigma, channel);
 					ip.setTitle(availableFeatures[LAPLACIAN] +"_" + sigma );
@@ -454,9 +479,14 @@ public class FeatureStack3D
 					final ImagePlus channel = channels [ ch ].duplicate();
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
+					// Tweak calibration so ImageScience uses scaled sigma values
+					Calibration c = channel.getCalibration();
+					c.pixelWidth = scaleFactor[ 0 ];
+					c.pixelHeight = scaleFactor[ 1 ];
+					c.pixelDepth = scaleFactor[ 2 ];
 					
-					final double scaledSigma = originalImage.getCalibration().pixelWidth * sigma;
-					final ImagePlus ip = ImageScience.computeEdgesImage( scaledSigma, channel );
+					//final double scaledSigma = originalImage.getCalibration().pixelWidth * sigma;
+					final ImagePlus ip = ImageScience.computeEdgesImage( sigma, channel );
 					ip.setTitle(availableFeatures[EDGES] +"_" + sigma );
 					
 					// remove pad				
@@ -473,7 +503,8 @@ public class FeatureStack3D
 	}
 	
 	/**
-	 * Get Minimum features (to be submitted to an ExecutorService)
+	 * Get Minimum features (to be submitted to an ExecutorService). Sigma values will be adjusted
+	 * based on original image calibration.
 	 *
 	 * @param originalImage input image
 	 * @param sigma filter radius	
@@ -496,10 +527,13 @@ public class FeatureStack3D
 					ImageConverter ic = new ImageConverter( im );
 					ic.convertToGray32();
 				}
-				
+
 				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 				
-				final ImageStack is = Filters3D.filter(im.getImageStack(),Filters3D.MIN, (float)sigma, (float)sigma, (float)sigma);
+				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.MIN,
+						(float) (sigma * scaleFactor[0]),
+						(float) (sigma * scaleFactor[1]),
+						(float) (sigma * scaleFactor[2]));
 				final ImagePlus ip = new ImagePlus( availableFeatures[ MINIMUM ] +"_" + sigma, is );							
 				
 				result.add( ip );
@@ -509,7 +543,8 @@ public class FeatureStack3D
 	}
 
 	/**
-	 * Get Gaussian features (to be submitted to an ExecutorService)
+	 * Get Gaussian features (to be submitted to an ExecutorService). Sigma values will be adjusted
+	 * based on original image calibration.
 	 *
 	 * @param originalImage input image
 	 * @param sigma filter radius
@@ -540,9 +575,12 @@ public class FeatureStack3D
 
 					// first extend the image with mirror
 					RandomAccessible< FloatType > mirrorImg = Views.extendMirrorSingle( image2 );
-
+					// adjust sigma based on voxel size
+					final double[] isoSigma = new double[ mirrorImg.numDimensions() ];
+					for ( int d = 0; d < isoSigma.length; ++d )
+						isoSigma[ d ] = sigma * scaleFactor[ d ];
 					try {
-						Gauss3.gauss( sigma, mirrorImg, image2 );
+						Gauss3.gauss( isoSigma, mirrorImg, image2 );
 					} catch (IncompatibleTypeException e) {
 						IJ.log( "Error when calculating Gaussian feature." );
 						e.printStackTrace();
@@ -561,7 +599,8 @@ public class FeatureStack3D
 	}
 
 	/**
-	 * Get Maximum features (to be submitted to an ExecutorService)
+	 * Get Maximum features (to be submitted to an ExecutorService). Sigma values will be adjusted
+	 * based on original image calibration.
 	 *
 	 * @param originalImage input image
 	 * @param sigma filter radius	
@@ -587,7 +626,10 @@ public class FeatureStack3D
 
 				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 				
-				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.MAX, (float)sigma, (float)sigma, (float)sigma);
+				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.MAX,
+						(float) (sigma * scaleFactor[0]),
+						(float) (sigma * scaleFactor[1]),
+						(float) (sigma * scaleFactor[2]));
 				final ImagePlus ip = new ImagePlus( availableFeatures[ MAXIMUM ] +"_" + sigma, is );
 				
 				result.add( ip );
@@ -598,7 +640,8 @@ public class FeatureStack3D
 	
 	
 	/**
-	 * Get Mean features (to be submitted to an ExecutorService)
+	 * Get Mean features (to be submitted to an ExecutorService). Sigma values will be adjusted
+	 * based on original image calibration.
 	 *
 	 * @param originalImage input image
 	 * @param sigma filter radius	
@@ -624,7 +667,10 @@ public class FeatureStack3D
 
 				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 
-				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.MEAN, (float)sigma, (float)sigma, (float)sigma);
+				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.MEAN,
+						(float) (sigma * scaleFactor[0]),
+						(float) (sigma * scaleFactor[1]),
+						(float) (sigma * scaleFactor[2]));
 				final ImagePlus ip = new ImagePlus( availableFeatures[ MEAN ] +"_" + sigma, is );
 
 				result.add( ip );
@@ -634,7 +680,8 @@ public class FeatureStack3D
 	}
 	
 	/**
-	 * Get Median features (to be submitted to an ExecutorService)
+	 * Get Median features (to be submitted to an ExecutorService). Sigma values will be adjusted
+	 * based on original image calibration.
 	 *
 	 * @param originalImage input image
 	 * @param sigma filter radius	
@@ -657,9 +704,13 @@ public class FeatureStack3D
 					ImageConverter ic = new ImageConverter( im );
 					ic.convertToGray32();
 				}
+
 				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 
-				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.MEDIAN, (float)sigma, (float)sigma, (float)sigma);
+				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.MEDIAN,
+						(float) (sigma * scaleFactor[0]),
+						(float) (sigma * scaleFactor[1]),
+						(float) (sigma * scaleFactor[2]));
 				final ImagePlus ip = new ImagePlus( availableFeatures[ MEDIAN ] +"_" + sigma, is );
 
 				result.add( ip );
@@ -669,7 +720,8 @@ public class FeatureStack3D
 	}
 	
 	/**
-	 * Get Variance features (to be submitted to an ExecutorService)
+	 * Get Variance features (to be submitted to an ExecutorService). Sigma values will be adjusted
+	 * based on original image calibration.
 	 *
 	 * @param originalImage input image
 	 * @param sigma filter radius	
@@ -695,7 +747,10 @@ public class FeatureStack3D
 
 				ArrayList<ImagePlus> result = new ArrayList<ImagePlus>();
 
-				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.VAR, (float)sigma, (float)sigma, (float)sigma);
+				final ImageStack is = Filters3D.filter(im.getImageStack(), Filters3D.VAR,
+						(float) (sigma * scaleFactor[0]),
+						(float) (sigma * scaleFactor[1]),
+						(float) (sigma * scaleFactor[2]));
 				final ImagePlus ip = new ImagePlus( availableFeatures[ VARIANCE ] +"_" + sigma, is );								
 
 				result.add( ip );
@@ -741,6 +796,11 @@ public class FeatureStack3D
 					final ImagePlus channel = channels [ ch ].duplicate();
 					channel.getImageStack().addSlice("pad-back", channels[ch].getImageStack().getProcessor( channels[ ch ].getImageStackSize()));
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
+					// Tweak calibration so ImageScience uses scaled sigma values
+					Calibration c = channel.getCalibration();
+					c.pixelWidth = scaleFactor[ 0 ];
+					c.pixelHeight = scaleFactor[ 1 ];
+					c.pixelDepth = scaleFactor[ 2 ];
 					
 					final ArrayList<ImagePlus> result = ImageScience.computeEigenimages(sigma, integrationScale, channel);
 					final ImageStack largest  = result.get(0).getImageStack();
@@ -885,9 +945,7 @@ public class FeatureStack3D
 		exe = Executors.newFixedThreadPool( Prefs.getThreads() );
 		
 		wholeStack = new ArrayList<ImagePlus>();
-		
-		final double pixelWidth = originalImage.getCalibration().pixelWidth;
-		
+
 		ImageStack is = new ImageStack ( width, height );
 		
 		if( colorFeatures )
