@@ -803,16 +803,20 @@ public class FeatureStack3D
 					c.pixelDepth = scaleFactor[ 2 ];
 					
 					final ArrayList<ImagePlus> result = ImageScience.computeEigenimages(sigma, integrationScale, channel);
-					final ImageStack largest  = result.get(0).getImageStack();
-					final ImageStack smallest = result.get(1).getImageStack();
+					final ImageStack largest  = result.get( 0 ).getImageStack();
+					final ImageStack middle  = result.get( 1 ).getImageStack();
+					final ImageStack smallest = result.get( 2 ).getImageStack();
 					
 					// remove pad
 					smallest.deleteLastSlice();
-					smallest.deleteSlice(1);					
+					smallest.deleteSlice(1);
+					middle.deleteLastSlice();
+					middle.deleteSlice(1);
 					largest.deleteLastSlice();
 					largest.deleteSlice(1);					
 					
 					results[ ch ].add( new ImagePlus( availableFeatures[STRUCTURE] +"_largest_"  + sigma + "_"  + integrationScale, largest ) );
+					results[ ch ].add( new ImagePlus( availableFeatures[STRUCTURE] +"_middle_"  + sigma + "_"  + integrationScale, middle ) );
 					results[ ch ].add( new ImagePlus( availableFeatures[STRUCTURE] +"_smallest_" + sigma + "_"  + integrationScale, smallest ) );
 				
 				}
