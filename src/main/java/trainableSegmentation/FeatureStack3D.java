@@ -247,9 +247,9 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					// Tweak calibration so ImageScience uses scaled sigma values
 					Calibration c = channel.getCalibration();
-					c.pixelWidth = scaleFactor[ 0 ];
-					c.pixelHeight = scaleFactor[ 1 ];
-					c.pixelDepth = scaleFactor[ 2 ];
+					c.pixelWidth = 1.0 / scaleFactor[ 0 ];
+					c.pixelHeight = 1.0 / scaleFactor[ 1 ];
+					c.pixelDepth = 1.0 / scaleFactor[ 2 ];
 					
 					final ImagePlus ip = ImageScience.computeDifferentialImage(sigma, xOrder, yOrder, zOrder, channel);
 					if( xOrder + yOrder + zOrder == 0)
@@ -367,9 +367,9 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					// Tweak calibration so ImageScience uses scaled sigma values
 					Calibration c = channel.getCalibration();
-					c.pixelWidth = scaleFactor[ 0 ];
-					c.pixelHeight = scaleFactor[ 1 ];
-					c.pixelDepth = scaleFactor[ 2 ];
+					c.pixelWidth = 1.0 / scaleFactor[ 0 ];
+					c.pixelHeight = 1.0 / scaleFactor[ 1 ];
+					c.pixelDepth = 1.0 / scaleFactor[ 2 ];
 					
 					final ArrayList<ImagePlus> result = ImageScience.computeHessianImages(sigma, absolute, channel);
 					final ImageStack smallest = result.get(0).getImageStack();
@@ -427,9 +427,9 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					// Tweak calibration so ImageScience uses scaled sigma values
 					Calibration c = channel.getCalibration();
-					c.pixelWidth = scaleFactor[ 0 ];
-					c.pixelHeight = scaleFactor[ 1 ];
-					c.pixelDepth = scaleFactor[ 2 ];
+					c.pixelWidth = 1.0 / scaleFactor[ 0 ];
+					c.pixelHeight = 1.0 / scaleFactor[ 1 ];
+					c.pixelDepth = 1.0 / scaleFactor[ 2 ];
 					
 					final ImagePlus ip = ImageScience.computeLaplacianImage(sigma, channel);
 					ip.setTitle(availableFeatures[LAPLACIAN] +"_" + sigma );
@@ -481,9 +481,9 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					// Tweak calibration so ImageScience uses scaled sigma values
 					Calibration c = channel.getCalibration();
-					c.pixelWidth = scaleFactor[ 0 ];
-					c.pixelHeight = scaleFactor[ 1 ];
-					c.pixelDepth = scaleFactor[ 2 ];
+					c.pixelWidth = 1.0 / scaleFactor[ 0 ];
+					c.pixelHeight = 1.0 / scaleFactor[ 1 ];
+					c.pixelDepth = 1.0 / scaleFactor[ 2 ];
 					
 					//final double scaledSigma = originalImage.getCalibration().pixelWidth * sigma;
 					final ImagePlus ip = ImageScience.computeEdgesImage( sigma, channel );
@@ -798,9 +798,9 @@ public class FeatureStack3D
 					channel.getImageStack().addSlice("pad-front", channels[ch].getImageStack().getProcessor( 1 ), 1);
 					// Tweak calibration so ImageScience uses scaled sigma values
 					Calibration c = channel.getCalibration();
-					c.pixelWidth = scaleFactor[ 0 ];
-					c.pixelHeight = scaleFactor[ 1 ];
-					c.pixelDepth = scaleFactor[ 2 ];
+					c.pixelWidth = 1.0 / scaleFactor[ 0 ];
+					c.pixelHeight = 1.0 / scaleFactor[ 1 ];
+					c.pixelDepth = 1.0 / scaleFactor[ 2 ];
 					
 					final ArrayList<ImagePlus> result = ImageScience.computeEigenimages(sigma, integrationScale, channel);
 					final ImageStack largest  = result.get( 0 ).getImageStack();
