@@ -405,7 +405,9 @@ public class Weka_Segmentation implements PlugIn
 						win.updateButtonsEnabling();
 					}
 					else if(e.getSource() == saveClassifierButton){
+						win.setButtonsEnabled( false );
 						saveClassifier();
+						win.updateButtonsEnabling();
 					}
 					else if(e.getSource() == loadDataButton){
 						loadTrainingData();
