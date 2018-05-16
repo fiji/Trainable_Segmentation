@@ -4881,7 +4881,7 @@ public class WekaSegmentation {
 	/**
 	 * Apply current classifier to a given image. It divides the
 	 * whole slices of the input image into the selected number of threads.
-	 * Each thread will sequentially process a whole  number of slices (first
+	 * Each thread will sequentially process a whole number of slices (first
 	 * feature calculation then classification).
 	 *
 	 * @param imp image (2D single image or stack)
