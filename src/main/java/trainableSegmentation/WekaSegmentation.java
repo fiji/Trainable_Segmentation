@@ -45,6 +45,7 @@ import ij.gui.Line;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
+import ij.plugin.Duplicator;
 import ij.process.Blitter;
 import ij.process.ByteProcessor;
 import ij.process.FloatPolygon;
@@ -5859,6 +5860,98 @@ public class WekaSegmentation {
 		IJ.log("Finished segmentation of whole image.\n");
 	}
 
+	/**
+	 * Apply current classifier to a user-defined ROI of a given image.
+	 * Use a 2D ROI for single images and a 3D ROI for TWS 3D.
+	 *
+	 * @param imp image to classify (2D or 3D)
+	 * @param origin coordinates of the origin of the ROI (cropping box)
+	 * @param cropDims dimensions of the ROI (cropping box)
+	 * @param numThreads The number of threads to use. Set to zero for
+	 * auto-detection (set by the user on the ImageJ preferences)
+	 * @param probabilityMaps create probability maps for each class instead of
+	 * a classification
+	 * @return result image
+	 */
+	public ImagePlus applyClassifier(
+			final ImagePlus imp,
+			int[] origin,
+			int[] cropDims,
+			int numThreads,
+			final boolean probabilityMaps)
+	{
+		final int expectedDims = isProcessing3D ? 3 : 2;
+		if(  origin.length != expectedDims )
+		{
+			IJ.log( "Apply Classifier: Wrong cropping and image dimensions!" );
+			return null;
+		}
+
+		final int[] impDims = new int[ cropDims.length ];
+		impDims[ 0 ] = imp.getWidth();
+		impDims[ 1 ] = imp.getHeight();
+		if( isProcessing3D )
+			impDims[ 2 ]= imp.getNSlices();
+		// Check cropping coordinates
+		final int[] lastCoord = new int[ cropDims.length ];
+		for( int i=0; i<lastCoord.length; i++ )
+		{
+			lastCoord[ i ] = origin[ i ] + cropDims[ i ] - 1;
+			if( origin[ i ] < 0 || cropDims[ i ] <= 0
+					|| lastCoord[ i ] >= impDims[ i ] )
+			{
+				IJ.log( "Apply Classifier: Wrong cropping size!" );
+				return null;
+			}
+		}
+
+		// Create cropped image with extra padding based
+		// on maximum filter sigma (if possible)
+
+		// Assign zero padding when out of image if pad out of image
+		final int[][] pad = new int[ cropDims.length ][2];
+		for( int i = 0; i < pad.length; i ++ )
+		{
+			pad[ i ][ 0 ] = (origin[ i ] - (int) maximumSigma ) < 0 ? 0 :
+				(int) maximumSigma;
+			pad[ i ][ 1 ] = (origin[ i ] + cropDims[ i ] + (int) maximumSigma ) >= impDims[ i ] ? 0 :
+				(int) maximumSigma;
+		}
+		// Set cropping ROI
+		imp.setRoi( origin[ 0 ] - pad[ 0 ][ 0 ],
+					origin[ 1 ] - pad[ 1 ][ 0 ],
+					pad[ 0 ][ 0 ] + cropDims[ 0 ] + pad[ 0 ][ 1 ],
+					pad[ 1 ][ 0 ] + cropDims[ 1 ] + pad[ 1 ][ 1 ] );
+		int initSlice = 1;
+		int endSlice = 1;
+		if( isProcessing3D )
+		{
+			initSlice = origin[ 2 ] - pad[ 2 ][ 0 ] + 1;
+			endSlice = origin[ 2 ] + cropDims[ 2 ] + pad[ 2 ][ 1 ];
+			imp.setSlice( initSlice );
+		}
+		// Create cropped image
+		final Duplicator dup = new Duplicator();
+		final ImagePlus cropImage = dup.run(imp, initSlice, endSlice );
+
+		ImagePlus result = applyClassifier( cropImage, numThreads, probabilityMaps );
+		// Remove padding
+		result.setRoi(pad[ 0 ][ 0 ],
+					pad[ 1 ][ 0 ],
+					cropDims[ 0 ],
+					cropDims[ 1 ]);
+		final ImagePlus croppedRes;
+		if ( isProcessing3D )
+			croppedRes = dup.run( result, 1, result.getNChannels(),
+					1 + pad[ 2 ][ 0 ], 1 + pad[ 2 ][ 0 ] + cropDims[ 2 ],
+					1, 1 );
+		else
+			croppedRes = result.duplicate();
+
+		croppedRes.setTitle( result.getTitle() );
+		croppedRes.setCalibration( result.getCalibration() );
+		return croppedRes;
+	}
 	/**
 	 * Create the whole image data (instances) from the current image and feature stack.
 	 *
