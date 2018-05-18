@@ -501,7 +501,7 @@ public final class Utils {
 	{
 		//smooth( probabilityMap, 0.33f, 0.33f, 0.33f );
 		GaussianBlur gb = new GaussianBlur();
-		gb.blur(probabilityMap, 2);
+		gb.blurGaussian(probabilityMap, 2);
 		
 		normalize01( probabilityMap );
 		erode( probabilityMap );
@@ -510,7 +510,7 @@ public final class Utils {
 		
 		for (int i=0; i<smoothIterations; i++) 
 			//smooth( probabilityMap, 0.33f, 0.33f, 0.33f );
-			gb.blur(probabilityMap, 2);
+			gb.blurGaussian(probabilityMap, 2);
 		normalize01( probabilityMap );
 		
 		filterSmallObjectsAndHoles(probabilityMap, threshold, minSize);
