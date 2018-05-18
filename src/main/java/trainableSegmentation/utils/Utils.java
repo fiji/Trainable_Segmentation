@@ -39,7 +39,6 @@ import java.util.ArrayList;
 
 import org.scijava.vecmath.Point3f;
 
-import trainableSegmentation.WekaSegmentation;
 import trainableSegmentation.metrics.ClassificationStatistics;
 import util.FindConnectedRegions;
 import util.FindConnectedRegions.Results;
