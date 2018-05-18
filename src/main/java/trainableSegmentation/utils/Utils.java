@@ -842,4 +842,43 @@ public final class Utils {
 		}
 		return new LUT( red, green, blue );
 	}
+	/**
+	 * Insert an image into another one (2D or 3D).
+	 * @param src source image
+	 * @param dst destination image
+	 * @param origin coordinates of the insertion origin in the destination image (zero-based numbering)
+	 * @return false if an error occurs, true otherwise
+	 */
+	public static boolean insertImage(
+			ImagePlus src,
+			ImagePlus dst,
+			int[] origin )
+	{
+		if( src.getNDimensions() != dst.getNDimensions() )
+		{
+			IJ.log( "Error in insertImage: different source and destination image dimensions.");
+			return false;
+		}
+		int firstZ = 1;
+		int lastZ = 1;
+		if( origin.length == 3 )
+		{
+			firstZ = origin[ 2 ] + 1; // slices have one-based numbering
+			lastZ = src.getNSlices() + origin[ 2 ];
+		}
+		ImageStack srcStack = src.getStack();
+		ImageStack dstStack = dst.getStack();
+		for( int t = 1; t <= src.getNFrames(); t++ )
+			for( int c = 1; c <= src.getNChannels(); c++ )
+				for( int z0 = 1, z = firstZ; z <= lastZ; z++, z0++ )
+				{
+					int n0 = src.getStackIndex( c, z0, t );
+					int n = dst.getStackIndex( c, z, t );
+					ImageProcessor srcIp = srcStack.getProcessor( n0 );
+					ImageProcessor dstIp = dstStack.getProcessor( n );
+					dstIp.copyBits( srcIp, origin[0], origin[1], Blitter.COPY );
+					dstStack.setProcessor( dstIp, n );
+				}
+		return true;
+	}
 }
