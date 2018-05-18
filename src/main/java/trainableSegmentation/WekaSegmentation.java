@@ -52,6 +52,7 @@ import ij.process.FloatPolygon;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
+import trainableSegmentation.utils.Utils;
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
 import weka.classifiers.AbstractClassifier;
@@ -5861,6 +5862,107 @@ public class WekaSegmentation {
 	}
 
 	/**
+	 * Apply the current classifier to an image subdividing the
+	 * image in tiles for memory saving.
+	 *
+	 * @param imp input image to be classified
+	 * @param tilesPerDim number of tiles to be used on each dimension of the image
+	 * @param numThreads number of threads to use per tile (0 for autodetection)
+	 * @param probabilityMaps flag to get labels or probability maps (false = labels)
+	 * @return classified image with probability maps or labels
+	 */
+	public ImagePlus applyClassifier(
+			final ImagePlus imp,
+			int[] tilesPerDim,
+			int numThreads,
+			final boolean probabilityMaps )
+	{
+		final int expectedDims = isProcessing3D ? 3 : 2;
+		if(  tilesPerDim.length != expectedDims )
+		{
+			IJ.log( "Error in applyClassifier: expected dimensions were " + expectedDims +
+					" but " + tilesPerDim.length + " were found in the array of tiles per dimension.");
+			return null;
+		}
+		int numTiles = tilesPerDim[ 0 ] * tilesPerDim[ 1 ];
+		if( isProcessing3D )
+			numTiles *= tilesPerDim[ 2 ];
+		long start = System.currentTimeMillis();
+		IJ.log( "Classifying " + imp.getTitle() + " using " + numTiles + " tiles..." );
+		// original image dimensions
+		final int[] impDims = new int[ tilesPerDim.length ];
+		impDims[ 0 ] = imp.getWidth();
+		impDims[ 1 ] = imp.getHeight();
+		if( isProcessing3D )
+			impDims[ 2 ]= imp.getNSlices();
+		// tile size
+		final int[] tileSize = new int[ tilesPerDim.length ];
+		tileSize[ 0 ] = imp.getWidth() / tilesPerDim[ 0 ];
+		tileSize[ 1 ] = imp.getHeight() / tilesPerDim[ 1 ];
+		if( isProcessing3D )
+			tileSize[ 2 ]= imp.getNSlices() / tilesPerDim[ 2 ];
+
+		int[] origin = new int[ tilesPerDim.length ];
+		int[] cropDims = new int[ tilesPerDim.length ];
+		// create empty output image
+		final int nClasses = getNumOfClasses();
+		final ImageStack classified = new ImageStack(imp.getWidth(), imp.getHeight() );
+		for(int i=0; i < imp.getStackSize(); i++)
+		{
+			if( probabilityMaps )
+			{
+				for (int c = 0; c < nClasses; c++)
+					classified.addSlice( getClassLabel( c ),
+							new FloatProcessor( imp.getWidth(), imp.getHeight() ));
+			}
+			else
+				classified.addSlice("", new ByteProcessor( imp.getWidth(), imp.getHeight() ));
+		}
+
+		ImagePlus result = new ImagePlus( "Classification result", classified );
+
+		if( probabilityMaps )
+		{
+			result.setDimensions( numOfClasses, imp.getNSlices(), imp.getNFrames() );
+			if (imp.getNSlices()*imp.getNFrames() > 1)
+				result.setOpenAsHyperStack(true);
+		}
+
+		result.setCalibration( imp.getCalibration() );
+		final int numZ = isProcessing3D ? tilesPerDim[ 2 ] : 1;
+		for( int i = 0; i < tilesPerDim[ 0 ]; i++ )
+			for( int j = 0; j < tilesPerDim[ 1 ]; j++ )
+			{
+				origin[ 0 ] = tileSize[ 0 ] * i;
+				origin[ 1 ] = tileSize[ 1 ] * j;
+
+				cropDims[ 0 ] = ( i == tilesPerDim[ 0 ] - 1 ) ? impDims[ 0 ] - origin[ 0 ] : tileSize[ 0 ];
+				cropDims[ 1 ] = ( j == tilesPerDim[ 1 ] - 1 ) ? impDims[ 1 ] - origin[ 1 ] : tileSize[ 1 ];
+
+				for( int k = 0; k < numZ; k++ )
+				{
+					if ( isProcessing3D )
+					{
+						origin[ 2 ] = tileSize[ 2 ] * k;
+						cropDims[ 2 ] = ( k == tilesPerDim[ 2 ] - 1 ) ?
+								impDims[ 2 ] - origin[ 2 ] : tileSize[ 2 ];
+					}
+					// apply classifier to cropped image
+					ImagePlus tileResult = applyClassifier( imp, origin, cropDims, numThreads, probabilityMaps );
+					Utils.insertImage( tileResult, result, origin );
+				}
+			}
+		if( probabilityMaps )
+		{
+			result.resetDisplayRange();
+			result.setTitle( "Probability maps" );
+		}
+		final long end = System.currentTimeMillis();
+		IJ.log( "Finished classification of " + imp.getTitle() + " using " + numTiles + " tiles in " +
+				(end-start) + "ms." );
+		return result;
+	}
+	/**
 	 * Apply current classifier to a user-defined ROI of a given image.
 	 * Use a 2D ROI for single images and a 3D ROI for TWS 3D. Notice a
 	 * padding based on the maximum sigma used in the image features will
@@ -5887,6 +5989,10 @@ public class WekaSegmentation {
 		if(  origin.length != expectedDims )
 		{
 			IJ.log( "Apply Classifier: Wrong cropping and image dimensions!" );
+			IJ.log("Origin: (" + origin[ 0 ] + ", " + origin[ 1 ] +
+					( isProcessing3D ? ( ", " + origin[ 2 ]) : "" ) + ")." );
+			IJ.log("Cropping dimensions: " + cropDims[ 0 ] + ", " + cropDims[ 1 ] +
+					( isProcessing3D ? (", " + cropDims[ 2 ]) : "" + "." ) );
 			return null;
 		}
 
@@ -5904,6 +6010,10 @@ public class WekaSegmentation {
 					|| lastCoord[ i ] >= impDims[ i ] )
 			{
 				IJ.log( "Apply Classifier: Wrong cropping size!" );
+				IJ.log("Origin: (" + origin[ 0 ] + ", " + origin[ 1 ] +
+						( isProcessing3D ? ( ", " + origin[ 2 ]) : "" ) + ")." );
+				IJ.log("Cropping dimensions: " + cropDims[ 0 ] + ", " + cropDims[ 1 ] +
+						( isProcessing3D ? (", " + cropDims[ 2 ]) : "" + "." ) );
 				return null;
 			}
 		}
@@ -5935,8 +6045,8 @@ public class WekaSegmentation {
 		}
 		// Create cropped image
 		final Duplicator dup = new Duplicator();
-		final ImagePlus cropImage = dup.run(imp, initSlice, endSlice );
-
+		final ImagePlus cropImage = dup.run( imp, initSlice, endSlice );
+		cropImage.setTitle( imp.getShortTitle() + "-crop-" + origin[ 0 ] + "-" + origin[ 1 ] );
 		ImagePlus result = applyClassifier( cropImage, numThreads, probabilityMaps );
 		// Remove padding
 		result.setRoi(pad[ 0 ][ 0 ],
