@@ -5862,7 +5862,10 @@ public class WekaSegmentation {
 
 	/**
 	 * Apply current classifier to a user-defined ROI of a given image.
-	 * Use a 2D ROI for single images and a 3D ROI for TWS 3D.
+	 * Use a 2D ROI for single images and a 3D ROI for TWS 3D. Notice a
+	 * padding based on the maximum sigma used in the image features will
+	 * be applied to guarantee and output as close as possible to the one
+	 * using the whole image as input.
 	 *
 	 * @param imp image to classify (2D or 3D)
 	 * @param origin coordinates of the origin of the ROI (cropping box)
@@ -5878,7 +5881,7 @@ public class WekaSegmentation {
 			int[] origin,
 			int[] cropDims,
 			int numThreads,
-			final boolean probabilityMaps)
+			final boolean probabilityMaps )
 	{
 		final int expectedDims = isProcessing3D ? 3 : 2;
 		if(  origin.length != expectedDims )
