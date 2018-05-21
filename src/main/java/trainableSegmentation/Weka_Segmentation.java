@@ -2629,7 +2629,10 @@ public class Weka_Segmentation implements PlugIn
 			final ImagePlus probImage = wekaSegmentation.getClassifiedImage();
 			if(null != probImage)
 			{
-				probImage.setOpenAsHyperStack( true );				
+				probImage.setDimensions( wekaSegmentation.getNumOfClasses(),
+						win.getTrainingImage().getNSlices(), win.getTrainingImage().getNFrames() );
+				if( win.getTrainingImage().getNSlices() * win.getTrainingImage().getNFrames() > 1 )
+					probImage.setOpenAsHyperStack( true );
 				probImage.show();
 			}
 			win.updateButtonsEnabling();
