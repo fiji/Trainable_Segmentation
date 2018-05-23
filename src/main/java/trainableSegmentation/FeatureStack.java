@@ -2744,18 +2744,26 @@ public class FeatureStack
 		};
 	}
 	
-	
 	/**
-	 * Update features with current list in a multi-thread fashion
-	 * 
+	 * Update features with current list in a multi-thread fashion.
+	 *
 	 * @return true if the features are correctly updated 
 	 */
 	public boolean updateFeaturesMT()
 	{
+		 return updateFeaturesMT( Prefs.getThreads() );
+	}
+	/**
+	 * Update features with current list in a multi-thread fashion.
+	 * @param numThreads number of threads to use
+	 * @return true if the features are correctly updated
+	 */
+	public boolean updateFeaturesMT( int numThreads )
+	{
 		if (Thread.currentThread().isInterrupted() )
 			return false;
 		
-		exe = Executors.newFixedThreadPool( Prefs.getThreads() );
+		exe = Executors.newFixedThreadPool( numThreads );
 				
 		wholeStack = new ImageStack(width, height);
 		if( originalImage.getType() == ImagePlus.COLOR_RGB)
