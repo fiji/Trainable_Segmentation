@@ -4989,7 +4989,7 @@ public class WekaSegmentation {
                     sliceFeatures.setMinimumSigma(minimumSigma);
                     sliceFeatures.setMembranePatchSize(membranePatchSize);
                     sliceFeatures.setMembraneSize(membraneThickness);
-                    sliceFeatures.updateFeaturesST();
+                    sliceFeatures.updateFeaturesMT( numFurtherThreads );
                     filterFeatureStackByList(featureNames, sliceFeatures);
                     Instances sliceData = sliceFeatures.createInstances(classNames);
                     sliceData.setClassIndex(sliceData.numAttributes() - 1);
