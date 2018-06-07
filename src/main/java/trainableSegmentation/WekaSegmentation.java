@@ -400,6 +400,7 @@ public class WekaSegmentation {
 	 *
 	 * @param classNum the number of the examples' class
 	 * @param n the slice number
+	 * @return list of examples (ROIs) of a specific class on a given slice
 	 */
 	public List<Roi> getExamples(int classNum, int n)
 	{
@@ -475,6 +476,7 @@ public class WekaSegmentation {
 	 * Get the label name of a class.
 	 *
 	 * @param classNum class index
+	 * @return label name of a class
 	 */
 	public String getClassLabel(int classNum)
 	{
@@ -596,6 +598,7 @@ public class WekaSegmentation {
 	/**
 	 * Returns a the loaded training data or null, if no training data was
 	 * loaded.
+	 * @return set of training instances loaded from file or null if nothing has been loaded
 	 */
 	public Instances getLoadedTrainingData() {
 		return loadedTrainingData;
@@ -604,6 +607,7 @@ public class WekaSegmentation {
 	/**
 	 * Returns a the trace training data or null, if no examples have been
 	 * given.
+	 * @return current set of training samples calculated from the user traces
 	 */
 	public Instances getTraceTrainingData() {
 		return traceTrainingData;
@@ -877,6 +881,7 @@ public class WekaSegmentation {
 	}
 	/**
 	 * Returns the current classifier.
+	 * @return current classifier
 	 */
 	public AbstractClassifier getClassifier() {
 		return classifier;
@@ -2512,6 +2517,7 @@ public class WekaSegmentation {
 	 * Add center lines of label image as binary data
 	 *
 	 * @param labelImage binary label image
+	 * @param n feature stack array index
 	 * @param whiteClassName class name for the white pixels
 	 * @param blackClassName class name for the black pixels
 	 * @return false if error
@@ -3313,6 +3319,7 @@ public class WekaSegmentation {
 	 * Add eroded version of label image as binary data
 	 *
 	 * @param labelImage binary label image
+	 * @param n feature stack array index
 	 * @param whiteClassName class name for the white pixels
 	 * @param blackClassName class name for the black pixels
 	 * @return false if error
@@ -4040,6 +4047,7 @@ public class WekaSegmentation {
 	 * @param labels binary labels
 	 * @param classIndex1 index of the white (different from 0) class
 	 * @param classIndex2 index of the black (0) class
+	 * @param mismatches
 	 */
 	public static void updateDataClassification(
 			Instances data,
@@ -4125,6 +4133,7 @@ public class WekaSegmentation {
 	 * Write current instances into an ARFF file
 	 * @param data set of instances
 	 * @param filename ARFF file name
+	 * @return false if error
 	 */
 	public boolean writeDataToARFF(Instances data, String filename)
 	{
@@ -4723,6 +4732,7 @@ public class WekaSegmentation {
 
 	/**
 	 * Train classifier with the current instances
+	 * @return false if error
 	 */
 	public boolean trainClassifier()
 	{
@@ -6165,6 +6175,7 @@ public class WekaSegmentation {
 	 * @param h image height
 	 * @param numThreads The number of threads to use. Set to zero for
 	 * auto-detection.
+	 * @param probabilityMaps flag to indicate probability map (true) or segmentation output (false)
 	 * @return result image
 	 */
 	public ImagePlus applyClassifier(final Instances data, int w, int h, int numThreads, boolean probabilityMaps)
@@ -6656,6 +6667,10 @@ public class WekaSegmentation {
 		membranePatchSize = patchSize;
 		featureStackArray.setMembranePatchSize(patchSize);
 	}
+	/**
+	 * Get the membrane patch size
+	 * @return membrane patch size
+	 */
 	public int getMembranePatchSize()
 	{
 		return membranePatchSize;
@@ -6964,6 +6979,10 @@ public class WekaSegmentation {
 		return classLabels;
 	}
 
+	/**
+	 * Check the use of 3D or 2D features
+	 * @return true if working in 3D, false if 2D
+	 */
 	public boolean isProcessing3D() {
 		return isProcessing3D;
 	}
