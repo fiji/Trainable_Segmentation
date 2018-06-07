@@ -991,10 +991,15 @@ public class WekaSegmentation {
 
 		return true;
 	}
-
+	/**
+	 * Set the use of the neighbor features
+	 * @param useNeighbors flag to set the use of the neighbor features
+	 */
 	public void setUseNeighbors(boolean useNeighbors)
 	{
-		this.featureStackArray.setUseNeighbors(useNeighbors);
+		this.useNeighbors = useNeighbors;
+		if( null != featureStackArray )
+			this.featureStackArray.setUseNeighbors( useNeighbors );
 	}
 
 
@@ -2711,7 +2716,7 @@ public class WekaSegmentation {
 			featureStack.updateFeaturesMT();
 			filterFeatureStackByList(this.featureNames, featureStack);
 
-			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
+			featureStack.setUseNeighbors(useNeighbors);
 
 			if(!addBinaryData(labelIP, featureStack, whiteClassName, blackClassName))
 			{
@@ -2762,7 +2767,7 @@ public class WekaSegmentation {
 			featureStack.updateFeaturesMT();
 			filterFeatureStackByList( this.featureNames, featureStack );
 
-			featureStack.setUseNeighbors( this.featureStackArray.useNeighborhood() );
+			featureStack.setUseNeighbors( useNeighbors );
 
 			if(!this.addLabeledData(labelIP, featureStack))
 			{
@@ -2911,7 +2916,7 @@ public class WekaSegmentation {
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
-			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
+			featureStack.setUseNeighbors(useNeighbors);
 
 			// add labeled data based on the labeled image
 			if(!addRandomBalancedLabeledData(labelSlices.getProcessor(i), featureStack, numSamples))
@@ -2971,7 +2976,7 @@ public class WekaSegmentation {
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
-			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
+			featureStack.setUseNeighbors(useNeighbors);
 
 			// add labeled data based on the labeled image
 			if( !addRandomBalancedLabeledData(
@@ -3040,7 +3045,7 @@ public class WekaSegmentation {
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
-			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
+			featureStack.setUseNeighbors(useNeighbors);
 
 			if(!addRandomBalancedBinaryData( labelIP,
 					null == mask ? null : mask.getImageStack().getProcessor(i),
@@ -3110,7 +3115,7 @@ public class WekaSegmentation {
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
-			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
+			featureStack.setUseNeighbors(useNeighbors);
 
 			if(!addRandomBalancedBinaryData( labelIP,
 					null == mask ? null : mask.getImageStack().getProcessor(i),
@@ -3176,7 +3181,7 @@ public class WekaSegmentation {
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
-			featureStack.setUseNeighbors(this.featureStackArray.useNeighborhood());
+			featureStack.setUseNeighbors(useNeighbors);
 
 			if(!addRandomData(labelIP, featureStack, whiteClassName, numSamples))
 			{
@@ -6888,6 +6893,8 @@ public class WekaSegmentation {
 		Arrays.fill(featureStackToUpdateTest, false);
 		// set flag to not update features
 		updateFeatures = false;
+		// update the neighbors flag
+		this.useNeighbors = fsa.useNeighborhood();
 	}
 
 	/**
