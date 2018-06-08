@@ -228,6 +228,7 @@ public class FeatureStackArray
 
 	/**
 	 * Update all feature stacks in the list (multi-thread fashion) 
+	 * @return false if error, true otherwise
 	 */
 	public boolean updateFeaturesMT()
 	{
@@ -331,7 +332,8 @@ public class FeatureStackArray
 	
 	/**
 	 * Set the reference index (used when the are 
-	 * changes in the features)
+	 * changes in the features).
+	 * @param index reference index
 	 */
 	public void setReference( int index )
 	{
@@ -419,6 +421,10 @@ public class FeatureStackArray
 			featureStackArray[referenceStackIndex].setMembraneSize(thickness);
 	}
 
+	/**
+	 * Set membrane patch size.
+	 * @param patchSize membrange patch size in pixels
+	 */
 	public void setMembranePatchSize(int patchSize) 
 	{
 		this.membranePatchSize = patchSize;
@@ -426,6 +432,10 @@ public class FeatureStackArray
 			featureStackArray[referenceStackIndex].setMembranePatchSize(patchSize);
 	}
 
+	/**
+	 * Set maximum sigma.
+	 * @param sigma maximum sigma
+	 */
 	public void setMaximumSigma(float sigma) 
 	{
 		this.maximumSigma = sigma;
@@ -433,6 +443,10 @@ public class FeatureStackArray
 			featureStackArray[referenceStackIndex].setMaximumSigma(sigma);		
 	}
 
+	/**
+	 * Set minimum sigma.
+	 * @param sigma minimum sigma
+	 */
 	public void setMinimumSigma(float sigma) 
 	{
 		this.minimumSigma = sigma;
@@ -440,6 +454,10 @@ public class FeatureStackArray
 			featureStackArray[referenceStackIndex].setMinimumSigma(sigma);
 	}
 
+	/**
+	 * Set the use of neighbor features.
+	 * @param useNeighbors
+	 */
 	public void setUseNeighbors(boolean useNeighbors) 
 	{
 		this.useNeighbors = useNeighbors;
@@ -447,17 +465,29 @@ public class FeatureStackArray
 			featureStackArray[referenceStackIndex].setUseNeighbors(useNeighbors);
 	}
 
+	/**
+	 * Check if neighbor features are used.
+	 * @return true if neighbor features are used
+	 */
 	public boolean useNeighborhood() {
 		if(referenceStackIndex != -1)
 			return featureStackArray[referenceStackIndex].useNeighborhood();
 		return useNeighbors;
 	}
 	
+	/**
+	 * Get the index of the reference slice in the feature stack array.
+	 * @return index of the reference slice in the feature stack array
+	 */
 	public int getReferenceSliceIndex()
 	{
 		return referenceStackIndex;
 	}
 	
+	/**
+	 * Get the width of the feature stacks.
+	 * @return width of the feature stacks or -1 if not initialized yet.
+	 */
 	public int getWidth()
 	{
 		if(referenceStackIndex != -1)
@@ -465,6 +495,10 @@ public class FeatureStackArray
 		return -1;
 	}
 	
+	/**
+	 * Get the height of the feature stacks.
+	 * @return height of the feature stacks or -1 if not initialized yet.
+	 */
 	public int getHeight()
 	{
 		if(referenceStackIndex != -1)
@@ -472,6 +506,10 @@ public class FeatureStackArray
 		return -1;
 	}
 	
+	/**
+	 * Set the user of the old color format.
+	 * @param oldColorFormat true if old color format is to be used
+	 */
 	public void setOldColorFormat( boolean oldColorFormat ) 
 	{
 		this.oldColorFormat = oldColorFormat;
@@ -479,6 +517,10 @@ public class FeatureStackArray
 			featureStackArray[ referenceStackIndex ].setOldColorFormat( oldColorFormat );
 	}
 	
+	/**
+	 * Check if the old color format is used.
+	 * @return true if the old color format is used
+	 */
 	public boolean isOldColorFormat()
 	{
 		return this.oldColorFormat;
