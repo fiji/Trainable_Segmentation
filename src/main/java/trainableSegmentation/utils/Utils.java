@@ -612,6 +612,12 @@ public final class Utils {
 	
 	// Binary fill by Gabriel Landini, G.Landini at bham.ac.uk
 	// 21/May/2008
+	/**
+	 * Binary fill
+	 * @param ip input image
+	 * @param foreground foreground value
+	 * @param background background value
+	 */
 	public static void fill(ImageProcessor ip, int foreground, int background) 
 	{
 		int width = ip.getWidth();
@@ -691,6 +697,14 @@ public final class Utils {
 		return classPoints;
 	}
 
+	/**
+	 * Experimental max pooling method.
+	 * @param input input image
+	 * @param label label image
+	 * @param sizeX width of max pooling filter
+	 * @param sizeY height of max pooling filter
+	 * @return input and label images after max pooling
+	 */
 	public static ImagePlus[] maxPool( 
 			ImagePlus input,
 			ImagePlus label,
@@ -746,7 +760,14 @@ public final class Utils {
 		
 		return maxPool;
 	}
-	
+	/**
+	 * Experimental max pooling method without size reduction.
+	 * @param input input image
+	 * @param label label image
+	 * @param sizeX width of max pooling filter
+	 * @param sizeY height of max pooling filter
+	 * @return input and label images after max pooling
+	 */
 	public static ImagePlus[] maxPoolNoReduction( 
 			ImagePlus input,
 			ImagePlus label,

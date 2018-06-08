@@ -61,6 +61,11 @@ import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
+/**
+ * This class defines 3D images features to be used for classification/segmentation.
+ * @author iarganda
+ *
+ */
 public class FeatureStack3D 
 {
 	/** original input image */
@@ -337,6 +342,7 @@ public class FeatureStack3D
 	 *
 	 * @param originalImage input image
 	 * @param sigma isotropic smoothing scale	
+	 * @param absolute determines whether eigenvalues are compared in absolute sense
 	 * @return filter Hessian filter images
 	 */
 	public Callable< ArrayList<ImagePlus> >getHessian(
