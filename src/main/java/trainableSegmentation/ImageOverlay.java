@@ -39,8 +39,14 @@ public class ImageOverlay implements Overlay{
 	private ImageProcessor imp = null;
 	private Composite composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
 	
+	/**
+	 * Empty constructor.
+	 */
 	public ImageOverlay(){}
-	
+	/**
+	 * Construct an image overlay.
+	 * @param imp image to be used
+	 */
 	public ImageOverlay(ImageProcessor imp){
 		this.imp = imp;
 	}
