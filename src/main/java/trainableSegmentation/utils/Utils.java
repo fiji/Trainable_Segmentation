@@ -25,6 +25,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Plot;
 import ij.measure.Measurements;
+import ij.measure.ResultsTable;
 import ij.plugin.filter.GaussianBlur;
 import ij.process.Blitter;
 import ij.process.ByteProcessor;
@@ -36,6 +37,7 @@ import ij.process.LUT;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.scijava.vecmath.Point3f;
 
@@ -879,5 +881,188 @@ public final class Utils {
 					dstStack.setProcessor( dstIp, n );
 				}
 		return true;
+	}
+	/**
+	 * Calculate confusion matrix bewtween two label images. The values are returned
+	 * following Matlab's 'plotconfusion' function. The rows correspond to the predicted
+	 * class and the columns to the groundtruth class. The diagonal cells correspond to
+	 * the samples correctly classified while the off-diagonal cells are incorrectly classified
+	 * samples. Precision (positive predictive value) is displayed in the far right column and
+	 * recall (true positive rate) is displayed in the bottom row. The cell in the bottom
+	 * right of the table shows the overall accuracy.
+	 *
+	 * @param prediction predicted labels
+	 * @param groundtruth groundtruth labels
+	 * @param classes list of class names
+	 * @param classIndexToLabel correspondence between class index and label values
+	 * @return confusion matrix ready to be plotted
+	 */
+	public static ResultsTable confusionMatrix(
+			ImageProcessor prediction,
+			ImageProcessor groundtruth,
+			ArrayList<String> classes,
+			int[] classIndexToLabel )
+	{
+		if( prediction.getWidth() != groundtruth.getWidth() ||
+			prediction.getHeight() != groundtruth.getHeight() )
+		{
+			IJ.log( "Error: size of predicted label image and groundtruth image does not match." );
+			return null;
+		}
+		if( classes.size() != classIndexToLabel.length )
+		{
+			IJ.log( "Error: the number of class names and class/label correspondences do not match." );
+			return null;
+		}
+		// Create map of correspondences between labels and class indices
+		HashMap<Integer, Integer> labelToClassIndex = new HashMap<Integer, Integer>();
+		for (int i = 0; i < classIndexToLabel.length; i++)
+		   	labelToClassIndex.put( classIndexToLabel[ i ], i );
+
+		int[][] cm = new int[ classes.size() ][ classes.size() ];
+		for( int i = 0; i < prediction.getWidth(); i++ )
+			for( int j = 0; j < prediction.getHeight(); j++ )
+			{
+				int predLabel = (int) prediction.getf( i, j );
+				int gtLabel = (int) groundtruth.getf( i, j );
+				if( null != labelToClassIndex.get( predLabel ) &&
+					null != labelToClassIndex.get( gtLabel ) )
+					cm[ labelToClassIndex.get( gtLabel ) ][ labelToClassIndex.get( predLabel ) ] ++;
+			}
+		// Create result table (groundtruth labels in X and predicted labels in Y)
+		ResultsTable cmTable = new ResultsTable();
+		double[] totalPositive = new double[ classes.size() ];
+		for( int j = 0; j < classes.size(); j++ )
+		{
+			cmTable.incrementCounter();
+			cmTable.addLabel( "Predicted " + classes.get( j ) );
+			double predPositive = 0;
+			for( int i = 0; i < classes.size(); i++ )
+			{
+				cmTable.addValue( "Groundtruth " + classes.get( i ), cm[ i ][ j ]);
+				predPositive += cm[ i ] [ j ];
+				totalPositive[ i ] += cm[ i ][ j ];
+			}
+			cmTable.addValue( "Precision ", (double) cm[ j ][ j ] / predPositive );
+		}
+		cmTable.incrementCounter();
+		cmTable.addLabel( "Recall" );
+		double allPositive = 0;
+		double all = 0;
+		for( int j = 0; j < classes.size(); j++ )
+		{
+			allPositive += cm[ j ][ j ];
+			all += totalPositive[ j ];
+			cmTable.addValue( "Groundtruth " + classes.get( j ), (double) cm[ j ][ j ] / totalPositive[ j ] );
+		}
+		// add accuracy
+		cmTable.addValue( "Precision ", allPositive / all );
+		return cmTable;
+	}
+	/**
+	 * Calculate confusion matrix bewtween two label images. The values are returned
+	 * following Matlab's 'plotconfusion' function. The rows correspond to the predicted
+	 * class and the columns to the groundtruth class. The diagonal cells correspond to
+	 * the samples correctly classified while the off-diagonal cells are incorrectly classified
+	 * samples. Precision (positive predictive value) is displayed in the far right column and
+	 * recall (true positive rate) is displayed in the bottom row. The cell in the bottom
+	 * right of the table shows the overall accuracy.
+	 *
+	 * @param prediction predicted labels
+	 * @param groundtruth groundtruth labels
+	 * @param classes list of class names
+	 * @param classIndexToLabel correspondence between class index and label values
+	 * @return confusion matrix ready to be plotted
+	 */
+	public static ResultsTable confusionMatrix(
+			ImageStack prediction,
+			ImageStack groundtruth,
+			ArrayList<String> classes,
+			int[] classIndexToLabel )
+	{
+		if( prediction.getWidth() != groundtruth.getWidth() ||
+			prediction.getHeight() != groundtruth.getHeight() ||
+			prediction.getSize() != groundtruth.getSize() )
+		{
+			IJ.log( "Error: size of predicted label image and groundtruth image does not match." );
+			return null;
+		}
+		if( classes.size() != classIndexToLabel.length )
+		{
+			IJ.log( "Error: the number of class names and class/label correspondences do not match." );
+			return null;
+		}
+		// Create map of correspondences between labels and class indices
+		HashMap<Integer, Integer> labelToClassIndex = new HashMap<Integer, Integer>();
+		for (int i = 0; i < classIndexToLabel.length; i++)
+		   	labelToClassIndex.put( classIndexToLabel[ i ], i );
+
+		int[][] cm = new int[ classes.size() ][ classes.size() ];
+		for( int k = 0; k < prediction.getSize(); k++ )
+		{
+			ImageProcessor p = prediction.getProcessor( k+1 );
+			ImageProcessor gt = groundtruth.getProcessor( k+1 );
+			for( int i = 0; i < prediction.getWidth(); i++ )
+				for( int j = 0; j < prediction.getHeight(); j++ )
+				{
+					int predLabel = (int) p.getf( i, j );
+					int gtLabel = (int) gt.getf( i, j );
+					if( null != labelToClassIndex.get( predLabel ) &&
+							null != labelToClassIndex.get( gtLabel ) )
+						cm[ labelToClassIndex.get( gtLabel ) ][ labelToClassIndex.get( predLabel ) ] ++;
+				}
+		}
+		// Create result table (groundtruth labels in X and predicted labels in Y)
+		ResultsTable cmTable = new ResultsTable();
+		double[] totalPositive = new double[ classes.size() ];
+		for( int j = 0; j < classes.size(); j++ )
+		{
+			cmTable.incrementCounter();
+			cmTable.addLabel( "Predicted " + classes.get( j ) );
+			double predPositive = 0;
+			for( int i = 0; i < classes.size(); i++ )
+			{
+				cmTable.addValue( "Groundtruth " + classes.get( i ), cm[ i ][ j ]);
+				predPositive += cm[ i ] [ j ];
+				totalPositive[ i ] += cm[ i ][ j ];
+			}
+			cmTable.addValue( "Precision ", (double) cm[ j ][ j ] / predPositive );
+		}
+		cmTable.incrementCounter();
+		cmTable.addLabel( "Recall" );
+		double allPositive = 0;
+		double all = 0;
+		for( int j = 0; j < classes.size(); j++ )
+		{
+			allPositive += cm[ j ][ j ];
+			all += totalPositive[ j ];
+			cmTable.addValue( "Groundtruth " + classes.get( j ), (double) cm[ j ][ j ] / totalPositive[ j ] );
+		}
+		// add accuracy
+		cmTable.addValue( "Precision ", allPositive / all );
+		return cmTable;
+	}
+	/**
+	 * Calculate confusion matrix bewtween two label images. The values are returned
+	 * following Matlab's 'plotconfusion' function. The rows correspond to the predicted
+	 * class and the columns to the groundtruth class. The diagonal cells correspond to
+	 * the samples correctly classified while the off-diagonal cells are incorrectly classified
+	 * samples. Precision (positive predictive value) is displayed in the far right column and
+	 * recall (true positive rate) is displayed in the bottom row. The cell in the bottom
+	 * right of the table shows the overall accuracy.
+	 *
+	 * @param prediction predicted labels
+	 * @param groundtruth groundtruth labels
+	 * @param classes list of class names
+	 * @param classIndexToLabel correspondence between class index and label values
+	 * @return confusion matrix ready to be plotted
+	 */
+	public static ResultsTable confusionMatrix(
+			ImagePlus prediction,
+			ImagePlus groundtruth,
+			ArrayList<String> classes,
+			int[] classIndexToLabel )
+	{
+		return Utils.confusionMatrix( prediction.getStack(), groundtruth.getStack() , classes, classIndexToLabel );
 	}
 }
