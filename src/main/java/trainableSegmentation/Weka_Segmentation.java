@@ -3155,7 +3155,10 @@ public class Weka_Segmentation implements PlugIn
 		}
 	}	
 	
-	/** Disables features which rely on missing third party libraries. */
+	/**
+	 * Disables features which rely on missing third party libraries.
+	 * @param gd settings dialog
+	 * */
 	public static void disableMissingFeatures(final GenericDialog gd)
 	{
 		if (!isImageScienceAvailable()) {
