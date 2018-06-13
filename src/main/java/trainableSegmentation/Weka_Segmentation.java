@@ -1810,6 +1810,14 @@ public class Weka_Segmentation implements PlugIn
 						IJ.error("Trainable Weka Segmentation I/O error", "Error: " + file.getPath() + " is not a valid image file.");
 						return;						
 					}
+					if( testImage.getNSlices() == 1 && isProcessing3D )
+					{
+						IJ.log( "Error: " + file.getPath() + " is a 2D image but Trainable Weka Segmentation "
+								+ "is working in 3D." );
+						IJ.error( "Wrong image dimensions: " + file.getPath() + " is a 2D image but "
+								+ "Trainable Weka Segmentation is working in 3D." );
+						return;
+					}
 
 					IJ.log("Processing image " + file.getName() + " in thread " + numThread);
 
