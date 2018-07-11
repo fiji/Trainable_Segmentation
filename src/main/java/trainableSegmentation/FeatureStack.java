@@ -224,7 +224,7 @@ public class FeatureStack
 	private boolean oldColorFormat = false; 
 	
 	/** executor service to produce concurrent threads */
-	private ExecutorService exe = Executors.newFixedThreadPool( Prefs.getThreads() );
+	private ExecutorService exe = null;
 	
 	/**
 	 * Construct object to store stack of image features. The input image
@@ -298,7 +298,8 @@ public class FeatureStack
 	 */
 	public void shutDownNow()
 	{
-		exe.shutdownNow();
+		if( null != exe )
+			exe.shutdownNow();
 	}
 	
 	/**
