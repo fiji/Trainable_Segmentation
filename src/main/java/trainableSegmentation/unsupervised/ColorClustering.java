@@ -46,14 +46,23 @@ public class ColorClustering {
      * Names of all channels (features) that can be used.
      * */
     public enum Channel{
+        /** Red channel from RGB color space */
         Red("Red"),
+        /** Green channel from RGB color space */
         Green("Green"),
+        /** Blue channel from RGB color space */
         Blue("Blue"),
+        /** L channel from Lab color space */
         Lightness("Lightness"),
+        /** a channel from Lab color space */
         a("a"),
+        /** b channel from Lab color space */
         b("b"),
+        /** Hue channel from HSB color space */
         Hue("Hue"),
+        /** Saturation channel from HSB color space */
         Saturation("Saturation"),
+        /** Brightness channel from HSB color space */
         Brightness("Brightness");
 
     	/** channel label */
@@ -69,7 +78,7 @@ public class ColorClustering {
 
         /**
          * Turn channel to string.
-         * @return
+         * @return channel label as a string
          */
         public String toString(){
             return this.label;
@@ -77,7 +86,7 @@ public class ColorClustering {
 
         /**
          * Returns total number of channels, static method.
-         * @return
+         * @return number of channels available
          */
         public static int numChannels(){
             return getAllLabels().length;
@@ -85,7 +94,7 @@ public class ColorClustering {
 
         /**
          * Get all labels in a String[] structure.
-         * @return
+         * @return array of channel names
          */
         public static String[] getAllLabels(){
             int n = Channel.values().length;
@@ -100,7 +109,7 @@ public class ColorClustering {
         /**
          * Get channel from label (label is a String).
          * @param chLabel
-         * @return
+         * @return channel object specified by input label
          */
         public static Channel fromLabel(String chLabel){
             if(chLabel != null){
