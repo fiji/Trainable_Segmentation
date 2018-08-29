@@ -300,7 +300,7 @@ public class Color_Clustering implements PlugIn{
             public void actionPerformed(ActionEvent e) {
                 exec.submit(new Runnable() {
                     public void run() {
-                        visualiseData();
+                        visualizeData();
                         }
                 });
             }
@@ -787,7 +787,7 @@ public class Color_Clustering implements PlugIn{
         /**
          * Creates features and displays the data
          */
-        void visualiseData(){
+        void visualizeData(){
             if(!featuresCreated){
                 if(!createFeatures()){
                     return;
