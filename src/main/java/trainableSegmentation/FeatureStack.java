@@ -224,7 +224,7 @@ public class FeatureStack
 	private boolean oldColorFormat = false; 
 	
 	/** executor service to produce concurrent threads */
-	private ExecutorService exe = Executors.newFixedThreadPool( Prefs.getThreads() );
+	private ExecutorService exe = null;
 	
 	/**
 	 * Construct object to store stack of image features. The input image
@@ -298,7 +298,8 @@ public class FeatureStack
 	 */
 	public void shutDownNow()
 	{
-		exe.shutdownNow();
+		if( null != exe )
+			exe.shutdownNow();
 	}
 	
 	/**
@@ -466,6 +467,8 @@ public class FeatureStack
 	
 	/**
 	 * Add 8 neighbors of the original image as features
+	 * @param minSigma minimum sigma
+	 * @param maxSigma maximum sigma
 	 */
 	public void addNeighbors(
 			final int minSigma,
@@ -513,6 +516,8 @@ public class FeatureStack
 	/**
 	 * Calculate 8 neighbors concurrently
 	 * @param originalImage original input image
+	 * @param minSigma minimum sigma
+	 * @param maxSigma minimum sigma
 	 * @return result image
 	 */
 	public Callable<ImagePlus> getNeighbors(
@@ -651,6 +656,10 @@ public class FeatureStack
 		};
 	}
 	
+	/**
+	 * Add minimum filter to current feature stack.
+	 * @param radius radius of the minimum filter in pixels
+	 */
 	public void addMin(float radius)
 	{
 		final ImageProcessor ip = originalImage.getProcessor().duplicate();
@@ -684,6 +693,10 @@ public class FeatureStack
 		};
 	}
 	
+	/**
+	 * Add maximum filter to current feature stack.
+	 * @param radius radius of the maximum filter in pixels
+	 */
 	public void addMax(float radius)
 	{
 		final ImageProcessor ip = originalImage.getProcessor().duplicate();
@@ -717,6 +730,10 @@ public class FeatureStack
 		};
 	}
 	
+	/**
+	 * Add median filter to the current feature stack.
+	 * @param radius radius of the median filter in pixels
+	 */
 	public void addMedian(float radius)
 	{
 		final ImageProcessor ip = originalImage.getProcessor().duplicate();
@@ -2064,6 +2081,9 @@ public class FeatureStack
 	 * Apply Lipschitz filter in a concurrent way (to be submitted in an ExecutorService)
 	 * 
 	 * @param originalImage input image
+	 * @param downHat flag to indicate covering from top to bottom
+	 * @param topHat flat to indicate computing lower (upper) Lipschitz cover
+	 * @param slope maximum allowed difference between two neighboring pixels
 	 * @return result image
 	 */
 	public Callable<ImagePlus> getLipschitzFilter(
@@ -2102,6 +2122,9 @@ public class FeatureStack
 	 * Add Lipschitz filter image to current stack
 	 * 
 	 * @param originalImage input image
+	 * @param downHat flag to indicate covering from top to bottom
+	 * @param topHat flat to indicate computing lower (upper) Lipschitz cover
+	 * @param slope maximum allowed difference between two neighboring pixels
  	 */
 	public void addLipschitzFilter(
 			final ImagePlus originalImage,					
@@ -2430,6 +2453,7 @@ public class FeatureStack
 	
 	/**
 	 * Add features based on a list of filters in a multi-thread fashion
+	 * @param filterList list of filters
 	 */
 	public void addFeaturesMT(final ImagePlus filterList)
 	{
@@ -2744,18 +2768,26 @@ public class FeatureStack
 		};
 	}
 	
-	
 	/**
-	 * Update features with current list in a multi-thread fashion
-	 * 
+	 * Update features with current list in a multi-thread fashion.
+	 *
 	 * @return true if the features are correctly updated 
 	 */
 	public boolean updateFeaturesMT()
 	{
+		 return updateFeaturesMT( Prefs.getThreads() );
+	}
+	/**
+	 * Update features with current list in a multi-thread fashion.
+	 * @param numThreads number of threads to use
+	 * @return true if the features are correctly updated
+	 */
+	public boolean updateFeaturesMT( int numThreads )
+	{
 		if (Thread.currentThread().isInterrupted() )
 			return false;
 		
-		exe = Executors.newFixedThreadPool( Prefs.getThreads() );
+		exe = Executors.newFixedThreadPool( numThreads );
 				
 		wholeStack = new ImageStack(width, height);
 		if( originalImage.getType() == ImagePlus.COLOR_RGB)
@@ -3439,16 +3471,28 @@ public class FeatureStack
 		this.wholeStack = stack;
 	}
 	
+	/**
+	 * Get current stack of image features.
+	 * @return current stack of image features
+	 */
 	public ImageStack getStack()
 	{
 		return wholeStack;
 	}
 	
+	/**
+	 * Set the use of old color format.
+	 * @param b flag to set the use of old color format
+	 */
 	public void setOldColorFormat( boolean b )
 	{
 		this.oldColorFormat = b;
 	}
 	
+	/**
+	 * Check if the feature stack is using the old color format.
+	 * @return true if the feature stack is using the old color format
+	 */
 	public boolean isOldColorFormat()
 	{
 		return this.oldColorFormat;

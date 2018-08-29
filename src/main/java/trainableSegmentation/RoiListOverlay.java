@@ -106,17 +106,31 @@ public class RoiListOverlay implements Overlay
 				
 	}
 	
+	/**
+	 * Set the list of ROIs.
+	 * @param roi list of ROIs to be displayed
+	 */
 	public void setRoi(ArrayList<Roi> roi)
 	{
 		this.roi = roi;
 	}
-	
+	/**
+	 * Set the composite to be used in the overlay.
+	 * @param composite composite to be used in the overlay
+	 */
 	public void setComposite (Composite composite)
 	{this.composite = composite;}
 	
+	/**
+	 * Set the color of the ROIs
+	 * @param color ROI color
+	 */
 	public void setColor(Color color)
 	{this.color = color;}
-	
+	/**
+	 * Convert the list of ROIs to text.
+	 * @return string containing the list of ROIs
+	 */
 	public String toString() {
 		return "RoiOverlay(" + roi + ")";
 	}

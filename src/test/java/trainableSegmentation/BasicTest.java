@@ -24,7 +24,7 @@ public class BasicTest
 	public void test1()
 	{
 		final ImagePlus image = makeTestImage( "test", 2, 2, 17, 2, 123, 54 );
-		final ImagePlus labels = makeTestImage( "labels", 2, 2, 255, 255, 0, 0 );
+		final ImagePlus labels = makeTestImage( "labels", 2, 2, 1, 1, 0, 0 );
 
 		WekaSegmentation segmentator = new WekaSegmentation( image );
 
@@ -41,11 +41,11 @@ public class BasicTest
 
 		assertTrue("Failed to apply trained classifier", null != result);
 
-		float[] pix = (float[]) result.getProcessor().getPixels();
+		byte[] pix = (byte[]) result.getProcessor().getPixels();
 		byte[] pixTrue = (byte[]) labels.getProcessor().getPixels();
 		for( int i=0; i<pix.length; i++)
 		{
-			assertTrue("Misclassified training sample", pix[i] * 255 == (pixTrue[i]&0xff) );
+			assertTrue("Misclassified training sample", pix[i] == pixTrue[i]);
 		}
 	}
 
@@ -102,9 +102,7 @@ public class BasicTest
 		assertTrue( segmentator.trainClassifier() );
 
 		segmentator.applyClassifier( false );
-		ImagePlus output = segmentator.getClassifiedImage();
-		new ImageConverter( output ).convertToGray8();
-		return output;
+		return segmentator.getClassifiedImage();
 	}
 
 	private ImagePlus loadFromResource(final String path) {

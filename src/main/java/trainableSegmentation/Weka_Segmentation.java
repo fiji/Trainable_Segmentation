@@ -405,7 +405,9 @@ public class Weka_Segmentation implements PlugIn
 						win.updateButtonsEnabling();
 					}
 					else if(e.getSource() == saveClassifierButton){
+						win.setButtonsEnabled( false );
 						saveClassifier();
+						win.updateButtonsEnabling();
 					}
 					else if(e.getSource() == loadDataButton){
 						loadTrainingData();
@@ -659,7 +661,7 @@ public class Weka_Segmentation implements PlugIn
 			if(null != sliceSelector)
 			{
 				// set slice selector to the correct number
-				sliceSelector.setValue( imp.getSlice() );
+				sliceSelector.setValue( imp.getCurrentSlice() );
 				// add adjustment listener to the scroll bar
 				sliceSelector.addAdjustmentListener(new AdjustmentListener() 
 				{
@@ -1095,7 +1097,7 @@ public class Weka_Segmentation implements PlugIn
 		 * Enable / disable buttons
 		 * @param s enabling flag
 		 */
-		protected void setButtonsEnabled(Boolean s)
+		protected void setButtonsEnabled(boolean s)
 		{
 			trainButton.setEnabled(s);
 			overlayButton.setEnabled(s);
@@ -1279,7 +1281,7 @@ public class Weka_Segmentation implements PlugIn
 		
 		// The display image is a copy of the training image (single image or stack)
 		displayImage = trainingImage.duplicate();
-		displayImage.setSlice( trainingImage.getSlice() );
+		displayImage.setSlice( trainingImage.getCurrentSlice() );
 		displayImage.setTitle( Weka_Segmentation.PLUGIN_NAME + " " + Weka_Segmentation.PLUGIN_VERSION );
 
 		ij.gui.Toolbar.getInstance().setTool(ij.gui.Toolbar.FREELINE);
@@ -1421,6 +1423,7 @@ public class Weka_Segmentation implements PlugIn
 	 * 
 	 * @param command current text of the training button ("Train classifier" or "STOP")
 	 */
+	@SuppressWarnings("deprecation")
 	void runStopTraining(final String command) 
 	{
 		// If the training is not going on, we start it
@@ -1513,7 +1516,13 @@ public class Weka_Segmentation implements PlugIn
 				trainButton.setText("Train classifier");
 				
 				if(null != trainingTask)
+				{
 					trainingTask.interrupt();
+					// Although not recommended and already deprecated,
+					// use stop command so WEKA classifiers are actually
+					// stopped.
+					trainingTask.stop();
+				}
 				else
 					IJ.log("Error: interrupting training failed becaused the thread is null!");
 				
@@ -1800,6 +1809,14 @@ public class Weka_Segmentation implements PlugIn
 						IJ.log( "Error: " + file.getPath() + " is not a valid image file.");
 						IJ.error("Trainable Weka Segmentation I/O error", "Error: " + file.getPath() + " is not a valid image file.");
 						return;						
+					}
+					if( testImage.getNSlices() == 1 && isProcessing3D )
+					{
+						IJ.log( "Error: " + file.getPath() + " is a 2D image but Trainable Weka Segmentation "
+								+ "is working in 3D." );
+						IJ.error( "Wrong image dimensions: " + file.getPath() + " is a 2D image but "
+								+ "Trainable Weka Segmentation is working in 3D." );
+						return;
 					}
 
 					IJ.log("Processing image " + file.getName() + " in thread " + numThread);
@@ -2177,7 +2194,8 @@ public class Weka_Segmentation implements PlugIn
 
 		if(wekaSegmentation.getLoadedTrainingData() != null)
 		{
-			for(int i = 0; i < 4; i++)
+			final int nNumericFields = isProcessing3D ? 2 : 4;
+			for(int i = 0; i < nNumericFields; i++)
 				((TextField) gd.getNumericFields().get( i )).setEnabled(false);
 		}
 
@@ -2626,7 +2644,10 @@ public class Weka_Segmentation implements PlugIn
 			final ImagePlus probImage = wekaSegmentation.getClassifiedImage();
 			if(null != probImage)
 			{
-				probImage.setOpenAsHyperStack( true );				
+				probImage.setDimensions( wekaSegmentation.getNumOfClasses(),
+						win.getTrainingImage().getNSlices(), win.getTrainingImage().getNFrames() );
+				if( win.getTrainingImage().getNSlices() * win.getTrainingImage().getNFrames() > 1 )
+					probImage.setOpenAsHyperStack( true );
 				probImage.show();
 			}
 			win.updateButtonsEnabling();
@@ -3149,7 +3170,10 @@ public class Weka_Segmentation implements PlugIn
 		}
 	}	
 	
-	/** Disables features which rely on missing third party libraries. */
+	/**
+	 * Disables features which rely on missing third party libraries.
+	 * @param gd settings dialog
+	 * */
 	public static void disableMissingFeatures(final GenericDialog gd)
 	{
 		if (!isImageScienceAvailable()) {
