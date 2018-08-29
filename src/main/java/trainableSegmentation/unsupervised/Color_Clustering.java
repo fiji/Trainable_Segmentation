@@ -452,7 +452,7 @@ public class Color_Clustering implements PlugIn{
             // Opacity slider
             JPanel opacityPanel = new JPanel();
             opacitySlider = new JSlider(0,100,50);
-            opacityPanel.add(new Label("Overlay opacity:"));
+            opacityPanel.add(new Label("Opacity:"));
             opacitySlider.setToolTipText("Select a percentage for the opacity");
             opacityPanel.add(opacitySlider);
             overlayPanel.add( opacityPanel, overlayConstraints );
