@@ -91,7 +91,7 @@ public class Color_Clustering implements PlugIn{
     /** flag indicating if the color features have been created */
     private boolean featuresCreated = false;
     /** array of color feature stacks (one per slice) */
-    private FeatureStackArray theFeatures = null;
+    private FeatureStackArray featureStackArray = null;
 
     /** input image title */
     String inputImageTitle = null;
@@ -281,7 +281,7 @@ public class Color_Clustering implements PlugIn{
                         	buildClusterer();
                         // Generate probability map image
                         IJ.log( "Creating probability map image..." );
-                        ImagePlus result = colorClustering.createProbabilityMaps(theFeatures);
+                        ImagePlus result = colorClustering.createProbabilityMaps(featureStackArray);
                         result.setCalibration(image.getCalibration());
                         result.setFileInfo(image.getFileInfo());
                         result.setTitle( inputImageShortTitle + "-clusterprobmap");
@@ -774,7 +774,7 @@ public class Color_Clustering implements PlugIn{
                 colorClustering.setChannels( channels );
                 IJ.log("Creating features...");
                 colorClustering.createFeatures();
-                theFeatures = colorClustering.getFeatureStackArray();
+                featureStackArray = colorClustering.getFeatureStackArray();
                 featuresCreated = true;
                 return true;
             } else {
@@ -871,7 +871,7 @@ public class Color_Clustering implements PlugIn{
                         // Build clusterer
                         buildClusterer();
                         IJ.log("Creating clustered image...");
-                        clusteredImage = colorClustering.createClusteredImage(theFeatures);
+                        clusteredImage = colorClustering.createClusteredImage(featureStackArray);
                         updateResultOverlay();
                         runClusterButton.setText("Run");
                         enableComponents( true );
@@ -1024,7 +1024,7 @@ public class Color_Clustering implements PlugIn{
             	}
             }
             IJ.log("Creating new clustered image...");
-            clusteredImage = colorClustering.createClusteredImage(theFeatures);
+            clusteredImage = colorClustering.createClusteredImage(featureStackArray);
             win.updateResultOverlay();
             IJ.log("Done");
         }
