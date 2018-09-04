@@ -293,7 +293,7 @@ public class ColorClustering {
      * @return feature stack array
      */
     public FeatureStackArray createFSArray(ImagePlus image){
-        FeatureStackArray theFeatures = new FeatureStackArray(image.getStackSize());
+        FeatureStackArray fsa = new FeatureStackArray(image.getStackSize());
         for(int slice = 1; slice <= image.getStackSize(); ++slice) {
             boolean labactive = false, rgbactive = false, hsbactive = false;
             ImageConverter ic, ic2;
@@ -361,17 +361,17 @@ public class ColorClustering {
             }
             FeatureStack features = new FeatureStack(stack.getWidth(), stack.getHeight(), false);
             features.setStack(stack);
-            theFeatures.set(features, slice - 1);
+            fsa.set(features, slice - 1);
         }
-        return theFeatures;
+        return fsa;
     }
 
     /**
      * Create probability map based on provided features and current cluster.
-     * @param theFeatures input array of feature stacks
+     * @param featureStackArray input array of feature stacks
      * @return image containing the probability maps of each cluster
      */
-    public ImagePlus createProbabilityMaps(FeatureStackArray theFeatures){
+    public ImagePlus createProbabilityMaps(FeatureStackArray featureStackArray){
         int height;
         int width;
         int numInstances;
@@ -383,22 +383,22 @@ public class ColorClustering {
         }
         Calibration calibration = new Calibration();
         calibration = image.getCalibration();
-        height = theFeatures.getHeight();
-        width = theFeatures.getWidth();
+        height = featureStackArray.getHeight();
+        width = featureStackArray.getWidth();
         numInstances = height*width;
         ImageStack clusteringResult = new ImageStack(width,height);
-        for(int slice = 1; slice <= theFeatures.getSize(); ++slice){
+        for(int slice = 1; slice <= featureStackArray.getSize(); ++slice){
             double clusterArray[][] = new double[numClusters][numInstances];
-            FeatureStack features = theFeatures.get(slice-1);
+            FeatureStack features = featureStackArray.get(slice-1);
             ArrayList<Attribute> attributes = new ArrayList<Attribute>();
             Instances instances;
-            for (int i=1; i<=theFeatures.get(slice-1).getSize(); i++)
+            for (int i=1; i<=featureStackArray.get(slice-1).getSize(); i++)
             {
-                String attString = theFeatures.get(slice-1).getSliceLabel(i);
+                String attString = featureStackArray.get(slice-1).getSliceLabel(i);
                 attributes.add( new Attribute( attString ) );
             }
 
-            if( theFeatures.get(slice-1).useNeighborhood() )
+            if( featureStackArray.get(slice-1).useNeighborhood() )
                 for (int i=0; i<8; i++)
                 {
                     //IJ.log("Adding extra attribute original_neighbor_" + (i+1) + "...");
@@ -451,27 +451,27 @@ public class ColorClustering {
 
     /**
      * Creates clustered image based on provided FeatureStackArray and using private clusterer, returns as ImagePlus
-     * @param theFeatures input array of feature stacks
+     * @param featureStackArray input array of feature stacks
      * @return clusterized image (one label per cluster)
      */
-    public ImagePlus createClusteredImage(FeatureStackArray theFeatures){
+    public ImagePlus createClusteredImage(FeatureStackArray featureStackArray){
         int height;
         int width;
         int numInstances;
         Calibration calibration = new Calibration();
         calibration = image.getCalibration();
-        height = theFeatures.getHeight();
-        width = theFeatures.getWidth();
+        height = featureStackArray.getHeight();
+        width = featureStackArray.getWidth();
         numInstances = height*width;
         ImageStack clusteringResult = new ImageStack(width,height);
-        for(int slice = 1; slice <= theFeatures.getSize(); ++slice){
+        for(int slice = 1; slice <= featureStackArray.getSize(); ++slice){
             byte clusterArray[] = new byte[numInstances];
-            FeatureStack features = theFeatures.get(slice-1);
+            FeatureStack features = featureStackArray.get(slice-1);
             ArrayList<Attribute> attributes = new ArrayList<Attribute>();
             Instances instances;
-            for (int i=1; i<=theFeatures.get(slice-1).getSize(); i++)
+            for (int i=1; i<=featureStackArray.get(slice-1).getSize(); i++)
             {
-                String attString = theFeatures.get(slice-1).getSliceLabel(i);
+                String attString = featureStackArray.get(slice-1).getSliceLabel(i);
                 attributes.add( new Attribute( attString ) );
             }
 
