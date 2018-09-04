@@ -7,8 +7,17 @@ import weka.clusterers.Canopy;
 
 import java.util.ArrayList;
 
+/**
+ * Test class for unsupervised learning in color images
+ *
+ */
 public class TestUnsupervised {
 
+    /**
+     * Main method of test class
+     *
+     * @param args main arguments (not used)
+     */
     public static void main( final String[] args )
     {
         ImagePlus image = IJ.openImage();
