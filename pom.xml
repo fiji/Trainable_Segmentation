@@ -176,7 +176,7 @@
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2-algorithm-gpl</artifactId>
 		</dependency>
-		
+
 		<!-- ImageJ dependencies -->
 		<dependency>
 			<groupId>net.imagej</groupId>
@@ -213,10 +213,5 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>net.imagej</groupId>
-            <artifactId>ij</artifactId>
-            <version>1.51n</version>
-        </dependency>
-    </dependencies>
+	</dependencies>
 </project>
