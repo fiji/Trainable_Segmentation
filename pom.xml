@@ -33,7 +33,7 @@
 		<developer>
 			<id>iarganda</id>
 			<name>Ignacio Arganda-Carreras</name>
-			<url>http://imagej.net/User:Iarganda</url>
+			<url>https://imagej.net/User:Iarganda</url>
 			<roles>
 				<role>lead</role>
 				<role>developer</role>
@@ -46,7 +46,7 @@
 		<developer>
 			<id>ctrueden</id>
 			<name>Curtis Rueden</name>
-			<url>http://imagej.net/User:Rueden</url>
+			<url>https://imagej.net/User:Rueden</url>
 			<roles>
 				<role>maintainer</role>
 			</roles>
@@ -55,24 +55,24 @@
 	<contributors>
 		<contributor>
 			<name>Verena Kaynig</name>
-			<url>http://imagej.net/User:Verena</url>
+			<url>https://imagej.net/User:Verena</url>
 			<roles><role>founder</role></roles>
 			<properties><id>vkaynig</id></properties>
 		</contributor>
 		<contributor>
 			<name>Johannes Schindelin</name>
-			<url>http://imagej.net/User:Schindelin</url>
+			<url>https://imagej.net/User:Schindelin</url>
 			<roles><role>founder</role></roles>
 			<properties><id>dscho</id></properties>
 		</contributor>
 		<contributor>
 			<name>Albert Cardona</name>
-			<url>http://imagej.net/User:Albertcardona</url>
+			<url>https://imagej.net/User:Albertcardona</url>
 			<properties><id>acardona</id></properties>
 		</contributor>
 		<contributor>
 			<name>Jan Eglinger</name>
-			<url>http://imagej.net/User:Eglinger</url>
+			<url>https://imagej.net/User:Eglinger</url>
 			<properties><id>imagejan</id></properties>
 		</contributor>
 		<contributor>
@@ -81,17 +81,17 @@
 		</contributor>
 		<contributor>
 			<name>Jan Funke</name>
-			<url>http://imagej.net/User:Funke</url>
+			<url>https://imagej.net/User:Funke</url>
 			<properties><id>funkey</id></properties>
 		</contributor>
 		<contributor>
 			<name>Mark Hiner</name>
-			<url>http://imagej.net/User:Hinerm</url>
+			<url>https://imagej.net/User:Hinerm</url>
 			<properties><id>hinerm</id></properties>
 		</contributor>
 		<contributor>
 			<name>Larry Lindsey</name>
-			<url>http://imagej.net/User:Lindsey</url>
+			<url>https://imagej.net/User:Lindsey</url>
 			<properties><id>larrylindsey</id></properties>
 		</contributor>
 		<contributor>
@@ -144,7 +144,7 @@
 	<repositories>
 		<repository>
 			<id>imagej.public</id>
-			<url>http://maven.imagej.net/content/groups/public</url>
+			<url>https://maven.imagej.net/content/groups/public</url>
 		</repository>
 	</repositories>
 
