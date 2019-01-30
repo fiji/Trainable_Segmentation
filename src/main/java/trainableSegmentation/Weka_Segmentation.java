@@ -3138,7 +3138,7 @@ public class Weka_Segmentation implements PlugIn
 				final String availableFeature = isProcessing3D ?
 						FeatureStack3D.availableFeatures[i] :
 							FeatureStack.availableFeatures[i];
-                if ( availableFeature.contains(featureName) && featureValue != enabledFeatures[i])
+                if ( availableFeature.equals(featureName) && featureValue != enabledFeatures[i])
                 {
                     enabledFeatures[i] = featureValue;
                     forceUpdate = true;
