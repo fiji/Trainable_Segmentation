@@ -1611,7 +1611,8 @@ public class FeatureStack
 			final double gamma,
 			final double psi,
 			final double frequency,
-			final int nAngles)
+			final int nAngles,
+			final ExecutorService exec )
 	{
 		if (Thread.currentThread().isInterrupted()) 
 			return null;
@@ -1685,7 +1686,7 @@ public class FeatureStack
 
 						// compute Fourier convolution
 						FFTConvolution< FloatType > c = 
-								new FFTConvolution< FloatType >( image2, kernel );
+								new FFTConvolution< FloatType >( image2, kernel, exec );
 						c.convolve();
 						
 						ip2 = ImageJFunctions.wrap( image2, "" );
@@ -2878,7 +2879,7 @@ public class FeatureStack
 								return false;
 							final double psi = Math.PI / 2 * i;
 							//System.out.println( " Calculating Gabor filter (1.0, " + gamma + ", " + psi + ", " + frequency + ", " + nAngles + ")");
-							futures.add(exe.submit( getGabor(originalImage, 1.0, gamma, psi, frequency, nAngles) ) );
+							exe.submit( getGabor(originalImage, 1.0, gamma, psi, frequency, nAngles, exe) ).get() ;
 						}
 				// elongated filters in x- axis (sigma = [2.0 - 4.0], gamma = [1.0 - 2.0])
 				for(int i=0; i < 2; i++)
@@ -2890,7 +2891,7 @@ public class FeatureStack
 									return false;
 								final double psi = Math.PI / 2 * i;
 								//System.out.println( " Calculating Gabor filter (" + sigma + " , " + gamma + ", " + psi + ", " + frequency + ", " + nAngles + ")");
-								futures.add(exe.submit( getGabor(originalImage, sigma, gamma, psi, frequency, nAngles) ) );
+								exe.submit( getGabor(originalImage, sigma, gamma, psi, frequency, nAngles, exe ) ).get();
 							}								
 			}
 			
