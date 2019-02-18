@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 import org.junit.Test;
 
 import ij.ImagePlus;
+import ij.Prefs;
+import ij.gui.Roi;
 import ij.process.FloatProcessor;
 
 public class TestGaborThreads {
@@ -35,9 +37,102 @@ public class TestGaborThreads {
 		FeatureStack fs = new FeatureStack(original);
 
 		fs.setEnabledFeature("Gabor", true);
-		fs.updateFeaturesMT(8);
+		fs.updateFeaturesMT( Prefs.getThreads() );
 		fs.shutDownNow();
+
+		printThreads();
+		try {
+			// Give it time to remove the threads
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return printThreads();
+	}
+
+	static private final boolean test3() {
+		float[] pixels = new float[100 * 100];
+		for (int i=0; i<pixels.length; ++i) pixels[i] = (float)Math.random() * 255;
+		FloatProcessor fp = new FloatProcessor(100, 100, pixels);
+		ImagePlus original = new ImagePlus("original", fp);
+
+		FeatureStackArray featuresArray = new FeatureStackArray(original.getStackSize());
+
+		// Selected attributes (image features)
+		boolean[] enableFeatures = new boolean[]{
+				false,   /* Gaussian_blur */
+				false,   /* Sobel_filter */
+				false,   /* Hessian */
+				false,   /* Difference_of_gaussians */
+				false,   /* Membrane_projections */
+				false,  /* Variance */
+				false,  /* Mean */
+				false,  /* Minimum */
+				false,  /* Maximum */
+				false,  /* Median */
+				false,  /* Anisotropic_diffusion */
+				false,  /* Bilateral */
+				false,  /* Lipschitz */
+				false,  /* Kuwahara */
+				true,  /* Gabor */
+				false,  /* Derivatives */
+				false,  /* Laplacian */
+				false,  /* Structure */
+				false,  /* Entropy */
+				false   /* Neighbors */
+		};
+		featuresArray.setEnabledFeatures(enableFeatures);
+		featuresArray.updateFeaturesMT();
+		featuresArray.shutDownNow();
+
+		printThreads();
+		try {
+			// Give it time to remove the threads
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return printThreads();
+	}
+	static private final boolean test4() {
+		float[] pixels = new float[100 * 100];
+		for (int i=0; i<pixels.length; ++i) pixels[i] = (float)Math.random() * 255;
+		FloatProcessor fp = new FloatProcessor(256, 256, pixels);
+		ImagePlus original = new ImagePlus("original", fp);
 		
+		WekaSegmentation seg = new WekaSegmentation( original );
+
+		// Selected attributes (image features)
+		boolean[] enableFeatures = new boolean[]{
+				false,   /* Gaussian_blur */
+				false,   /* Sobel_filter */
+				false,   /* Hessian */
+				false,   /* Difference_of_gaussians */
+				false,   /* Membrane_projections */
+				false,  /* Variance */
+				false,  /* Mean */
+				false,  /* Minimum */
+				false,  /* Maximum */
+				false,  /* Median */
+				false,  /* Anisotropic_diffusion */
+				false,  /* Bilateral */
+				false,  /* Lipschitz */
+				false,  /* Kuwahara */
+				true,  /* Gabor */
+				false,  /* Derivatives */
+				false,  /* Laplacian */
+				false,  /* Structure */
+				false,  /* Entropy */
+				false   /* Neighbors */
+		};
+		seg.setEnabledFeatures(enableFeatures);
+		Roi roi = new Roi( 10, 10, 10, 10 );
+		seg.addExample( 0, roi, 1);
+		roi = new Roi( 40, 40, 10, 10 );
+		seg.addExample( 1, roi, 1);
+		seg.trainClassifier();
+		//seg.applyClassifier(true);
+
 		printThreads();
 		try {
 			// Give it time to remove the threads
@@ -73,5 +168,7 @@ public class TestGaborThreads {
 	public void test() {
 		assert test1();
 		assert test2();
+		assert test3();
+		assert test4();
 	}
 }
