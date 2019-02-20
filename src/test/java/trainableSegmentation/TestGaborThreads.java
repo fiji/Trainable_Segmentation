@@ -97,7 +97,7 @@ public class TestGaborThreads {
 	static private final boolean test4() {
 		float[] pixels = new float[100 * 100];
 		for (int i=0; i<pixels.length; ++i) pixels[i] = (float)Math.random() * 255;
-		FloatProcessor fp = new FloatProcessor(256, 256, pixels);
+		FloatProcessor fp = new FloatProcessor(100, 100, pixels);
 		ImagePlus original = new ImagePlus("original", fp);
 		
 		WekaSegmentation seg = new WekaSegmentation( original );
