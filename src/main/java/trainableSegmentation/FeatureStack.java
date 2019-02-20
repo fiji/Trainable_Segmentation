@@ -2879,7 +2879,18 @@ public class FeatureStack
 								return false;
 							final double psi = Math.PI / 2 * i;
 							//System.out.println( " Calculating Gabor filter (1.0, " + gamma + ", " + psi + ", " + frequency + ", " + nAngles + ")");
-							exe.submit( getGabor(originalImage, 1.0, gamma, psi, frequency, nAngles, exe) ).get() ;
+							final ImagePlus res = exe.submit( getGabor(originalImage, 1.0, gamma, psi, frequency, nAngles, exe) ).get() ;
+							currentIndex ++;
+							IJ.showStatus("Updating features...");
+							IJ.showProgress(currentIndex, finalIndex);
+							if(res.getImageStackSize() == 1)
+								this.wholeStack.addSlice(res.getTitle(), res.getProcessor());
+							else
+							{
+								final ImageStack slices = res.getImageStack();
+								for(int s = 1; s <= slices.getSize() ; s++)
+									this.wholeStack.addSlice(slices.getSliceLabel(s), slices.getProcessor(s));
+							}
 						}
 				// elongated filters in x- axis (sigma = [2.0 - 4.0], gamma = [1.0 - 2.0])
 				for(int i=0; i < 2; i++)
@@ -2891,7 +2902,18 @@ public class FeatureStack
 									return false;
 								final double psi = Math.PI / 2 * i;
 								//System.out.println( " Calculating Gabor filter (" + sigma + " , " + gamma + ", " + psi + ", " + frequency + ", " + nAngles + ")");
-								exe.submit( getGabor(originalImage, sigma, gamma, psi, frequency, nAngles, exe ) ).get();
+								final ImagePlus res = exe.submit( getGabor(originalImage, sigma, gamma, psi, frequency, nAngles, exe ) ).get();
+								currentIndex ++;
+								IJ.showStatus("Updating features...");
+								IJ.showProgress(currentIndex, finalIndex);
+								if(res.getImageStackSize() == 1)
+									this.wholeStack.addSlice(res.getTitle(), res.getProcessor());
+								else
+								{
+									final ImageStack slices = res.getImageStack();
+									for(int s = 1; s <= slices.getSize() ; s++)
+										this.wholeStack.addSlice(slices.getSliceLabel(s), slices.getProcessor(s));
+								}
 							}								
 			}
 			
