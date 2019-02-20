@@ -10,6 +10,10 @@ import ij.Prefs;
 import ij.gui.Roi;
 import ij.process.FloatProcessor;
 
+/**
+ * Class to test the use of threads when using Gabor features.
+ *
+ */
 public class TestGaborThreads {
 	
 	static private final boolean test1() {
@@ -164,6 +168,9 @@ public class TestGaborThreads {
 		return count == alive;
 	}
 	
+	/**
+	 * Method with all possible tests to detect any error when using Gabor filters.
+	 */
 	@Test
 	public void test() {
 		assert test1();
