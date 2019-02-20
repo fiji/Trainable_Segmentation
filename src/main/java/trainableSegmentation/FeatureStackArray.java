@@ -185,8 +185,9 @@ public class FeatureStackArray
 						featureStackArray[i].setMaximumSigma(maximumSigma);
 						featureStackArray[i].setMinimumSigma(minimumSigma);
 						featureStackArray[i].setUseNeighbors(useNeighbors);
-						if ( featureStackArray.length == 1 && !featureStackArray[i].updateFeaturesMT())
+						if ( featureStackArray.length == 1 )
 						{
+							if( !featureStackArray[i].updateFeaturesMT() )
 								return false;							
 						}
 						else
