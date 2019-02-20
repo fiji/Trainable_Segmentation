@@ -37,6 +37,7 @@ import java.awt.Insets;
 import java.awt.Panel;
 import java.awt.Rectangle;
 import java.awt.TextField;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -590,6 +591,40 @@ public class Weka_Segmentation implements PlugIn
 			
 			final CustomCanvas canvas = (CustomCanvas) getCanvas();
 
+			// Check image dimensions to avoid a GUI larger than the
+			// screen dimensions
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			double screenWidth = screenSize.getWidth();
+			double screenHeight = screenSize.getHeight();
+
+			// Zoom in if image is too small
+			while( ( ic.getWidth() < screenWidth/2 ||
+				ic.getHeight() < screenHeight/2 ) &&
+				ic.getMagnification() < 32.0 )
+			{
+			    final int canvasWidth = ic.getWidth();
+			    ic.zoomIn( 0, 0 );
+			    // check if canvas size changed (otherwise stop zooming)
+			    if( canvasWidth == ic.getWidth() )
+			    {
+				ic.zoomOut(0, 0);
+				break;
+			    }
+			}
+			// Zoom out if canvas is too large
+			while( ( ic.getWidth() > 0.75 * screenWidth ||
+				ic.getHeight() > 0.75 * screenHeight ) &&
+				ic.getMagnification() > 1/72.0 )
+			{
+			    final int canvasWidth = ic.getWidth();
+			    ic.zoomOut( 0, 0 );
+			    // check if canvas size changed (otherwise stop zooming)
+			    if( canvasWidth == ic.getWidth() )
+			    {
+				ic.zoomIn(0, 0);
+				break;
+			    }
+			}
 			// add roi list overlays (one per class)
 			for(int i = 0; i < WekaSegmentation.MAX_NUM_CLASSES; i++)
 			{
