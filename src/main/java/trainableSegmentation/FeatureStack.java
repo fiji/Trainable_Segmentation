@@ -1603,6 +1603,7 @@ public class FeatureStack
 	 * @param psi phase offset
 	 * @param frequency frequency of the sinusoidal component
 	 * @param nAngles number of filter orientations
+	 * @param exec executor service to use on FFT convolutions
 	 * @return image stack with Gabor filter projections using "Max Intensity" and "Min Intensity"
 	 */
 	public Callable<ImagePlus> getGabor(
