@@ -6412,7 +6412,7 @@ public class WekaSegmentation {
 		if( isProcessing3D )
 			tileSize[ 2 ]= imp.getNSlices() / tilesPerDim[ 2 ];
 
-		int[] origin = new int[ tilesPerDim.length ];
+		int[] origin = isProcessing3D ? new int[ 3 ] : new int[ 2 ] ;
 		int[] cropDims = new int[ tilesPerDim.length ];
 		// create empty output image
 		final int nClasses = getNumOfClasses();
@@ -6540,6 +6540,7 @@ public class WekaSegmentation {
 			pad[ i ][ 1 ] = (origin[ i ] + cropDims[ i ] + (int) maximumSigma ) >= impDims[ i ] ? 0 :
 				(int) maximumSigma;
 		}
+
 		// Set cropping ROI
 		imp.setRoi( origin[ 0 ] - pad[ 0 ][ 0 ],
 					origin[ 1 ] - pad[ 1 ][ 0 ],
@@ -6569,7 +6570,8 @@ public class WekaSegmentation {
 					1 + pad[ 2 ][ 0 ], 1 + pad[ 2 ][ 0 ] + cropDims[ 2 ],
 					1, 1 );
 		else
-			croppedRes = result.duplicate();
+			croppedRes = dup.run( result, 1, result.getNChannels(),
+					1 ,1, 1, 1 );
 
 		croppedRes.setTitle( result.getTitle() );
 		croppedRes.setCalibration( result.getCalibration() );
