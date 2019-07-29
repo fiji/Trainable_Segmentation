@@ -207,6 +207,13 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- CLIJ -->
+		<dependency>
+			<groupId>net.haesleinhuepf</groupId>
+			<artifactId>clij-core</artifactId>
+			<version>1.0.7</version>
+		</dependency>
+
 		<!-- Test scope dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
