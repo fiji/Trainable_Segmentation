@@ -149,13 +149,20 @@ public class FeatureStack
 	public static final int ENTROPY					= 18;
 	/** neighbors feature flag index */
 	public static final int NEIGHBORS				= 19;
-	
+	/** clij Gaussian blur flag index */
+	public static final int CLIJ_GAUSSIAN           = 20;
+	/** clij difference of Gaussian flag index */
+	public static final int CLIJ_DOG                = 21;
+	/** clij mean filter flag index */
+	public static final int CLIJ_MEAN               = 22;
+
 	/** names of available filters */
 	public static final String[] availableFeatures 
 		= new String[]{	"Gaussian_blur", "Sobel_filter", "Hessian", "Difference_of_gaussians", 
 					   	"Membrane_projections","Variance","Mean", "Minimum", "Maximum", "Median", 
 					   	"Anisotropic_diffusion", "Bilateral", "Lipschitz", "Kuwahara", "Gabor" , 
-					   	"Derivatives", "Laplacian", "Structure", "Entropy", "Neighbors"};
+					   	"Derivatives", "Laplacian", "Structure", "Entropy", "Neighbors",
+			            "clij_Gaussian", "clij_difference_of_gaussians", "clij_mean"};
 
 	/** Features only available if the ImageScience library is present. */
 	public static final boolean[] IMAGESCIENCE_FEATURES = {
@@ -178,7 +185,10 @@ public class FeatureStack
 		true,  // Laplacian
 		true,  // Structure
 		false, // Entropy
-		false  // Neighbors
+		false, // Neighbors
+		false, // clij Gaussian
+		false, // clij Difference of Gaussians
+		false  // clij Mean
 	};
 
 	/** flags of filters to be used */
@@ -202,7 +212,10 @@ public class FeatureStack
 			false, 	/* Laplacian */
 			false,	/* Structure */
 			false,	/* Entropy */
-			false	/* Neighbors */
+			false,  /* Neighbors */
+			false,  /* clij Gaussian */
+			false,  /* clij Difference of Gaussians */
+			false   /* clij mean */
 	};
 	
 	/** use neighborhood flag */
@@ -381,6 +394,38 @@ public class FeatureStack
 		gs.blurGaussian(ip, 0.4 * sigma, 0.4 * sigma,  0.0002);
 		wholeStack.addSlice(availableFeatures[GAUSSIAN] + "_" + sigma, ip);
 	}
+
+	/**
+	 * Add Gaussian blur to current stack
+	 *
+	 * @param sigma for Gaussian blur
+	 */
+	public void addClijGaussianBlur(float sigma) {
+		ImagePlus clijGauss = CLIJWrapper.computeGaussianBlur(sigma, originalImage);
+		wholeStack.addSlice(availableFeatures[CLIJ_GAUSSIAN] + "_" + sigma, clijGauss.getProcessor());
+	}
+
+	/**
+	 * Add Gaussian blur to current stack
+	 *
+	 * @param sigma1 for Gaussian blur
+	 * @param sigma2 for Gaussian blur
+	 */
+	public void addClijDifferenceOfGaussians(float sigma1, float sigma2) {
+		ImagePlus clijDoG = CLIJWrapper.computeDoG(sigma1, sigma2, originalImage);
+		wholeStack.addSlice(availableFeatures[CLIJ_DOG] + "_" + sigma1 + "_" + sigma2, clijDoG.getProcessor());
+	}
+
+	/**
+	 * Add Gaussian blur to current stack
+	 *
+	 * @param radius for mean filter
+	 */
+	public void addClijMean(float radius) {
+		ImagePlus clijMean = CLIJWrapper.computeMean(radius, originalImage);
+		wholeStack.addSlice(availableFeatures[CLIJ_MEAN] + "_" + radius, clijMean.getProcessor());
+	}
+
 	/**
 	 * Calculate Gaussian filter concurrently
 	 * @param originalImage original input image
@@ -405,7 +450,75 @@ public class FeatureStack
 			}
 		};
 	}
-	
+
+	/**
+	 * Calculate Gaussian filter using CLIJ
+	 * @param originalImage original input image
+	 * @param sigma Gaussian sigma
+	 * @return result image
+	 */
+	public Callable<ImagePlus> getClijGaussianBlur(
+			final ImagePlus originalImage,
+			final float sigma)
+	{
+		if (Thread.currentThread().isInterrupted())
+			return null;
+
+		return new Callable<ImagePlus>(){
+			public ImagePlus call(){
+				ImagePlus clijGauss = CLIJWrapper.computeGaussianBlur(sigma, originalImage);
+				clijGauss.setTitle(availableFeatures[CLIJ_GAUSSIAN] + "_" + sigma);
+				return clijGauss;
+			}
+		};
+	}
+
+	/**
+	 * Calculate DoG filter using CLIJ
+	 * @param originalImage original input image
+	 * @param sigma1 Gaussian sigma
+	 * @param sigma2 Gaussian sigma
+	 * @return result image
+	 */
+	public Callable<ImagePlus> getClijDoG(
+			final ImagePlus originalImage,
+			final float sigma1,
+			final float sigma2)
+	{
+		if (Thread.currentThread().isInterrupted())
+			return null;
+
+		return new Callable<ImagePlus>(){
+			public ImagePlus call(){
+				ImagePlus clijDoG = CLIJWrapper.computeDoG(sigma1, sigma2, originalImage);
+				clijDoG.setTitle(availableFeatures[CLIJ_DOG] + "_" + sigma1 + "_" + sigma2);
+				return clijDoG;
+			}
+		};
+	}
+
+	/**
+	 * Calculate Mean filter using CLIJ
+	 * @param originalImage original input image
+	 * @param radius for mean filter
+	 * @return result image
+	 */
+	public Callable<ImagePlus> getClijMean(
+			final ImagePlus originalImage,
+			final float radius)
+	{
+		if (Thread.currentThread().isInterrupted())
+			return null;
+
+		return new Callable<ImagePlus>(){
+			public ImagePlus call(){
+				ImagePlus clijMean = CLIJWrapper.computeMean(radius, originalImage);
+				clijMean.setTitle(availableFeatures[CLIJ_MEAN] + "_" + radius);
+				return clijMean;
+			}
+		};
+	}
+
 	/**
 	 * Add entropy filter to current stack
 	 * @param radius radius to use (in pixels)
@@ -2434,6 +2547,10 @@ public class FeatureStack
 					addStructure(i, integrationScale );
 			}
 
+			if (enableFeatures[ CLIJ_GAUSSIAN ]) {
+				addClijGaussianBlur(i);
+			}
+
 		}
 		// Membrane projections
 		if(enableFeatures[MEMBRANE])
@@ -2451,8 +2568,7 @@ public class FeatureStack
 		IJ.showProgress(1.0);
 		IJ.showStatus("Features stack is updated now!");
 	}
-	
-	
+
 	/**
 	 * Add features based on a list of filters in a multi-thread fashion
 	 * @param filterList list of filters
@@ -2946,6 +3062,13 @@ public class FeatureStack
 					//IJ.log( n++ +": Calculating Gaussian filter ("+ i + ")");
 					futures.add(exe.submit( getGaussianBlur(originalImage, i)) );
 				}
+
+				// Clij Gaussian blur
+				if (enableFeatures[ CLIJ_GAUSSIAN ]) {
+					futures.add(exe.submit(getClijGaussianBlur(originalImage, i)) );
+				}
+
+
 				// Sobel
 				if(enableFeatures[SOBEL])
 				{
