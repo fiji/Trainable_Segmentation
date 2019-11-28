@@ -214,8 +214,8 @@
 		<!-- CLIJ -->
 		<dependency>
 			<groupId>net.haesleinhuepf</groupId>
-			<artifactId>clij-core</artifactId>
-			<version>1.0.7</version>
+			<artifactId>clij_</artifactId>
+			<version>1.4.1</version>
 		</dependency>
 
 		<!-- Test scope dependencies -->
