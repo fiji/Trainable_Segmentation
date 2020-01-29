@@ -2551,6 +2551,10 @@ public class FeatureStack
 				addClijGaussianBlur(i);
 			}
 
+			if (enableFeatures[ CLIJ_MEAN ]) {
+				addClijMean(i);
+			}
+
 		}
 		// Membrane projections
 		if(enableFeatures[MEMBRANE])
@@ -2830,6 +2834,29 @@ public class FeatureStack
 					addEntropy((int)i, nBins);
 			}
 
+			// CLIJ Gaussian
+			if(enableFeatures[ CLIJ_GAUSSIAN ])
+			{
+				addClijGaussianBlur(i);
+			}
+
+			// Difference of gaussians
+			if(enableFeatures[CLIJ_DOG])
+			{
+				for (float j=minimumSigma; j<i; j*=2)
+				{
+					//IJ.log( n++ +": Calculating DoG filter ("+ i + ", " + j + ")");
+					addClijDifferenceOfGaussians(i, j);
+				}
+			}
+
+			// CLIJ Mean
+			if(enableFeatures[ CLIJ_MEAN ])
+			{
+				addClijMean(i);
+			}
+
+
 		}
 		// Membrane projections
 		if(enableFeatures[ MEMBRANE ])
@@ -3066,6 +3093,21 @@ public class FeatureStack
 				// Clij Gaussian blur
 				if (enableFeatures[ CLIJ_GAUSSIAN ]) {
 					futures.add(exe.submit(getClijGaussianBlur(originalImage, i)) );
+				}
+
+				// CLIJ Difference of gaussians
+				if(enableFeatures[CLIJ_DOG])
+				{
+					for (float j=minimumSigma; j<i; j*=2)
+					{
+						//IJ.log( n++ +": Calculating DoG filter ("+ i + ", " + j + ")");
+						futures.add(exe.submit( getClijDoG(originalImage, i, j)) );
+					}
+				}
+
+				// Clij Gaussian blur
+				if (enableFeatures[ CLIJ_MEAN ]) {
+					futures.add(exe.submit(getClijMean(originalImage, i)) );
 				}
 
 
