@@ -1,9 +1,13 @@
 package trainableSegmentation;
 
+import ij.IJ;
 import ij.ImagePlus;
 import net.haesleinhuepf.clij.CLIJ;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
 import net.haesleinhuepf.clij.coremem.enums.NativeTypeEnum;
+import net.haesleinhuepf.clij.kernels.Kernels;
+
+import java.util.HashMap;
 
 /**
  * Analogously to ImageScience, we use CLIJ to compute feature images
@@ -68,8 +72,34 @@ public class CLIJWrapper {
         }
     }
 
+    public static ImagePlus computeMin(float radius, ImagePlus imp) {
+        synchronized (lock) { // supress parallelisation here; the GPU does it parallel anyway and we can reuse memory
+            checkCache(imp);
+            System.out.println("CLIJ " + clij);
+            clij.op().minimumBox(clijInput, clijOutput, (int)radius, (int)radius, 0);
 
+            ImagePlus result = clij.pull(clijOutput);
+            return result;
+        }
+    }
 
+    public static ImagePlus computeEntropie(int radius, int numBins, ImagePlus imp) {
+        synchronized (lock) { // supress parallelisation here; the GPU does it parallel anyway and we can reuse memory
+            checkCache(imp);
+            System.out.println("CLIJ " + clij);
+
+            HashMap<String, Object> parameters = new HashMap();
+            parameters.put("src", clijInput);
+            parameters.put("dst", clijOutput);
+            parameters.put("radius", radius);
+            parameters.put("numBins", numBins);
+
+            clij.execute( "entropie.cl", "entropie", parameters);
+
+            ImagePlus result = clij.pull(clijOutput);
+            return result;
+        }
+    }
 
 
     private static void checkCache(ImagePlus imp) {
@@ -77,6 +107,7 @@ public class CLIJWrapper {
             clearCache();
             cachedImagePlus = imp;
             clij = CLIJ.getInstance();
+            IJ.log(clij.getGPUName());
             clijInput = clij.push(imp);
             clijOutput = clij.create(clijInput.getDimensions(), NativeTypeEnum.Float);
         }
@@ -92,4 +123,6 @@ public class CLIJWrapper {
         }
         clij = null;
     }
+
+
 }
