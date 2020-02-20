@@ -697,4 +697,8 @@ class FastRfBagging extends RandomizableIteratedSingleClassifierEnhancer
   public String getRevision() {
     return RevisionUtils.extract("$Revision: 0.99$");
   }
+
+  public Classifier[] getClassifiers() {
+    return m_Classifiers;
+  }
 }
