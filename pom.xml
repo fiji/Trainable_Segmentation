@@ -10,8 +10,8 @@
 	</parent>
 
 	<groupId>sc.fiji</groupId>
-	<artifactId>Trainable_Segmentation</artifactId>
-	<version>3.2.34-SNAPSHOT</version>
+	<artifactId>Trainable_Segmentation_clijed</artifactId>
+	<version>3.2.34-clijed</version>
 
 	<name>Trainable Segmentation</name>
 	<description>Trainable Segmentation plugin for Fiji.</description>
@@ -135,6 +135,8 @@
 		<license.copyrightOwners>Fiji developers.</license.copyrightOwners>
 		<license.projectName>Fiji distribution of ImageJ for the life sciences.</license.projectName>
 
+		<imagej.app.directory>C:/programs/fiji-win64/Fiji.app/</imagej.app.directory>
+
 		<imagescience.version>3.0.0</imagescience.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
@@ -214,8 +216,8 @@
 		<!-- CLIJ -->
 		<dependency>
 			<groupId>net.haesleinhuepf</groupId>
-			<artifactId>clij_</artifactId>
-			<version>1.4.1</version>
+			<artifactId>clij-advanced-filters_</artifactId>
+			<version>0.16.2</version>
 		</dependency>
 
 		<!-- Test scope dependencies -->
@@ -225,4 +227,15 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<distributionManagement>
+		<repository>
+			<id>bintray-haesleinhuepf-snapshots</id>
+			<name>bintray-snapshots</name>
+			<url>https://api.bintray.com/maven/haesleinhuepf/clij/Trainable_Segmentation_clijed/;publish=1</url>
+		</repository>
+	</distributionManagement>
+
+
+
 </project>

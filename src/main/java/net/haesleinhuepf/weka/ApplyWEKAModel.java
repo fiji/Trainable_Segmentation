@@ -3,16 +3,12 @@ package net.haesleinhuepf.weka;
 import ij.ImagePlus;
 import net.haesleinhuepf.clij.CLIJ;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
-import net.haesleinhuepf.clij.kernels.Kernels;
 import net.haesleinhuepf.clij.macro.AbstractCLIJPlugin;
 import net.haesleinhuepf.clij.macro.CLIJMacroPlugin;
 import net.haesleinhuepf.clij.macro.CLIJOpenCLProcessor;
 import net.haesleinhuepf.clij.macro.documentation.OffersDocumentation;
 import org.scijava.plugin.Plugin;
-import trainableSegmentation.WekaSegmentation;
-import trainableSegmentation.Weka_Segmentation;
-
-import java.util.HashMap;
+import trainableSegmentation_clij.WekaSegmentation;
 
 import static net.haesleinhuepf.clij.utilities.CLIJUtilities.assertDifferent;
 
