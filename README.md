@@ -13,9 +13,9 @@ The **Trainable Weka Segmentation** is a Fiji plugin and library that combines a
 
 The main goal of this library is to work as a **bridge between the Machine Learning and the Image Processing fields**. It provides the framework to use and, more important, compare any available classifier to perform image segmentation based on pixel classification.
 
-For further details, please visit the [documentation site](http://imagej.net/Trainable_Weka_Segmentation).
+For further details, please visit the [documentation site](https://imagej.net/Trainable_Weka_Segmentation).
 
-![Trainable Weka Segmentation pipeline overview](http://imagej.net/_images/d/db/TWS-pipeline.png)
+![Trainable Weka Segmentation pipeline overview](https://imagej.net/_images/d/db/TWS-pipeline.png)
 
 Citation
 --------
