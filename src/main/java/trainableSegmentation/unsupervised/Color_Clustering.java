@@ -18,6 +18,8 @@ import weka.clusterers.Clusterer;
 import weka.clusterers.SimpleKMeans;
 import weka.core.Instances;
 import weka.core.OptionHandler;
+import weka.core.PluginManager;
+import weka.core.WekaPackageManager;
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyPanel;
 import weka.gui.explorer.ClustererAssignmentsPlotInstances;
@@ -51,11 +53,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -72,6 +78,8 @@ public class Color_Clustering implements PlugIn{
     private final ExecutorService exec = Executors.newFixedThreadPool(1);
     /** input image */
     protected ImagePlus image=null;
+    /** original image */
+    protected ImagePlus originalImage=null;
     /** array of booleans indicating the selection of channels */
     private boolean[] selectedChannels;
     /** number of samples to use in the cluster building */
@@ -620,6 +628,28 @@ public class Color_Clustering implements PlugIn{
             pack();
             setMinimumSize( getPreferredSize() );
 
+            // Add window listener to close things properly
+            addWindowListener( new WindowAdapter() {
+        	public void windowClosing(WindowEvent e) {
+        	    super.windowClosing( e );
+        	    // cleanup
+        	    if( null != originalImage )
+        	    {
+        		// display training image
+        		if( null == originalImage.getWindow() )
+        		    originalImage.show();
+        		originalImage.getWindow().setVisible( true );
+        	    }
+        	    // Stop any thread from the clusterer
+        	    if( null != currentTask )
+        	    {
+        		currentTask.interrupt();
+        		currentTask.stop();
+        	    }
+        	    exec.shutdownNow();
+        	}
+            });
+            
             if(null != sliceSelector)
             {
                 // add adjustment listener to the scroll bar
@@ -947,7 +977,19 @@ public class Color_Clustering implements PlugIn{
 			IJ.log(theClusterer.toString());
 			IJ.log( "Clusterer building took " + (endTime - startTime) + " ms." );
 		}
-    }
+    } // end class CustomWindow
+
+    static {
+	try {
+		IJ.showStatus("Loading Weka properties...");
+		IJ.log("Loading Weka properties...");
+		// load Weka packages statically
+		WekaPackageManager.loadPackages( true );
+
+	} catch (Exception e) {
+		IJ.error("Could not load Weka packages!");
+	}
+}
 
     /**
      * Save the clusterer to a file
@@ -1038,18 +1080,22 @@ public class Color_Clustering implements PlugIn{
     @Override
     public void run(String s) {
 
-        image = WindowManager.getCurrentImage();
-        if(image == null){
-            image=IJ.openImage();
+        originalImage = WindowManager.getCurrentImage();
+        if( originalImage == null ){
+            originalImage = IJ.openImage();
         }
-        if(image == null){
+        if( originalImage == null ){
             // Dialog closed by user
         	return;
         }else {
-            IJ.log("Loading Weka properties...");
-            // store input image title
-            inputImageTitle = image.getTitle();
-            inputImageShortTitle = image.getShortTitle();
+            // hide input image (to avoid accidental closing)
+            originalImage.getWindow().setVisible( false );
+
+            // store original input image title
+            inputImageTitle = originalImage.getTitle();
+            inputImageShortTitle = originalImage.getShortTitle();
+            // create a copy of the original image to be displayed
+            image = originalImage.duplicate();
             // rename image so the plugin title is shown
             image.setTitle( "Color Clustering" );
 
