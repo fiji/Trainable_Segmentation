@@ -18,8 +18,6 @@ import weka.clusterers.Clusterer;
 import weka.clusterers.SimpleKMeans;
 import weka.core.Instances;
 import weka.core.OptionHandler;
-import weka.core.PluginManager;
-import weka.core.WekaPackageManager;
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertyPanel;
 import weka.gui.explorer.ClustererAssignmentsPlotInstances;
@@ -979,18 +977,6 @@ public class Color_Clustering implements PlugIn{
 		}
     } // end class CustomWindow
 
-    static {
-	try {
-		IJ.showStatus("Loading Weka properties...");
-		IJ.log("Loading Weka properties...");
-		// load Weka packages statically
-		WekaPackageManager.loadPackages( true );
-
-	} catch (Exception e) {
-		IJ.error("Could not load Weka packages!");
-	}
-}
-
     /**
      * Save the clusterer to a file
      */
@@ -1080,34 +1066,39 @@ public class Color_Clustering implements PlugIn{
     @Override
     public void run(String s) {
 
-        originalImage = WindowManager.getCurrentImage();
-        if( originalImage == null ){
-            originalImage = IJ.openImage();
-        }
-        if( originalImage == null ){
-            // Dialog closed by user
-        	return;
-        }else {
-            // hide input image (to avoid accidental closing)
-            originalImage.getWindow().setVisible( false );
+    	if( null == WindowManager.getCurrentImage() ){
+    		originalImage = IJ.openImage();
 
-            // store original input image title
-            inputImageTitle = originalImage.getTitle();
-            inputImageShortTitle = originalImage.getShortTitle();
-            // create a copy of the original image to be displayed
-            image = originalImage.duplicate();
-            // rename image so the plugin title is shown
-            image.setTitle( "Color Clustering" );
+    		if( originalImage == null )
+    			// Dialog closed by user
+    			return;
+    	}
+    	else
+    	{
+    		originalImage = WindowManager.getCurrentImage();
 
-            // Build GUI
-            SwingUtilities.invokeLater(
-            		new Runnable() {
-            			public void run() {
-            				win = new CustomWindow( image );
-            				win.pack();
-            			}
-            		});
-        }
+    		// hide input image (to avoid accidental closing)
+    		originalImage.getWindow().setVisible( false );
+    	}
+    	// store original input image title
+    	inputImageTitle = originalImage.getTitle();
+    	inputImageShortTitle = originalImage.getShortTitle();
+    	// create a copy of the original image to be displayed
+    	image = originalImage.duplicate();
+    	image.setSlice( originalImage.getSlice() );
+    	// rename image so the plugin title is shown
+    	image.setTitle( "Color Clustering" );
+    	IJ.log( "Loading all available Weka clustering methods..." );
+    	IJ.showStatus( "Loading all available Weka clustering methods..." );
+
+    	// Build GUI
+    	SwingUtilities.invokeLater(
+    			new Runnable() {
+    				public void run() {
+    					win = new CustomWindow( image );
+    					win.pack();
+    				}
+    			});
 
     }
 }
