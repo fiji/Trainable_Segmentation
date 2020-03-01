@@ -2512,7 +2512,7 @@ public class Weka_Segmentation implements PlugIn
 			// macro recording
 			record( SAVE_FEATURE_STACK, new String[]{ dir, fileWithExt } );
 		}
-	}	
+	} // end class SaveFeatureStackButtonListener
 
 	/* **********************************************************
 	 * Macro recording related methods
