@@ -1006,10 +1006,10 @@ public class FeatureStack
 
 				// Ratio
 				//ipRatio.setf(x,y, (float)(trace*trace) / determinant);
-				// First eigenvalue: (a + d) / 2 + sqrt( ( 4*b^2 + (a - d)^2) / 2 )
-				ipEig1.setf(x,y, (float) ( trace/2.0 + Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) / 2.0 ) ) );
-				// Second eigenvalue: (a + d) / 2 - sqrt( ( 4*b^2 + (a - d)^2) / 2 )
-				ipEig2.setf(x,y, (float) ( trace/2.0 - Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) / 2.0 ) ) );
+				// First eigenvalue: (a + d + sqrt( ( 4*b^2 + (a - d)^2 ) ) / 2
+				ipEig1.setf(x,y, (float) ( trace + Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) ) ) / 2 );
+				// Second eigenvalue: (a + d - sqrt( ( 4*b^2 + (a - d)^2) ) / 2
+				ipEig2.setf(x,y, (float) ( trace - Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) ) ) / 2 );
 				// Orientation
 				if (s_xy < 0.0) // -0.5 * acos( (a-d) / sqrt( 4*b^2 + (a - d)^2)) )
 				{
