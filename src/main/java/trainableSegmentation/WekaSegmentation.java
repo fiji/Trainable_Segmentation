@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -694,6 +695,9 @@ public class WekaSegmentation {
 
 			this.classifier = loadresult.newClassifier;
 			this.trainHeader = loadresult.newHeader;
+			// check model version to assign Hessian format
+			this.getFeatureStackArray().setOldHessianFormat(
+					getModelVersion().startsWith("segment") );
 
 			return true;
 
@@ -749,47 +753,47 @@ public class WekaSegmentation {
 		}
 
 		try{
-		    // Check if classifier was trained on the same image type
-		    // (grayscale or color) as the training image
-		    if( null != trainingImage )
-		    {
-			if( containsColorFeatures( newHeader ) )
+			// Check if classifier was trained on the same image type
+			// (grayscale or color) as the training image
+			if( null != trainingImage )
 			{
-			    if( trainingImage.getType() != ImagePlus.COLOR_RGB )
-			    {
-				IJ.log( "Error: new classifier contains color features " +
-					"and training image is grayscale." );
+				if( containsColorFeatures( newHeader ) )
+				{
+					if( trainingImage.getType() != ImagePlus.COLOR_RGB )
+					{
+						IJ.log( "Error: new classifier contains color features " +
+								"and training image is grayscale." );
+						return false;
+					}
+				}
+				else if( trainingImage.getType() == ImagePlus.COLOR_RGB )
+				{
+					IJ.log( "Error: new classifier was trained on grayscale images " +
+							"and training image is color." );
+					return false;
+				}
+			}
+			// Check if classifier was trained using the same dimensions as
+			// the training image (2D or 3D).
+			if( containsExclusive2DFeatures( newHeader ) && isProcessing3D )
+			{
+				IJ.log( "Error: new classifier was trained on 2D images " +
+						"and you are using Trainable Weka Segmentation 3D." );
 				return false;
-			    }
 			}
-			else if( trainingImage.getType() == ImagePlus.COLOR_RGB )
+			else if( containsExclusive3DFeatures( newHeader ) && !isProcessing3D )
 			{
-			    IJ.log( "Error: new classifier was trained on grayscale images " +
-				    "and training image is color." );
-			    return false;
+				IJ.log( "Error: new classifier was trained on 3D images " +
+						"and you are using Trainable Weka Segmentation 2D." );
+				return false;
 			}
-		    }
-		    // Check if classifier was trained using the same dimensions as
-		    // the training image (2D or 3D).
-		    if( containsExclusive2DFeatures( newHeader ) && isProcessing3D )
-		    {
-			IJ.log( "Error: new classifier was trained on 2D images " +
-				"and you are using Trainable Weka Segmentation 3D." );
-			return false;
-		    }
-		    else if( containsExclusive3DFeatures( newHeader ) && !isProcessing3D )
-		    {
-			IJ.log( "Error: new classifier was trained on 3D images " +
-				"and you are using Trainable Weka Segmentation 2D." );
-			return false;
-		    }
-		    // Check if the loaded information corresponds to current state of the segmentator
-		    // (the attributes can be adjusted, but the classes must match)
-		    if(!adjustSegmentationStateToData(newHeader))
-		    {
-			IJ.log("Error: current segmentator state could not be updated to loaded data requirements (attributes and classes)");
-			return false;
-		    }
+			// Check if the loaded information corresponds to current state of the segmentator
+			// (the attributes can be adjusted, but the classes must match)
+			if(!adjustSegmentationStateToData(newHeader))
+			{
+				IJ.log("Error: current segmentator state could not be updated to loaded data requirements (attributes and classes)");
+				return false;
+			}
 		}catch(Exception e)
 		{
 			IJ.log("Error while adjusting data!");
@@ -799,7 +803,9 @@ public class WekaSegmentation {
 
 		this.classifier = newClassifier;
 		this.trainHeader = newHeader;
-
+		// check model version to assign Hessian format
+		this.getFeatureStackArray().setOldHessianFormat(
+				getModelVersion().startsWith("segment") );
 		return true;
 	}
 	/**
@@ -811,6 +817,8 @@ public class WekaSegmentation {
 	 */
 	public boolean containsColorFeatures( Instances data )
 	{
+		if( data.relationName().contains("RGB") )
+			return true;
 		Enumeration<Attribute> attributes = data.enumerateAttributes();
 		while(attributes.hasMoreElements())
 		{
@@ -831,6 +839,8 @@ public class WekaSegmentation {
 	 */
 	public boolean containsExclusive2DFeatures( Instances data )
 	{
+		if( data.relationName().contains("2D") )
+			return true;
 	    // make list of exclusive 2D feature names
 	    final ArrayList<String> names2D = new ArrayList<String>();
 	    for( int i=0; i<FeatureStack.availableFeatures.length; i++ )
@@ -860,6 +870,8 @@ public class WekaSegmentation {
 	 */
 	public boolean containsExclusive3DFeatures( Instances data )
 	{
+		if( data.relationName().contains("3D") )
+			return true;
 	    // make list of exclusive 3D feature names
 	    final ArrayList<String> names3D = new ArrayList<String>();
 	    for( int i=0; i<FeatureStack3D.availableFeatures.length; i++ )
@@ -4882,7 +4894,23 @@ public class WekaSegmentation {
 
 		return true;
 	}
-
+	/**
+	 * Create the name of the training header. It takes into account the plugin
+	 * version, the dimensionality of the training images and if it is RGB or
+	 * grayscale.
+	 *
+	 * @param bool3d true if training image is 3D
+	 * @param boolRGB true if traning image is grayscale
+	 * @return name of the training header
+	 */
+	public String createHeaderName(
+			boolean bool3d,
+			boolean boolRGB )
+	{
+		final String dim = bool3d ? "3D" : "2D";
+		final String mode = boolRGB ? "RGB" : "grayscale";
+		return "TWS-"+ dim + "-" + Weka_Segmentation.PLUGIN_VERSION + "-" + mode;
+	}
 	/**
 	 * Create training instances out of the user markings
 	 * @return set of instances (feature vectors in Weka format)
@@ -4918,14 +4946,15 @@ public class WekaSegmentation {
 
 		attributes.add(new Attribute("class", classes));
 
+		final boolean colorFeatures = this.trainingImage.getType() == ImagePlus.COLOR_RGB;
+
 		// create initial set of instances
-		final Instances trainingData =  new Instances( "segment", attributes, 1 );
+		final String headerName = createHeaderName( isProcessing3D, colorFeatures );
+		final Instances trainingData =  new Instances( headerName, attributes, 1 );
 		// Set the index of the class attribute
 		trainingData.setClassIndex(featureStackArray.getNumOfFeatures());
 
 		IJ.log("Training input:");
-
-		final boolean colorFeatures = this.trainingImage.getType() == ImagePlus.COLOR_RGB;
 
 		// For all classes
 		for(int classIndex = 0; classIndex < numOfClasses; classIndex++)
@@ -5632,7 +5661,9 @@ public class WekaSegmentation {
 			}
 
 		attributes.add(new Attribute("class", classNames));
-		Instances dataInfo = new Instances("segment", attributes, 1);
+		String headerName = createHeaderName( isProcessing3D,
+				imp.getType() == ImagePlus.COLOR_RGB );
+		Instances dataInfo = new Instances( headerName, attributes, 1 );
 		dataInfo.setClassIndex(dataInfo.numAttributes()-1);
 
 		final long start = System.currentTimeMillis();
@@ -6837,7 +6868,8 @@ public class WekaSegmentation {
 			}
 
 		attributes.add(new Attribute("class", classNames));
-		Instances dataInfo = new Instances("segment", attributes, 1);
+		String headerName = createHeaderName( isProcessing3D, fsa.isRGB() );
+		Instances dataInfo = new Instances( headerName, attributes, 1 );
 		dataInfo.setClassIndex(dataInfo.numAttributes()-1);
 
 		// number of classes
@@ -7483,5 +7515,33 @@ public class WekaSegmentation {
 	public boolean isProcessing3D() {
 		return isProcessing3D;
 	}
-
+	/**
+	 * Get the version of the plugin used for creating the model. It will be
+	 * "segment" for any version previous to 3.2.25, and the model relation
+	 * name if it was not created using TWS.
+	 * @return version of the plugin used for creating the model.
+	 */
+	public String getModelVersion()
+	{
+		if( null != this.trainHeader )
+		{
+			String relationName = this.trainHeader.relationName();
+			if( relationName.startsWith("segment") )
+				// any version previous to 3.2.25.
+				return "segment";
+			else
+			{
+				StringTokenizer st = new StringTokenizer( relationName, "-" );
+				while (st.hasMoreTokens()) {
+					String token = st.nextToken();
+					if( token.startsWith("v") )
+						// return TWS version
+						return token;
+				}
+				// return whole name if created outside TWS
+				return relationName;
+			}
+		}
+		return null;
+	}
 }
