@@ -76,6 +76,7 @@ public class BasicTest
 
 		// process
 		final FeatureStack featureStack = new FeatureStack(bridge);
+		featureStack.setOldHessianFormat(true);
 		updateFeaturesMethod.accept(featureStack);
 		final ImagePlus features = new ImagePlus("features", featureStack.getStack());
 		// test
@@ -99,6 +100,7 @@ public class BasicTest
 
 		FastRandomForest rf = (FastRandomForest) segmentator.getClassifier();
 		rf.setSeed( 69 );
+		segmentator.getFeatureStackArray().setOldHessianFormat(true);
 		assertTrue( segmentator.trainClassifier() );
 
 		segmentator.applyClassifier( false );
