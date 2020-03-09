@@ -62,8 +62,10 @@ public class FeatureStackArray
 	private boolean[] enabledFeatures = null;
 	
 	/** flag to specify the use of the old color format (using directly the RGB values as float) */
-	private boolean oldColorFormat = false;  
-	
+	private boolean oldColorFormat = false;
+	/** flag to specify the use of the old (wrong) Hessian format (fixed in
+	 * version 3.2.25 of TWS) */
+	private boolean oldHessianFormat = false;
 	/**
 	 * Initialize a feature stack list of a specific size (with default values
 	 * for the rest of parameters).
@@ -143,7 +145,21 @@ public class FeatureStackArray
 	{
 		return featureStackArray[n];
 	}
-	
+	/**
+	 * Return if image stacks are RGB or grayscale.
+	 * @return true if image feature stacks are RGB, false if grayscale
+	 */
+	public boolean isRGB()
+	{
+		if( this.referenceStackIndex != -1 )
+			return this.featureStackArray[ referenceStackIndex ]
+					.getStack().getBitDepth() == 24;
+		else
+		{
+			IJ.log("Warning. Error in FeatureStackArray: trying to access empty array!");
+			return false;
+		}
+	}
 	/**
 	 * Set a member of the list
 	 * @param fs new feature stack  
@@ -185,6 +201,8 @@ public class FeatureStackArray
 						featureStackArray[i].setMaximumSigma(maximumSigma);
 						featureStackArray[i].setMinimumSigma(minimumSigma);
 						featureStackArray[i].setUseNeighbors(useNeighbors);
+						featureStackArray[i].setOldColorFormat(oldColorFormat);
+						featureStackArray[i].setOldHessianFormat(oldHessianFormat);
 						if ( featureStackArray.length == 1 )
 						{
 							if( !featureStackArray[i].updateFeaturesMT() )
@@ -252,6 +270,8 @@ public class FeatureStackArray
 					featureStackArray[i].setMaximumSigma(maximumSigma);
 					featureStackArray[i].setMinimumSigma(minimumSigma);
 					featureStackArray[i].setUseNeighbors(useNeighbors);
+					featureStackArray[i].setOldColorFormat(oldColorFormat);
+					featureStackArray[i].setOldHessianFormat(oldHessianFormat);
 					if ( featureStackArray.length == 1 )
 					{
 						if(!featureStackArray[i].updateFeaturesMT())
@@ -508,7 +528,7 @@ public class FeatureStackArray
 	}
 	
 	/**
-	 * Set the user of the old color format.
+	 * Set the use of the old color format.
 	 * @param oldColorFormat true if old color format is to be used
 	 */
 	public void setOldColorFormat( boolean oldColorFormat ) 
@@ -526,7 +546,27 @@ public class FeatureStackArray
 	{
 		return this.oldColorFormat;
 	}
+	/**
+	 * Specify the use of the old (wrong) Hessian format (fixed in
+	 * version 3.2.25 of TWS)
+	 * @param oldHessianFormat true if old Hessian format is to be used
+	 */
+	public void setOldHessianFormat( boolean oldHessianFormat )
+	{
+		this.oldHessianFormat = oldHessianFormat;
+		if( referenceStackIndex != -1 )
+			featureStackArray[ referenceStackIndex ]
+					.setOldHessianFormat( oldHessianFormat );
+	}
 	
+	/**
+	 * Check if the old Hessian format is used.
+	 * @return true if the old Hessian format is used
+	 */
+	public boolean isOldoldHessianFormatFormat()
+	{
+		return this.oldHessianFormat;
+	}
 }
 
 	
