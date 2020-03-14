@@ -4,6 +4,7 @@ import ij.ImagePlus;
 import net.haesleinhuepf.clij.CLIJ;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
 import net.haesleinhuepf.clij.coremem.enums.NativeTypeEnum;
+import net.haesleinhuepf.clijx.CLIJx;
 
 /**
  * Analogously to ImageScience, we use CLIJ to compute feature images
@@ -17,7 +18,7 @@ public class CLIJWrapper {
     private static ImagePlus cachedImagePlus = null;
     private static ClearCLBuffer clijInput = null;
     private static ClearCLBuffer clijOutput = null;
-    private static CLIJ clij = null;
+    private static CLIJx clijx = null;
 
     private static Object lock = new Object();
 
@@ -26,10 +27,10 @@ public class CLIJWrapper {
     {
         synchronized (lock) { // supress parallelisation here; the GPU does it parallel anyway and we can reuse memory
             checkCache(imp);
-            System.out.println("CLIJ " + clij);
-            clij.op().blur(clijInput, clijOutput, (float) sigma, (float) sigma);
+            System.out.println("CLIJx " + clijx);
+            clijx.gaussianBlur(clijInput, clijOutput, (float) sigma, (float) sigma);
 
-            ImagePlus result = clij.pull(clijOutput);
+            ImagePlus result = clijx.pull(clijOutput);
             return result;
         }
     }
@@ -38,21 +39,21 @@ public class CLIJWrapper {
     public static ImagePlus computeDoG(float sigma1, float sigma2, ImagePlus imp) {
         synchronized (lock) { // supress parallelisation here; the GPU does it parallel anyway and we can reuse memory
             checkCache(imp);
-            System.out.println("CLIJ " + clij);
+            System.out.println("CLIJx " + clijx);
 
-            ClearCLBuffer temp1 = clij.create(clijOutput);
-            ClearCLBuffer temp2 = clij.create(clijOutput);
+            ClearCLBuffer temp1 = clijx.create(clijOutput);
+            ClearCLBuffer temp2 = clijx.create(clijOutput);
 
             float magic_number = 0.4f;
 
-            clij.op().blur(clijInput, temp1, magic_number * sigma1, magic_number * sigma1);
-            clij.op().blur(clijInput, temp2, magic_number * sigma2, magic_number * sigma2);
-            clij.op().subtractImages(temp2, temp1, clijOutput);
+            clijx.gaussianBlur(clijInput, temp1, magic_number * sigma1, magic_number * sigma1);
+            clijx.gaussianBlur(clijInput, temp2, magic_number * sigma2, magic_number * sigma2);
+            clijx.subtractImages(temp2, temp1, clijOutput);
 
-            temp1.close();
-            temp2.close();
+            clijx.release(temp1);
+            clijx.release(temp2);
 
-            ImagePlus result = clij.pull(clijOutput);
+            ImagePlus result = clijx.pull(clijOutput);
             return result;
         }
     }
@@ -60,10 +61,10 @@ public class CLIJWrapper {
     public static ImagePlus computeMean(float radius, ImagePlus imp) {
         synchronized (lock) { // supress parallelisation here; the GPU does it parallel anyway and we can reuse memory
             checkCache(imp);
-            System.out.println("CLIJ " + clij);
-            clij.op().meanBox(clijInput, clijOutput, (int)radius, (int)radius, 0);
+            System.out.println("CLIJx " + clijx);
+            clijx.meanBox(clijInput, clijOutput, (int)radius, (int)radius, 0);
 
-            ImagePlus result = clij.pull(clijOutput);
+            ImagePlus result = clijx.pull(clijOutput);
             return result;
         }
     }
@@ -71,19 +72,30 @@ public class CLIJWrapper {
     public static ImagePlus computeMin(float radius, ImagePlus imp) {
         synchronized (lock) { // supress parallelisation here; the GPU does it parallel anyway and we can reuse memory
             checkCache(imp);
-            System.out.println("CLIJ " + clij);
-            clij.op().minimumBox(clijInput, clijOutput, (int)radius, (int)radius, 0);
+            System.out.println("CLIJx " + clijx);
+            clijx.minimumBox(clijInput, clijOutput, (int)radius, (int)radius, 0);
 
-            ImagePlus result = clij.pull(clijOutput);
+            ImagePlus result = clijx.pull(clijOutput);
             return result;
         }
     }
 
-    public static ImagePlus computeEntropie(int radius, int numBins, ImagePlus imp) {
+    public static ImagePlus computeMax(float radius, ImagePlus imp) {
         synchronized (lock) { // supress parallelisation here; the GPU does it parallel anyway and we can reuse memory
             checkCache(imp);
-            System.out.println("CLIJ " + clij);
+            System.out.println("CLIJx " + clijx);
+            clijx.maximumBox(clijInput, clijOutput, (int)radius, (int)radius, 0);
 
+            ImagePlus result = clijx.pull(clijOutput);
+            return result;
+        }
+    }
+
+    public static ImagePlus computeEntropy(int radius, int numBins, ImagePlus imp) {
+        synchronized (lock) { // supress parallelisation here; the GPU does it parallel anyway and we can reuse memory
+            checkCache(imp);
+            System.out.println("CLIJx " + clijx);
+/*
             HashMap<String, Object> parameters = new HashMap();
             parameters.put("src", clijInput);
             parameters.put("dst", clijOutput);
@@ -91,8 +103,9 @@ public class CLIJWrapper {
             parameters.put("numBins", numBins);
 
             clij.execute( "entropie.cl", "entropie", parameters);
-
-            ImagePlus result = clij.pull(clijOutput);
+*/
+            clijx.entropyBox(clijInput, clijOutput, radius, radius, 0);
+            ImagePlus result = clijx.pull(clijOutput);
             return result;
         }
     }
@@ -102,9 +115,9 @@ public class CLIJWrapper {
         if (imp != cachedImagePlus) {
             clearCache();
             cachedImagePlus = imp;
-            clij = CLIJ.getInstance();
-            clijInput = clij.push(imp);
-            clijOutput = clij.create(clijInput.getDimensions(), NativeTypeEnum.Float);
+            clijx = CLIJx.getInstance();
+            clijInput = clijx.push(imp);
+            clijOutput = clijx.create(clijInput.getDimensions(), NativeTypeEnum.Float);
         }
     }
 
@@ -116,6 +129,6 @@ public class CLIJWrapper {
         if (clijOutput != null) {
             clijOutput.close();
         }
-        clij = null;
+        clijx = null;
     }
 }
