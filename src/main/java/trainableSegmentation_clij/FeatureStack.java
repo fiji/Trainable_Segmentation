@@ -155,14 +155,18 @@ public class FeatureStack
 	public static final int CLIJ_DOG                = 21;
 	/** clij mean filter flag index */
 	public static final int CLIJ_MEAN               = 22;
+	/** clij min filter flag index */
+	public static final int CLIJ_MIN              	= 23;
+	/** clij entropie filter flag index */
+	public static final int CLIJ_ENTROPIE           = 24;
 
 	/** names of available filters */
-	public static final String[] availableFeatures 
-		= new String[]{	"Gaussian_blur", "Sobel_filter", "Hessian", "Difference_of_gaussians", 
-					   	"Membrane_projections","Variance","Mean", "Minimum", "Maximum", "Median", 
-					   	"Anisotropic_diffusion", "Bilateral", "Lipschitz", "Kuwahara", "Gabor" , 
+	public static final String[] availableFeatures
+		= new String[]{	"Gaussian_blur", "Sobel_filter", "Hessian", "Difference_of_gaussians",
+					   	"Membrane_projections","Variance","Mean", "Minimum", "Maximum", "Median",
+					   	"Anisotropic_diffusion", "Bilateral", "Lipschitz", "Kuwahara", "Gabor" ,
 					   	"Derivatives", "Laplacian", "Structure", "Entropy", "Neighbors",
-			            "clij_Gaussian", "clij_difference_of_gaussians", "clij_mean"};
+			            "clij_Gaussian", "clij_difference_of_gaussians", "clij_mean", "clij_min", "clij_entropy"};
 
 	/** Features only available if the ImageScience library is present. */
 	public static final boolean[] IMAGESCIENCE_FEATURES = {
@@ -188,7 +192,9 @@ public class FeatureStack
 		false, // Neighbors
 		false, // clij Gaussian
 		false, // clij Difference of Gaussians
-		false  // clij Mean
+		false, // clij Mean
+		false,  //clij min
+		false   //clij entropie
 	};
 
 	/** flags of filters to be used */
@@ -215,7 +221,9 @@ public class FeatureStack
 			false,  /* Neighbors */
 			false,  /* clij Gaussian */
 			false,  /* clij Difference of Gaussians */
-			false   /* clij mean */
+			false,  /* clij mean */
+			true,	// clij min
+			false	// clij entropie
 	};
 	
 	/** use neighborhood flag */
@@ -427,6 +435,26 @@ public class FeatureStack
 	}
 
 	/**
+	 * Add minimum to current stack
+	 *
+	 * @param radius for min filter
+	 */
+	public void addClijMin(float radius) {
+		ImagePlus clijMin = CLIJWrapper.computeMin(radius, originalImage);
+		wholeStack.addSlice(availableFeatures[CLIJ_MIN] + "_" + radius, clijMin.getProcessor());
+	}
+
+	/**
+	 * Add entropie to current stack
+	 *
+	 * @param radius for min filter
+	 */
+	public void addClijEntropie(float radius) {
+		ImagePlus clijEntropie = CLIJWrapper.computeMin(radius, originalImage);
+		wholeStack.addSlice(availableFeatures[CLIJ_ENTROPIE] + "_" + radius, clijEntropie.getProcessor());
+	}
+
+	/**
 	 * Calculate Gaussian filter concurrently
 	 * @param originalImage original input image
 	 * @param sigma Gaussian sigma
@@ -518,6 +546,53 @@ public class FeatureStack
 			}
 		};
 	}
+
+	/**
+	 * Calculate Min filter using CLIJ
+	 * @param originalImage original input image
+	 * @param radius for min filter
+	 * @return result image
+	 */
+	public Callable<ImagePlus> getClijMin(
+			final ImagePlus originalImage,
+			final float radius)
+	{
+		if (Thread.currentThread().isInterrupted())
+			return null;
+
+		return new Callable<ImagePlus>(){
+			public ImagePlus call(){
+				ImagePlus clijMin = CLIJWrapper.computeMin(radius, originalImage);
+				clijMin.setTitle(availableFeatures[CLIJ_MIN] + "_" + radius);
+				return clijMin;
+			}
+		};
+	}
+
+	/**
+	 * Calculate Entropie filter using CLIJ
+	 * @param originalImage original input image
+	 * @param radius for entropie filter
+	 * @return result image
+	 */
+	public Callable<ImagePlus> getClijEntropie(
+			final ImagePlus originalImage,
+			final float radius,
+			int numBins
+	)
+	{
+		if (Thread.currentThread().isInterrupted())
+			return null;
+
+		return new Callable<ImagePlus>(){
+			public ImagePlus call(){
+				ImagePlus clijEntropie = CLIJWrapper.computeEntropie((int)radius, numBins, originalImage);
+				clijEntropie.setTitle(availableFeatures[CLIJ_ENTROPIE] + "_" + radius + "_" + numBins);
+				return clijEntropie;
+			}
+		};
+	}
+
 
 	/**
 	 * Add entropy filter to current stack
@@ -2555,6 +2630,14 @@ public class FeatureStack
 				addClijMean(i);
 			}
 
+			if (enableFeatures[ CLIJ_MIN ]) {
+				addClijMin(i);
+			}
+
+			if (enableFeatures[ CLIJ_ENTROPIE ]) {
+				addClijEntropie(i);
+			}
+
 		}
 		// Membrane projections
 		if(enableFeatures[MEMBRANE])
@@ -2856,6 +2939,17 @@ public class FeatureStack
 				addClijMean(i);
 			}
 
+			// CLIJ Min
+			if(enableFeatures[ CLIJ_MIN ])
+			{
+				addClijMin(i);
+			}
+
+			// CLIJ Entropie
+			if(enableFeatures[ CLIJ_ENTROPIE ])
+			{
+				addClijEntropie(i);
+			}
 
 		}
 		// Membrane projections
@@ -3105,11 +3199,21 @@ public class FeatureStack
 					}
 				}
 
-				// Clij Gaussian blur
+				// Clij Mean
 				if (enableFeatures[ CLIJ_MEAN ]) {
 					futures.add(exe.submit(getClijMean(originalImage, i)) );
 				}
 
+				// Clij Min
+				if (enableFeatures[ CLIJ_MIN ]) {
+					futures.add(exe.submit(getClijMin(originalImage, i)) );
+				}
+
+				// Clij Entropie
+				if (enableFeatures[ CLIJ_ENTROPIE ]) {
+					for(int nBins = 32; nBins <= 256; nBins *=2)
+						futures.add(exe.submit( getClijEntropie(originalImage, (int) i, nBins)) );
+				}
 
 				// Sobel
 				if(enableFeatures[SOBEL])

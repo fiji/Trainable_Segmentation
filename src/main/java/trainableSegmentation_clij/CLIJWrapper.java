@@ -68,8 +68,34 @@ public class CLIJWrapper {
         }
     }
 
+    public static ImagePlus computeMin(float radius, ImagePlus imp) {
+        synchronized (lock) { // supress parallelisation here; the GPU does it parallel anyway and we can reuse memory
+            checkCache(imp);
+            System.out.println("CLIJ " + clij);
+            clij.op().minimumBox(clijInput, clijOutput, (int)radius, (int)radius, 0);
 
+            ImagePlus result = clij.pull(clijOutput);
+            return result;
+        }
+    }
 
+    public static ImagePlus computeEntropie(int radius, int numBins, ImagePlus imp) {
+        synchronized (lock) { // supress parallelisation here; the GPU does it parallel anyway and we can reuse memory
+            checkCache(imp);
+            System.out.println("CLIJ " + clij);
+
+            HashMap<String, Object> parameters = new HashMap();
+            parameters.put("src", clijInput);
+            parameters.put("dst", clijOutput);
+            parameters.put("radius", radius);
+            parameters.put("numBins", numBins);
+
+            clij.execute( "entropie.cl", "entropie", parameters);
+
+            ImagePlus result = clij.pull(clijOutput);
+            return result;
+        }
+    }
 
 
     private static void checkCache(ImagePlus imp) {
