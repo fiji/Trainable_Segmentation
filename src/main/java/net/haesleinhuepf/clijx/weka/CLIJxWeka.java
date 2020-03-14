@@ -1,7 +1,6 @@
 package net.haesleinhuepf.clijx.weka;
 
 import hr.irb.fastRandomForest_clij.FastRandomForest;
-import hr.irb.fastRandomForest_clij.MyFastRandomForest;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
