@@ -2,19 +2,7 @@ package trainableSegmentation_clij;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
+import net.haesleinhuepf.clijx.CLIJx;
 import org.scijava.vecmath.Point3f;
 
 import hr.irb.fastRandomForest_clij.FastRandomForest;
@@ -100,6 +90,7 @@ public class WekaSegmentation {
 
 	/** maximum number of classes (labels) allowed */
 	public static final int MAX_NUM_CLASSES = 100;
+	public boolean useClij = true;
 
 	/** array of lists of Rois for each slice (vector index)
 	 * and each class (arraylist index) of the training image */
@@ -6808,6 +6799,51 @@ public class WekaSegmentation {
 			int numThreads,
 			boolean probabilityMaps)
 	{
+		System.out.println("START Classification");
+		System.out.println("fsa: " + fsa.getSize());
+		System.out.println("prob " + probabilityMaps);
+		System.out.println("classif opt: " + classifier.getOptions());
+
+		CLIJx clijx = CLIJx.getInstance();
+		clijx.stopWatch("");
+		if (classifier instanceof FastRandomForest && useClij) {
+			ImageStack stack = fsa.get(0).getStack();
+			String ocl = ((FastRandomForest) classifier).translateToOcl(numOfClasses, stack.getSize());
+			clijx.stopWatch("translate");
+			String clFilename = "temp.cl";
+
+			File outputTarget = new File(clFilename);
+			try {
+				FileWriter writer  = new FileWriter(outputTarget);
+				writer.write(ocl);
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			clijx.stopWatch("write");
+			ClearCLBuffer featureStackCL = clijx.push(new ImagePlus("", stack));
+			ClearCLBuffer predictionCL = clijx.create(new long[]{featureStackCL.getWidth(), featureStackCL.getHeight()}, clijx.Float);
+			clijx.stopWatch("push");
+
+			HashMap<String, Object> parameters = new HashMap<String, Object>();
+			parameters.put("src_featureStack", featureStackCL);
+			parameters.put("dst", predictionCL);
+			clijx.execute(Object.class, clFilename, "classify_feature_stack", predictionCL.getDimensions(), predictionCL.getDimensions(), parameters, null);
+
+			clijx.stopWatch("first execution");
+
+			clijx.execute(Object.class, clFilename, "classify_feature_stack", predictionCL.getDimensions(), predictionCL.getDimensions(), parameters, null);
+
+			clijx.stopWatch("second execution");
+			ImagePlus imp = clijx.pull(predictionCL);
+			clijx.release(featureStackCL);
+			clijx.release(predictionCL);
+			clijx.stopWatch("pull");
+			imp.setTitle("clij result");
+			imp.show();
+		}
+
 		if (numThreads == 0)
 			numThreads = Prefs.getThreads();
 
@@ -6949,6 +6985,8 @@ public class WekaSegmentation {
 		}
 		ImagePlus classImg = new ImagePlus(probabilityMaps ? "Probability maps" : "Classification result", classStack);
 
+		clijx.stopWatch("CPU");
+		classImg.show();
 		return classImg;
 	}
 

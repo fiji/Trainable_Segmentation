@@ -2204,6 +2204,7 @@ public class Weka_Segmentation implements PlugIn
 		final int rows = (int) Math.round( availableFeatures.length/2.0 );
 
 		gd.addCheckboxGroup( rows, 2, availableFeatures, oldEnableFeatures );
+		gd.addCheckbox("Use clij for prediction (benchmarking)", wekaSegmentation.useClij);
 
 		disableMissingFeatures(gd);
 
@@ -2291,7 +2292,8 @@ public class Weka_Segmentation implements PlugIn
 		if(featuresChanged)
 		{
 			wekaSegmentation.setEnabledFeatures(newEnableFeatures);
-		}		
+		}
+		wekaSegmentation.useClij = gd.getNextBoolean();
 
 		if ( !isProcessing3D )
 		{
