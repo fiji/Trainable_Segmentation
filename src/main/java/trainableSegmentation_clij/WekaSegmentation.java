@@ -184,7 +184,10 @@ public class WekaSegmentation {
 			false,	/* Neighbors */
 			false,  /* CLIJ Gaussian blur */
 			false,  /* CLIJ DoG */
-			false   /* CLIJ Mean */
+			false,  /* CLIJ Mean */
+			false,  /* CLIJ Min */
+			false,  /* CLIJ Max */
+			false   /* CLIJ entropy */
 	};
 	/** flags of filters to be used in 3D */
 	private boolean[] enabled3Dfeatures = FeatureStack3D.getDefaultEnabledFeatures();
