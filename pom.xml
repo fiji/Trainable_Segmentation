@@ -11,7 +11,7 @@
 
 	<groupId>sc.fiji</groupId>
 	<artifactId>Trainable_Segmentation_clijed</artifactId>
-	<version>3.2.34-clijed</version>
+	<version>3.2.35-clijed</version>
 
 	<name>Trainable Segmentation</name>
 	<description>Trainable Segmentation plugin for Fiji.</description>
@@ -216,8 +216,13 @@
 		<!-- CLIJ -->
 		<dependency>
 			<groupId>net.haesleinhuepf</groupId>
-			<artifactId>clij-advanced-filters_</artifactId>
-			<version>0.16.2</version>
+			<artifactId>clij2_</artifactId>
+			<version>0.25.0</version>
+		</dependency>
+		<dependency>
+			<groupId>net.haesleinhuepf</groupId>
+			<artifactId>clijx_</artifactId>
+			<version>0.25.0</version>
 		</dependency>
 
 		<!-- Test scope dependencies -->
