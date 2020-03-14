@@ -6,3 +6,4 @@
 # Maven #
 /target/
 /.idea/
+*.iml
