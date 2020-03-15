@@ -20,16 +20,18 @@ public class TrainWekaModelWithOptions extends AbstractCLIJxPlugin implements CL
 
     @Override
     public boolean executeCL() {
-        return trainWekaModelWithOptions(getCLIJx(), (ClearCLBuffer)( args[0]), (ClearCLBuffer)(args[1]), (String)args[2], asInteger(args[3]), asInteger(args[4]), asInteger(args[5]));
+        trainWekaModelWithOptions(getCLIJx(), (ClearCLBuffer)( args[0]), (ClearCLBuffer)(args[1]), (String)args[2], asInteger(args[3]), asInteger(args[4]), asInteger(args[5]));
+        return true;
     }
 
-    public static boolean trainWekaModelWithOptions(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer srcGroundTruth2D, String saveModelFilename, Integer numberOfTrees, Integer numberOfFeatures, Integer maxDepth) {
+    public static CLIJxWeka trainWekaModelWithOptions(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer srcGroundTruth2D, String saveModelFilename, Integer numberOfTrees, Integer numberOfFeatures, Integer maxDepth) {
         CLIJxWeka weka = new CLIJxWeka(clijx, srcFeatureStack3D, srcGroundTruth2D);
         weka.setNumberOfTrees(numberOfTrees);
         weka.setNumberOfFeatures(numberOfFeatures);
         weka.setMaxDepth(maxDepth);
+        System.out.println("Saved to " + saveModelFilename);
         weka.saveClassifier(saveModelFilename);
-        return true;
+        return weka;
     }
 
     @Override

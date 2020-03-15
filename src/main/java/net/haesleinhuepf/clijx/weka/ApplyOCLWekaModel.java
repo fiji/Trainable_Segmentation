@@ -24,10 +24,15 @@ public class ApplyOCLWekaModel extends AbstractCLIJxPlugin implements CLIJMacroP
 
     @Override
     public boolean executeCL() {
-        return applyOCLWekaModel(getCLIJx(), (ClearCLBuffer)( args[0]), (ClearCLBuffer)(args[1]), (String)args[2]);
+        applyOCLWekaModel(getCLIJx(), (ClearCLBuffer)( args[0]), (ClearCLBuffer)(args[1]), (String)args[2]);
+        return true;
     }
 
-    public static boolean applyOCLWekaModel(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer dstClassificationResult, String loadModelFilename) {
+    public static CLIJxWeka applyOCLWekaModel(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer dstClassificationResult, String loadModelFilename) {
+
+        CLIJxWeka clijxweka = new CLIJxWeka(clijx, srcFeatureStack3D, loadModelFilename);
+        String ocl = clijxweka.getOCL();
+/*
         if (new File(loadModelFilename + ".cl").exists()) {
             HashMap<String, Object> parameters = new HashMap<>();
             parameters.put("src_featureStack", srcFeatureStack3D);
@@ -37,16 +42,14 @@ public class ApplyOCLWekaModel extends AbstractCLIJxPlugin implements CLIJMacroP
         } else {
             new IllegalArgumentException("This model hasn't been saved as OCL Model. Try applyWekaModel instead.");
         }
+*/
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("src_featureStack", srcFeatureStack3D);
+        parameters.put("dst", dstClassificationResult);
+        parameters.put("export_probabilities", 0);
+        clijx.executeCode(ocl, "classify_feature_stack", dstClassificationResult.getDimensions(), dstClassificationResult.getDimensions(), parameters);
 
-        //CLIJxWeka weka = new CLIJxWeka(clijx, srcFeatureStack3D, loadModelFilename);
-        //String ocl = weka.getOCL();
-
-
-
-        //ClearCLBuffer classification = weka.getClassification();
-        //clijx.copy(classification, dstClassificationResult);
-        //clijx.release(classification);
-        return true;
+        return clijxweka;
     }
 
     @Override

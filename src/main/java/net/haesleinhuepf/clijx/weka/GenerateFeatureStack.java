@@ -27,6 +27,13 @@ public class GenerateFeatureStack extends AbstractCLIJxPlugin implements CLIJMac
         return generateFeatureStack(getCLIJx(), (ClearCLBuffer)( args[0]), (ClearCLBuffer)(args[1]), (String)args[2]);
     }
 
+    public static ClearCLBuffer generateFeatureStack(CLIJx clijx, ClearCLBuffer input, String featureDefinitions) {
+        String[] definitionsArray = preparseFeatures(featureDefinitions);
+        ClearCLBuffer dstFeatureStack = clijx.create(new long[]{input.getWidth(), input.getHeight(), definitionsArray.length}, input.getNativeType());
+        generateFeatureStack(clijx, input, dstFeatureStack, featureDefinitions);
+        return dstFeatureStack;
+    }
+
     public static boolean generateFeatureStack(CLIJx clijx, ClearCLBuffer input, ClearCLBuffer dstFeatureStack, String featureDefinitions) {
         HashMap<String, ClearCLBuffer> generatedFeatures = new HashMap<String, ClearCLBuffer>();
         String[] definitionsArray = preparseFeatures(featureDefinitions);
@@ -50,6 +57,7 @@ public class GenerateFeatureStack extends AbstractCLIJxPlugin implements CLIJMac
 
         return true;
     }
+
 
     private static ClearCLBuffer generateFeature(CLIJx clijx, ClearCLBuffer input, HashMap<String, ClearCLBuffer> generatedFeatures, String featureDefinition) {
         if (generatedFeatures.containsKey(featureDefinition)) {

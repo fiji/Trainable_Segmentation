@@ -20,13 +20,14 @@ public class TrainWekaModel extends AbstractCLIJxPlugin implements CLIJMacroPlug
 
     @Override
     public boolean executeCL() {
-        return trainWekaModel(getCLIJx(), (ClearCLBuffer)( args[0]), (ClearCLBuffer)(args[1]), (String)args[2]);
+        trainWekaModel(getCLIJx(), (ClearCLBuffer)( args[0]), (ClearCLBuffer)(args[1]), (String)args[2]);
+        return true;
     }
 
-    public static boolean trainWekaModel(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer srcGroundTruth2D, String saveModelFilename) {
-        net.haesleinhuepf.clijx.weka.CLIJxWeka weka = new CLIJxWeka(clijx, srcFeatureStack3D, srcGroundTruth2D);
+    public static CLIJxWeka trainWekaModel(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer srcGroundTruth2D, String saveModelFilename) {
+        CLIJxWeka weka = new CLIJxWeka(clijx, srcFeatureStack3D, srcGroundTruth2D);
         weka.saveClassifier(saveModelFilename);
-        return true;
+        return weka;
     }
 
     @Override
