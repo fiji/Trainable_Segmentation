@@ -6823,24 +6823,32 @@ public class WekaSegmentation {
 
 			clijx.stopWatch("write");
 			ClearCLBuffer featureStackCL = clijx.push(new ImagePlus("", stack));
-			ClearCLBuffer predictionCL = clijx.create(new long[]{featureStackCL.getWidth(), featureStackCL.getHeight()}, clijx.Float);
+
+			ClearCLBuffer predictionCL;
+			if (probabilityMaps) {
+				predictionCL = clijx.create(new long[]{featureStackCL.getWidth(), featureStackCL.getHeight(), numOfClasses}, clijx.Float);
+			} else {
+				predictionCL = clijx.create(new long[]{featureStackCL.getWidth(), featureStackCL.getHeight()}, clijx.Float);
+			}
+			long[] dims = new long[]{predictionCL.getWidth(), predictionCL.getHeight()};
 			clijx.stopWatch("push");
 
 			HashMap<String, Object> parameters = new HashMap<String, Object>();
 			parameters.put("src_featureStack", featureStackCL);
 			parameters.put("dst", predictionCL);
-			clijx.execute(Object.class, clFilename, "classify_feature_stack", predictionCL.getDimensions(), predictionCL.getDimensions(), parameters, null);
+			parameters.put("export_probabilities", probabilityMaps?1:0);
+			clijx.execute(Object.class, clFilename, "classify_feature_stack", dims, dims, parameters, null);
 
 			clijx.stopWatch("first execution");
 
-			clijx.execute(Object.class, clFilename, "classify_feature_stack", predictionCL.getDimensions(), predictionCL.getDimensions(), parameters, null);
+			clijx.execute(Object.class, clFilename, "classify_feature_stack", dims, dims, parameters, null);
 
 			clijx.stopWatch("second execution");
 			ImagePlus imp = clijx.pull(predictionCL);
 			clijx.release(featureStackCL);
 			clijx.release(predictionCL);
 			clijx.stopWatch("pull");
-			imp.setTitle("clij result");
+			imp.setTitle(probabilityMaps?"clij probability maps":"clij result");
 			imp.show();
 		}
 
