@@ -25,7 +25,7 @@ public class ApplyWekaModel extends AbstractCLIJxPlugin implements CLIJMacroPlug
     }
 
     public static boolean applyWekaModel(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer dstClassificationResult, String loadModelFilename) {
-        net.haesleinhuepf.clijx.weka.CLIJxWeka weka = new CLIJxWeka(clijx, srcFeatureStack3D, loadModelFilename);
+        CLIJxWeka weka = new CLIJxWeka(clijx, srcFeatureStack3D, loadModelFilename);
         ClearCLBuffer classification = weka.getClassification();
         clijx.copy(classification, dstClassificationResult);
         clijx.release(classification);

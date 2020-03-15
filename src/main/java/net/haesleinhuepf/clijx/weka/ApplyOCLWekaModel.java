@@ -32,6 +32,7 @@ public class ApplyOCLWekaModel extends AbstractCLIJxPlugin implements CLIJMacroP
             HashMap<String, Object> parameters = new HashMap<>();
             parameters.put("src_featureStack", srcFeatureStack3D);
             parameters.put("dst", dstClassificationResult);
+            parameters.put("export_probabilities", 0);
             clijx.execute(Object.class,loadModelFilename + ".cl", "classify_feature_stack", dstClassificationResult.getDimensions(), dstClassificationResult.getDimensions(), parameters);
         } else {
             new IllegalArgumentException("This model hasn't been saved as OCL Model. Try applyWekaModel instead.");
