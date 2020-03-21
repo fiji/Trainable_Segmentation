@@ -67,6 +67,8 @@ public class WekaDemo {
             IJ.run(inputImp, "32-bit", "");
             ImagePlus partialGroundTruthImp = IJ.openImage("src/test/resources/NPC_T01_c2_ground_truth.tif");
 
+            String featureDefinition = "original gaussianblur=1 gaussianblur=5 sobelofgaussian=1 sobelofgaussian=5";
+
             // push to GPU
             input = clijx.push(inputImp);
             partialGroundTruth = clijx.push(partialGroundTruthImp);
@@ -74,14 +76,14 @@ public class WekaDemo {
             // -------------------------------------------------------------------------------------------------------------
             // generate feature stack
             time = System.currentTimeMillis();
-            featureStack = GenerateFeatureStack.generateFeatureStack(clijx, input, "original gaussianblur=1 gaussianblur=5 sobelofgaussian=1 sobelofgaussian=5");
+            featureStack = GenerateFeatureStack.generateFeatureStack(clijx, input, featureDefinition);
             clijx.release(featureStack);
             durations.put("A feature stack generation CLIJ 1", System.currentTimeMillis() - time);
 
             // -------------------------------------------------------------------------------------------------------------
             // generate feature stack again
             time = System.currentTimeMillis();
-            featureStack = GenerateFeatureStack.generateFeatureStack(clijx, input, "original gaussianblur=1 gaussianblur=5 sobelofgaussian=1 sobelofgaussian=5");
+            featureStack = GenerateFeatureStack.generateFeatureStack(clijx, input, featureDefinition);
             durations.put("A feature stack generation CLIJ 2", System.currentTimeMillis() - time);
 
             // -------------------------------------------------------------------------------------------------------------
@@ -126,8 +128,6 @@ public class WekaDemo {
             durations.put("C Predict FastRandomForest using CLIJ 2", System.currentTimeMillis() - time);
 
             clijx.show(buffer, "classification_opencl2");
-
-
         }
         // -------------------------------------------------------------------------------------------------------------
         //
@@ -139,11 +139,13 @@ public class WekaDemo {
             int numberOfClasses = 2;
 
             // There are errors when working with 2D images, thus we extend them to 3D
+            // Question: Is Labkit supposed to work with 2D data?
             ClearCLBuffer input3D = clijx.create(new long[]{input.getWidth(), input.getHeight(), 1}, input.getNativeType());
             clijx.copySlice(input, input3D, 0);
             ClearCLBuffer partialGroundTruth3D = clijx.create(new long[]{partialGroundTruth.getWidth(), partialGroundTruth.getHeight(), 1}, partialGroundTruth.getNativeType());
             clijx.copySlice(partialGroundTruth, partialGroundTruth3D, 0);
-
+            // ClearCLBuffer input3D = input;
+            // ClearCLBuffer partialGroundTruth3D = ClearCLBuffer partialGroundTruth;
 
             RandomAccessibleInterval inputRAI = clijx.pullRAI(input3D);
             RandomAccessibleInterval featureStackRAI = clijx.pullRAI(featureStack); //unused; would be cool though
@@ -153,55 +155,47 @@ public class WekaDemo {
             inputRAI = Views.addDimension(inputRAI, 0, 0);
             partialGroundTruthRAI = Views.addDimension(partialGroundTruthRAI, 0, 0);
 
-
-            AbstractClassifier initRandomForest = Trainer.initRandomForest();
-
             OpEnvironment ops = ij.op();
-
             RandomAccessibleInterval labelingRai = clijx.pullRAI(partialGroundTruthRAI);
-
             LabelRegions labeling = raiToLabeling(ops, labelingRai);
-
-            /*
-            RandomAccessibleInterval labelingRaiInteger = ops.convert().uint16(Views.iterable(labelingRai));
-            LabelRegions labeling = new LabelRegions(new ImgLabeling(labelingRaiInteger));
-
-            // this lines crashes:
-            System.out.println(labeling.getExistingLabels());
-            */
-
 
             List<String> classNames = new ArrayList<>();
             classNames.add("1");
             classNames.add("2");
 
-            // Is it possible to hand over a feature-stack-RAI? If yes, which dimensionality/shape?
+            // Question: Is it possible to hand over a feature-stack-RAI? If yes, with which dimensionality/shape?
             final FeatureSettings featureSettings = new FeatureSettings(GlobalSettings.default3d().build(),
-                    // How can I enter the original image as feature? Or is it there by default? How could I remove it?
-                    GroupedFeatures.gauss(), // How can I enter custom radii?
+                    // Question: How can I enter the original image as feature? Or is it there by default? How could I remove it?
+                    GroupedFeatures.gauss(), // Question: How can I enter custom radii?
                     //GroupedFeatures.differenceOfGaussians(),
                     //GroupedFeatures.hessian(),
-                    GroupedFeatures.gradient()); // I would like to use the gradient of different Gaussians as feature, how can I specify this?
+                    GroupedFeatures.gradient()); // Question: I would like to use the gradient of different Gaussians as feature, how can I specify this?
 
+            // Question: In CLIJxWeka, I struggle saving feature-definition and classifier together in a file.
+            //           However, that's kind of a must. How would you do this? What format shall we use for this?
+            
             // -------------------------------------------------------------------------------------------------------------
             // train using imglib2-trainable-segmentsion
             time = System.currentTimeMillis();
             Segmenter segmenter = Trainer.train(ops, inputRAI, labeling, featureSettings);
             durations.put("D Train FastRandomForest using imglib2-trainable-segmentation", System.currentTimeMillis() - time);
-            initRandomForest = (AbstractClassifier) segmenter.getClassifier();
+            AbstractClassifier initRandomForest = (AbstractClassifier) segmenter.getClassifier();
 
             // -------------------------------------------------------------------------------------------------------------
             // predict using imglib2-trainable-segmentation
             time = System.currentTimeMillis();
+            // Question: Is there a way to create a Segmenter from a classifier?
             //Segmenter segmenter = new Segmenter(ops, classNames, featureSettings, initRandomForest);
             RandomAccessibleInterval result = segmenter.segment(inputRAI);
             durations.put("E Predict FastRandomForest using imglib2-trainable-segmentation", System.currentTimeMillis() - time);
+            ImageJFunctions.show(result);
 
             // -------------------------------------------------------------------------------------------------------------
             // generate features using imglib2-trainable-segmentation-CLIJ
             time = System.currentTimeMillis();
             CLIJMultiChannelImage featuresCl = calculateFeatures(clijx, input, numberOfFeatures);
             durations.put("E generate features using imglib2-trainable-segmentation-CLIJ 1", System.currentTimeMillis() - time);
+            clijx.show(featuresCl.asClearCLBuffer(), "featuresCL");
 
             // -------------------------------------------------------------------------------------------------------------
             // generate features using imglib2-trainable-segmentation-CLIJ again
@@ -225,18 +219,15 @@ public class WekaDemo {
 
             clijx.show(segmentationCl, "segmentation imglib2-t-s-clij");
 
-
         }
 
         // -------------------------------------------------------------------------------------------------------------
-        // output and clear memory
+        // output and cleanup memory
         System.out.println(clijx.reportMemory());
         clijx.clear();
 
-
         // -------------------------------------------------------------------------------------------------------------
         // output durations
-
         ArrayList<String> list = new ArrayList<>();
         list.addAll(durations.keySet());
         Collections.sort(list);
@@ -246,7 +237,7 @@ public class WekaDemo {
 
     }
 
-    // Is there an easier way for doing this?
+    // Question: Is there an easier way for doing this?
     // source: https://forum.image.sc/t/construct-labelregions-from-labelmap/20590/2
     private static LabelRegions raiToLabeling(OpEnvironment ops, RandomAccessibleInterval labelingRai) {
 
@@ -271,6 +262,8 @@ public class WekaDemo {
     }
 
 
+    // following methods were copied / adapted from
+    // https://github.com/maarzt/imglib2-trainable-segmentation/blob/clij/src/test/java/clij/CLIJDemo.java#L76-L125
     private static ClearCLBuffer calculateSegmentation(CLIJ2 clij, CLIJMultiChannelImage distribution) {
         ClearCLBuffer result = clij.create(distribution.getSpatialDimensions(), NativeTypeEnum.Float);
         CLIJRandomForestKernel.findMax(clij, distribution, result);
