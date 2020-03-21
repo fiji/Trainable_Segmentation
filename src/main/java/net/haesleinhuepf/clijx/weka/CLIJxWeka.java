@@ -17,10 +17,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -57,7 +54,7 @@ import java.util.zip.GZIPOutputStream;
 public class CLIJxWeka {
 
 
-    private AbstractClassifier classifier;
+    private FastRandomForest classifier;
     private Integer numberOfClasses;
     private Integer numberOfFeatures;
     private CLIJx clijx;
@@ -76,12 +73,13 @@ public class CLIJxWeka {
         this.classification = classification;
     }
 
-    public CLIJxWeka(CLIJx clijx, ClearCLBuffer featureStack, AbstractClassifier classifier, Integer numberOfClasses) {
+    public CLIJxWeka(CLIJx clijx, ClearCLBuffer featureStack, FastRandomForest classifier, Integer numberOfClasses) {
         this.clijx = clijx;
         this.featureStack = featureStack;
         this.classifier = classifier;
         this.numberOfClasses = numberOfClasses;
-        numberOfFeatures = Math.toIntExact(featureStack.getDepth());
+        numberOfFeatures = (int)featureStack.getDepth();
+        this.oclCode = classifier.translateToOcl(numberOfClasses, numberOfFeatures);
     }
 
     public CLIJxWeka(CLIJx clijx, ClearCLBuffer featureStack, String classifierFilename) {
@@ -318,7 +316,7 @@ public class CLIJxWeka {
         classification = featureStackToInstance(clijx, featureStack, classifier, numberOfClasses);
     }
 
-    public AbstractClassifier getClassifier() {
+    public FastRandomForest getClassifier() {
         trainClassifier();
         return classifier;
     }
@@ -395,12 +393,12 @@ public class CLIJxWeka {
             }
             ObjectInputStream ois = new ObjectInputStream(is);
 
-            classifier = (AbstractClassifier) ois.readObject();
+            classifier = (FastRandomForest) ois.readObject();
             numberOfClasses = (Integer) ois.readObject();
             numberOfFeatures = (Integer) ois.readObject();
 
 
-            oclCode = ((FastRandomForest)classifier).translateToOcl(numberOfClasses, numberOfFeatures);
+            oclCode = classifier.translateToOcl(numberOfClasses, numberOfFeatures);
 
             ois.close();
         } catch (IOException e) {
