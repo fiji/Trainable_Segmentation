@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.scijava</groupId>
-		<artifactId>pom-scijava</artifactId>
-		<version>26.0.0</version>
+		<groupId>net.haesleinhuepf</groupId>
+		<artifactId>clij-parent-pom</artifactId>
+		<version>1.5.0</version>
 		<relativePath />
 	</parent>
 
@@ -217,12 +217,15 @@
 		<dependency>
 			<groupId>net.haesleinhuepf</groupId>
 			<artifactId>clij2_</artifactId>
-			<version>0.25.0</version>
 		</dependency>
 		<dependency>
 			<groupId>net.haesleinhuepf</groupId>
 			<artifactId>clijx_</artifactId>
-			<version>0.25.0</version>
+		</dependency>
+		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2-trainable-segmentation</artifactId>
+			<version>0.1.2-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Test scope dependencies -->

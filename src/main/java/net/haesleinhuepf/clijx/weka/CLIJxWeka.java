@@ -19,6 +19,7 @@ import weka.core.Instances;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -327,6 +328,23 @@ public class CLIJxWeka {
         return classification;
     }
 
+    /*
+    public ClearCLBuffer getClassificationViaOcl() {
+        oclCode
+        classification = featureStackToInstance(clijx, featureStack, classifier, numberOfClasses);
+
+        if (new File(loadModelFilename + ".cl").exists()) {
+            HashMap<String, Object> parameters = new HashMap<>();
+            parameters.put("src_featureStack", srcFeatureStack3D);
+            parameters.put("dst", dstClassificationResult);
+            parameters.put("export_probabilities", 0);
+            clijx.execute(Object.class,loadModelFilename + ".cl", "classify_feature_stack", dstClassificationResult.getDimensions(), dstClassificationResult.getDimensions(), parameters);
+        } else {
+            new IllegalArgumentException("This model hasn't been saved as OCL Model. Try applyWekaModel instead.");
+        }
+    }
+    */
+
     public void saveClassifier(String filename) {
         if (classifier == null) {
             trainClassifier();
@@ -466,5 +484,13 @@ public class CLIJxWeka {
 
     public void setNumberOfFeatures(int frf_numberOfFeatures) {
         this.frf_numberOfFeatures = frf_numberOfFeatures;
+    }
+
+    public void setFeatureStack(ClearCLBuffer featureStack) {
+        this.featureStack = featureStack;
+        if (this.classification != null) {
+            clijx.release(this.classification);
+        }
+        this.classification = null;
     }
 }
