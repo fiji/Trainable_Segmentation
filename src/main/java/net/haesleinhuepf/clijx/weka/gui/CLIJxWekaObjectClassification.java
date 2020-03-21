@@ -24,19 +24,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class CLIJxWekaObjectClassification implements PlugInFilter {
+public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implements PlugInFilter {
 
     ImagePlus inputImp;
     ImagePlus binaryImp;
     Overlay overlay = new Overlay();
-    ResultsTable measurements;
+    float[] resultArray = null;
 
     @Override
     public int setup(String arg, ImagePlus imp) {
@@ -55,51 +55,6 @@ public class CLIJxWekaObjectClassification implements PlugInFilter {
         CLIJxWekaPropertyHolder.setCLIJx(CLIJx.getInstance(CLIJxWekaPropertyHolder.clDeviceName));
 
         buildGUI();
-
-        ImageWindow window = inputImp.getWindow();
-        mouseListener1 = new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                mouseUp(e);
-            }
-        };
-        window.getCanvas().addMouseListener(mouseListener1);
-
-        System.out.println("setup mouse");
-        mouseListener2 = new MouseAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                System.out.println("mouse " + e.getY());
-                int x = e.getXOnScreen();
-                int y = e.getYOnScreen();
-                if (x > window.getX() && x < window.getX() + window.getWidth() && y > window.getY()) {
-                    if (y < window.getY() + window.getCanvas().getY()) {
-                        System.out.println("in");
-                        guiPanel.setVisible(true);
-                        guiPanel.setEnabled(true);
-                        refreshGUI();
-                        guiPanel.show();
-                    } else if (y > window.getY() + window.getCanvas().getY() + guiPanel.getHeight()) {
-                        System.out.println("out1");
-                        guiPanel.setVisible(false);
-                        guiPanel.setEnabled(false);
-                    }
-                } else {
-                    System.out.println("out2");
-                }
-            }
-        };
-        window.addMouseMotionListener(mouseListener2);
-
-        mouseListener3 = new MouseAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                guiPanel.setVisible(false);
-                guiPanel.setEnabled(false);
-            }
-        };
-        window.getCanvas().addMouseMotionListener(mouseListener3);
-
 
         segmentImage(binaryImp);
     }
@@ -126,36 +81,17 @@ public class CLIJxWekaObjectClassification implements PlugInFilter {
             overlay.add(roi);
         }
         inputImp.setOverlay(overlay);
-
-        //easurements = roiManager.(inputImp);
-        //measurements.show("Measurements");
-
-
     }
-
-    MouseAdapter mouseListener1;
-    MouseAdapter mouseListener2;
-    MouseAdapter mouseListener3;
 
     ArrayList<Button> buttons = new ArrayList<>();
     HashMap<Integer, Color> colors = new HashMap<Integer, Color>();
 
-    Dialog guiPanel;
+    Button exportButton;
+    Button resetButton;
+
     private void buildGUI() {
         final ImageWindow window = inputImp.getWindow();
-
-        try {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");  // This line gives Windows Theme
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        guiPanel = new Dialog(window);
-        //guiPanel.setLayout(new GridLayout(1, 7));
-        guiPanel.setLayout(new GridBagLayout());
-        guiPanel.setUndecorated(true);
+        super.attach(window);
 
         for (int c = 0; c < CLIJxWekaPropertyHolder.numberOfObjectClasses; c++) {
             final int class_id = c + 1;
@@ -216,14 +152,29 @@ public class CLIJxWekaObjectClassification implements PlugInFilter {
         guiPanel.add(new Label(" "));
 
         {
-            Button button = new Button("Reset");
-            button.addActionListener(new ActionListener() {
+            exportButton = new Button("Export");
+            exportButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    exportClicked();
+                }
+            });
+            guiPanel.add(exportButton);
+            exportButton.setEnabled(false);
+        }
+        guiPanel.add(new Label(" "));
+
+
+        {
+            resetButton = new Button("Reset");
+            resetButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     resetClicked();
                 }
             });
-            guiPanel.add(button);
+            guiPanel.add(resetButton);
+            resetButton.setEnabled(false);
         }
         guiPanel.add(new Label(" "));
 
@@ -233,7 +184,7 @@ public class CLIJxWekaObjectClassification implements PlugInFilter {
             width = width + guiPanel.getComponent(i).getWidth();
         }*/
 
-        refreshGUI();
+        refresh();
     }
 
     private void resetClicked() {
@@ -242,31 +193,12 @@ public class CLIJxWekaObjectClassification implements PlugInFilter {
             roi.setFillColor(null);
         }
         inputImp.updateAndDraw();
+        exportButton.setEnabled(false);
+        resetButton.setEnabled(false);
     }
 
     private void trainClicked() {
-        ResultsTable table = new ResultsTable();
-        //IJ.run("Clear Results");
-
-        Analyzer.setResultsTable(table);
-        Analyzer analyser = new Analyzer();
-
-
-        int measurementsConfig = Analyzer.getMeasurements();
-
-        for (int i = 0; i < overlay.size(); i++) {
-            Roi roi = overlay.get(i);
-            inputImp.setRoi(roi);
-            ImageStatistics stats = inputImp.getStatistics(measurementsConfig);
-            analyser.saveResults(stats, roi);
-            if (roi.getName() != null && roi.getName().length() > 0) {
-                table.addValue("CLASS", Integer.parseInt(roi.getName()));
-            } else {
-                table.addValue("CLASS", 0);
-            }
-        }
-        inputImp.killRoi();
-        Analyzer.setResultsTable(new ResultsTable());
+        ResultsTable table = getTable();
 
         //table.show("My Results");
         CLIJx clijx = CLIJxWekaPropertyHolder.getCLIJx();
@@ -296,28 +228,70 @@ public class CLIJxWekaObjectClassification implements PlugInFilter {
 
         ApplyOCLWekaModel.applyOCL(clijx, featureStack, result, clijxweka.getOCL());
 
-        float[] resultArray = new float[(int) result.getWidth()];
+        resultArray = new float[(int) result.getWidth()];
         FloatBuffer buffer = FloatBuffer.wrap(resultArray);
 
         result.writeTo(buffer, true);
 
         for (int i = 0; i < resultArray.length; i++) {
             int class_id = (int)resultArray[i] + 1;
-            Color color = getColor(class_id);
+            Color color = colors.get(class_id);
             overlay.get(i).setFillColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 128));
         }
+        exportButton.setEnabled(true);
+        resetButton.setEnabled(true);
+
+        clijx.release(ground_truth);
+        clijx.release(result);
+        clijx.release(featureStack);
+        clijx.release(transposed1);
+        clijx.release(transposed2);
+        clijx.release(temp);
     }
 
-    private void refreshGUI() {
-        final ImageWindow window = inputImp.getWindow();
-        guiPanel.setSize(window.getCanvas().getWidth() + 2, 30);
-        guiPanel.setLocation(window.getX() + window.getCanvas().getX() - 1, window.getY() + window.getCanvas().getY() - 1);
+    private void exportClicked() {
+        ResultsTable table = getTable();
+
+        for (int i = 0; i < resultArray.length; i++) {
+            table.addValue("CLASS_PREDICTION", resultArray[i]);
+        }
+        table.show("Results");
+    }
+
+    private ResultsTable getTable(){
+        ResultsTable table = new ResultsTable();
+        //IJ.run("Clear Results");
+
+        Analyzer.setResultsTable(table);
+        Analyzer analyser = new Analyzer();
+
+
+        int measurementsConfig = Analyzer.getMeasurements();
+
+        for (int i = 0; i < overlay.size(); i++) {
+            Roi roi = overlay.get(i);
+            inputImp.setRoi(roi);
+            ImageStatistics stats = inputImp.getStatistics(measurementsConfig);
+            analyser.saveResults(stats, roi);
+            if (roi.getName() != null && roi.getName().length() > 0) {
+                table.addValue("CLASS", Integer.parseInt(roi.getName()));
+            } else {
+                table.addValue("CLASS", 0);
+            }
+        }
+        inputImp.killRoi();
+        Analyzer.setResultsTable(new ResultsTable());
+
+        return table;
+    }
+
+
+    protected void refresh() {
+        super.refresh();
 
         for (int c = 0; c < buttons.size(); c++) {
-            buttons.get(c).setBackground((c + 1 == currentClass)?getColor(c + 1):null);
+            buttons.get(c).setBackground((c + 1 == currentClass)?colors.get(c + 1):null);
         }
-
-
     }
 
     private int currentClass = 1;
@@ -326,7 +300,7 @@ public class CLIJxWekaObjectClassification implements PlugInFilter {
             button.setBackground(null);
         }
         currentClass = class_id;
-        buttons.get(currentClass - 1).setBackground(getColor(currentClass));
+        buttons.get(currentClass - 1).setBackground(colors.get(currentClass));
     }
 
     private Color getColor(int c) {
@@ -356,8 +330,10 @@ public class CLIJxWekaObjectClassification implements PlugInFilter {
     }
 
 
-    private void mouseUp(MouseEvent e) {
+    protected void mouseUp(MouseEvent e) {
         System.out.println("mouse up");
+        resultArray = null;
+        exportButton.setEnabled(false);
 
         int x = inputImp.getWindow().getCanvas().offScreenX(e.getX());
         int y = inputImp.getWindow().getCanvas().offScreenY(e.getY());
@@ -421,6 +397,7 @@ public class CLIJxWekaObjectClassification implements PlugInFilter {
         clijx.gaussianBlur2D(input, temp, 3,3);
         clijx.thresholdOtsu(temp, thresholded);
         clijx.show(thresholded, "thresholded");
+        clijx.clear();
 
         new CLIJxWekaObjectClassification().run(null);
     }

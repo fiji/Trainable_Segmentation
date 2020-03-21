@@ -1,9 +1,7 @@
 package net.haesleinhuepf.clijx.weka.gui;
 
-import fiji.util.gui.GenericDialogPlus;
 import ij.*;
 import ij.gui.*;
-import ij.io.FileSaver;
 import ij.io.SaveDialog;
 import ij.plugin.HyperStackConverter;
 import ij.plugin.RGBStackConverter;
@@ -14,7 +12,6 @@ import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
 import net.haesleinhuepf.clij.coremem.enums.NativeTypeEnum;
-import net.haesleinhuepf.clij2.AbstractCLIJ2Plugin;
 import net.haesleinhuepf.clijx.CLIJx;
 import net.haesleinhuepf.clijx.weka.ApplyOCLWekaModel;
 import net.haesleinhuepf.clijx.weka.CLIJxWeka;
@@ -28,13 +25,11 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 
-public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
+public class CLIJxWekaBinaryPixelClassification extends InteractivePanelPlugin  implements PlugInFilter {
 
-    Color defaultRoiColor;
 
     static Color foregroundColor = Color.green;
     static Color backgroundColor = Color.magenta;
@@ -54,6 +49,7 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
     public CLIJxWekaBinaryPixelClassification() {
         overlay = new Overlay();
         status = new TextRoi("o", 0, 15, new Font("Arial", Font.PLAIN, 15));
+        overlay.add(status);
     }
 
 
@@ -62,12 +58,9 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
         return PlugInFilter.DOES_ALL;
     }
 
-    GenericDialogPlus gdp;
-
     @Override
     public void run(ImageProcessor ip) {
         inputImp = IJ.getImage();
-        defaultRoiColor = Roi.getColor();
 
         CLIJx clijx = CLIJxWekaPropertyHolder.getCLIJx();
 
@@ -78,44 +71,9 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
         updateVisualisation();
 
         addForegroundClicked();
-
-        imageListener = new ImageListener() {
-            @Override
-            public void imageOpened(ImagePlus imp) {
-
-            }
-
-            @Override
-            public void imageClosed(ImagePlus imp) {
-
-            }
-
-            @Override
-            public void imageUpdated(ImagePlus imp) {
-                if (imp == inputImp) {
-                    imageChanged();
-                }
-            }
-        };
-        ImagePlus.addImageListener(imageListener);
-
-
-        mouseListener1 = new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                mouseUp(e);
-            }
-        };
-        inputImp.getWindow().getCanvas().addMouseListener(mouseListener1);
     }
 
-    ImageListener imageListener;
-    MouseAdapter mouseListener1;
-    MouseAdapter mouseListener2;
-    MouseAdapter mouseListener3;
 
-
-    Dialog guiPanel;
     JToggleButton foregroundButton;
     JToggleButton backgroundButton;
     JToggleButton eraseButton;
@@ -126,61 +84,7 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
     Button backgroundColorButton;
     private void buildGUI() {
         final ImageWindow window = inputImp.getWindow();
-
-        try {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");  // This line gives Windows Theme
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        guiPanel = new Dialog(window);
-        //guiPanel.setLayout(new GridLayout(1, 7));
-        guiPanel.setLayout(new GridBagLayout());
-        guiPanel.setUndecorated(true);
-
-
-
-        // window.getCanvas().setLocation(0, 100);
-        System.out.println("setup mouse");
-        mouseListener2 = new MouseAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                //System.out.println("mouse " + e.getY());
-                int x = e.getXOnScreen();
-                int y = e.getYOnScreen();
-                if (x > window.getX() && x < window.getX() + window.getWidth() && y > window.getY()) {
-                    if (y < window.getY() + window.getCanvas().getY()) {
-                        //System.out.println("in");
-                        guiPanel.setVisible(true);
-                        guiPanel.setEnabled(true);
-                        refreshGUI();
-                        guiPanel.show();
-                    } else if (y > window.getY() + window.getCanvas().getY() + guiPanel.getHeight()) {
-                        guiPanel.setVisible(false);
-                        guiPanel.setEnabled(false);
-                    }
-                }
-            }
-        };
-        window.addMouseMotionListener(mouseListener2);
-
-        mouseListener3 = new MouseAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                guiPanel.setVisible(false);
-                guiPanel.setEnabled(false);
-            }
-        };
-        window.getCanvas().addMouseMotionListener(mouseListener3);
-
-        /*window.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                refreshGUI();
-            }
-        });*/
+        super.attach(window);
 
         {
             foregroundButton = new JToggleButton("Foreground");
@@ -204,7 +108,8 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
                         return;
                     }
                     foregroundColor = result;
-                    refreshGUI();
+                    updateVisualisation();
+                    refresh();
                 }
             });
             guiPanel.add(foregroundColorButton);
@@ -231,7 +136,8 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
                         return;
                     }
                     backgroundColor = result;
-                    refreshGUI();
+                    updateVisualisation();
+                    refresh();
                 }
             });
             guiPanel.add(backgroundColorButton);
@@ -250,6 +156,18 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
             guiPanel.add(eraseButton);
         }
         guiPanel.add(new Label(" "));
+
+        {
+            Button configButton = new Button("Config");
+            configButton.setSize(40, 15);
+            configButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    configClicked();
+                }
+            });
+            guiPanel.add(configButton);
+        }
 
         {
             Button trainButton = new Button("Train");
@@ -271,10 +189,7 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
             slider.addChangeListener(new ChangeListener() {
                 @Override
                 public void stateChanged(ChangeEvent e) {
-                    System.out.println("Changed");
                     overlayAlpha = (float) slider.getValue() / 100;
-
-                    System.out.println("Changed " + overlayAlpha);
                     updateVisualisation();
                 }
             });
@@ -321,59 +236,18 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
             guiPanel.add(cancelButton);
         }
 
-        refreshGUI();
-        guiPanel.setVisible(true);
-        guiPanel.requestFocus();
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-        gdp = new GenericDialogPlus("CLIJx Weka Binary Pixel Classification");
-        gdp.addMessage("Annotation");
-        gdp.addButton("Add foreground", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addForegroundClicked();
-            }
-        });
-        gdp.addToSameRow();
-        gdp.addButton("Add background", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addBackgroundClicked();
-            }
-        });
-        gdp.addToSameRow();
-        gdp.addButton("Erase", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                eraseClicked();
-            }
-        });
+        refresh();
+    }
 
-        gdp.addMessage("Training");
-        gdp.addStringField("Feature definition", CLIJxWekaPropertyHolder.pixelClassificationFeatureDefinition);
-
-        gdp.addToSameRow();
-        gdp.addButton("Train", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                trainClicked();
-            }
-        });
-
-        gdp.addFileField("", CLIJxWekaPropertyHolder.pixelClassificationModelFile );
-
-        gdp.addToSameRow();
-        gdp.addButton("Save model", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveModelClicked();
-            }
-        });
-
-        gdp.setModal(false);
-        gdp.showDialog();
-        gdp.setSize(new Dimension(500, 300));
-*/
+    private void configClicked() {
+        GenericDialog gd = new GenericDialog("Configure classifier training");
+        gd.addStringField("Features", CLIJxWekaPropertyHolder.pixelClassificationFeatureDefinition);
+        gd.addMessage(new GenerateFeatureStack().getDescription());
+        gd.showDialog();
+        if (gd.wasCanceled()) {
+            return;
+        }
+        CLIJxWekaPropertyHolder.pixelClassificationFeatureDefinition = gd.getNextString();
     }
 
     private void cancelClicked() {
@@ -384,21 +258,18 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
 
     private void cleanUp()
     {
+        dismantle();
+
         CLIJx clijx = CLIJxWekaPropertyHolder.getCLIJx();
         clijx.release(clInput);
         clInput = null;
         clijx.release(clResult);
         clResult = null;
-        ImagePlus.removeImageListener(imageListener);
-        inputImp.getWindow().removeMouseListener(mouseListener1);
-        inputImp.getWindow().removeMouseMotionListener(mouseListener2);
-        inputImp.getWindow().getCanvas().removeMouseMotionListener(mouseListener3);
         inputImp.setOverlay(null);
         inputImp.killRoi();
         guiPanel.setVisible(false);
         guiPanel.dispose();
         guiPanel = null;
-        Roi.setColor(defaultRoiColor);
     }
 
     private void applyClicked() {
@@ -446,12 +317,7 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
     }
 
 
-    private void refreshGUI() {
-        final ImageWindow window = inputImp.getWindow();
-
-        guiPanel.setSize(550, 30);
-        guiPanel.setLocation(window.getX() + window.getCanvas().getX() - 1, window.getY() + window.getCanvas().getY() - 1);
-
+    protected void refresh() {
 
         foregroundColorButton.setBackground(foregroundColor);
         backgroundColorButton.setBackground(backgroundColor);
@@ -471,32 +337,33 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
             Roi.setColor(foregroundColor);
             status.setStrokeColor(foregroundColor);
             foregroundButton.setBackground(foregroundColor);
-            foregroundButton.setSelected(true);
+            //foregroundButton.setSelected(true);
         }
         if (mouseMode == MouseMode.BACKGROUND) {
             Roi.setColor(backgroundColor);
             backgroundButton.setBackground(backgroundColor);
-            backgroundButton.setSelected(true);
+            //backgroundButton.setSelected(true);
         }
         if (mouseMode == MouseMode.ERASE) {
             Roi.setColor(eraseColor);
             eraseButton.setBackground(eraseColor);
-            eraseButton.setSelected(true);
+            //eraseButton.setSelected(true);
         }
         for (int i = 0; i < overlay.size(); i++) {
             Roi roi = overlay.get(i);
-            if (roi.getName().compareTo(MouseMode.FOREGROUND.toString()) == 0) {
-                roi.setStrokeColor(foregroundColor);
-            } else if (roi.getName().compareTo(MouseMode.BACKGROUND.toString()) == 0) {
-                roi.setStrokeColor(backgroundColor);
+            if (roi.getName() != null) {
+                if (roi.getName().compareTo(MouseMode.FOREGROUND.toString()) == 0) {
+                    roi.setStrokeColor(foregroundColor);
+                } else if (roi.getName().compareTo(MouseMode.BACKGROUND.toString()) == 0) {
+                    roi.setStrokeColor(backgroundColor);
+                }
             }
         }
-        guiPanel.validate();
-
+        super.refresh();
     }
 
     private void updateVisualisation() {
-        refreshGUI();
+        refresh();
         CLIJx clijx = CLIJxWekaPropertyHolder.getCLIJx();
 
         if (clResult != null) {
@@ -526,16 +393,6 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
         }
     }
 
-
-    private void readPropertiesFromDialog() {
-        //CLIJxWekaPropertyHolder.pixelClassificationFeatureDefinition = ((TextField)gdp.getStringFields().get(0)).getText();
-        //CLIJxWekaPropertyHolder.pixelClassificationModelFile = ((TextField)gdp.getStringFields().get(1)).getText();
-    }
-
-    private void imageChanged() {
-        System.out.println("image changed");
-    }
-
     private void saveModelClicked() {
         if (clijxweka != null) {
             SaveDialog sd = new SaveDialog("Save model", CLIJxWekaPropertyHolder.pixelClassificationModelFile, ".model");
@@ -547,8 +404,6 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
     }
 
     private void trainClicked() {
-        readPropertiesFromDialog();
-
         ImagePlus groundTruth = NewImage.createFloatImage("ground_truth", inputImp.getWidth(), inputImp.getHeight(), 1, NewImage.FILL_BLACK);
         for (int i = 0; i < overlay.size(); i++) {
             Roi roi = overlay.get(i);
@@ -560,13 +415,8 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
                 IJ.run(groundTruth, "Add...", "value=" + (name.compareTo(MouseMode.FOREGROUND.toString()) == 0 ? 2 : 1));
             }
         }
-//        groundTruth.show();
-  //      groundTruth.setDisplayRange(0, 2);
 
-        //if (true) {return;}
         CLIJx clijx = CLIJxWekaPropertyHolder.getCLIJx();
-
-
 
         ClearCLBuffer clGroundTruth = clijx.push(groundTruth);
 
@@ -603,18 +453,22 @@ public class CLIJxWekaBinaryPixelClassification  implements PlugInFilter {
         IJ.setTool("freeline");
         mouseMode = MouseMode.ERASE;
         Roi.setColor(eraseColor);
+        refresh();
     }
     private void addBackgroundClicked() {
         IJ.setTool("freeline");
         mouseMode = MouseMode.BACKGROUND;
         Roi.setColor(backgroundColor);
+        refresh();
     }
     private void addForegroundClicked() {
         IJ.setTool("freeline");
         mouseMode = MouseMode.FOREGROUND;
         Roi.setColor(foregroundColor);
+        refresh();
     }
-    private void mouseUp(MouseEvent e) {
+
+    protected void mouseUp(MouseEvent e) {
         System.out.println("mouse up" + e.isControlDown());
         Roi roi = inputImp.getRoi();
         if (roi != null) {
