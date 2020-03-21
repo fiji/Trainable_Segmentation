@@ -6,75 +6,318 @@ import ij.ImageJ;
 import ij.ImagePlus;
 import ij.gui.NewImage;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
+import net.haesleinhuepf.clij.coremem.enums.NativeTypeEnum;
+import net.haesleinhuepf.clij2.CLIJ2;
 import net.haesleinhuepf.clijx.CLIJx;
+import net.imagej.ops.OpEnvironment;
+import net.imagej.ops.OpService;
+import net.imglib2.Cursor;
+import net.imglib2.Dimensions;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgs;
+import net.imglib2.img.display.imagej.ImageJFunctions;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.trainable_segmention.classification.CompositeInstance;
+import net.imglib2.trainable_segmention.classification.Segmenter;
+import net.imglib2.trainable_segmention.classification.Trainer;
+import net.imglib2.trainable_segmention.clij_random_forest.*;
+import net.imglib2.trainable_segmention.pixel_feature.filter.GroupedFeatures;
+import net.imglib2.trainable_segmention.pixel_feature.settings.FeatureSetting;
+import net.imglib2.trainable_segmention.pixel_feature.settings.FeatureSettings;
+import net.imglib2.trainable_segmention.pixel_feature.settings.GlobalSettings;
+import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.Intervals;
+import net.imglib2.util.StopWatch;
+import net.imglib2.util.Util;
+import net.imglib2.view.Views;
+import net.imglib2.view.composite.CompositeIntervalView;
+import net.imglib2.view.composite.RealComposite;
+import preview.net.imglib2.loops.LoopBuilder;
 import weka.classifiers.AbstractClassifier;
+import weka.classifiers.Classifier;
+import weka.core.Attribute;
+
+import java.util.*;
 
 public class WekaDemo {
     public static void main(String[] args) {
-        // Load Example data
-        ImagePlus inputImp = IJ.openImage("src/test/resources/NPC_T01_c2.tif");
-        IJ.run(inputImp, "32-bit", "");
-        ImagePlus partialGroundTruthImp = IJ.openImage("src/test/resources/NPC_T01_c2_ground_truth.tif");
+        long time;
+        HashMap<String, Long> durations = new HashMap<>();
+
+        net.imagej.ImageJ ij = new net.imagej.ImageJ();
+        ij.ui().showUI();
 
         // init GPU
         CLIJx clijx = CLIJx.getInstance();
 
-        // push to GPU
-        ClearCLBuffer input = clijx.push(inputImp);
-        ClearCLBuffer partialGroundTruth = clijx.push(partialGroundTruthImp);
-        ClearCLBuffer featureStack = GenerateFeatureStack.generateFeatureStack(clijx, input, "original gaussianblur=1 gaussianblur=5 sobelofgaussian=1 sobelofgaussian=5");
+        ClearCLBuffer input = null;
+        ClearCLBuffer partialGroundTruth = null;
+        ClearCLBuffer featureStack = null;
 
-        new ImageJ();
+        // Benchmark CLIJxWeka
+        {
+            // Load Example data
+            ImagePlus inputImp = IJ.openImage("src/test/resources/NPC_T01_c2.tif");
+            IJ.run(inputImp, "32-bit", "");
+            ImagePlus partialGroundTruthImp = IJ.openImage("src/test/resources/NPC_T01_c2_ground_truth.tif");
 
-        // show input data
-        clijx.show(input, "input");
-        clijx.show(partialGroundTruth, "partial ground truth");
-        clijx.show(featureStack, "feature stack");
+            // push to GPU
+            input = clijx.push(inputImp);
+            partialGroundTruth = clijx.push(partialGroundTruthImp);
 
-        // Train (internally with Fijis Trainable Segmentation)
-        CLIJxWeka cw = new CLIJxWeka(clijx, featureStack, partialGroundTruth);
+            // -------------------------------------------------------------------------------------------------------------
+            // generate feature stack
+            time = System.currentTimeMillis();
+            featureStack = GenerateFeatureStack.generateFeatureStack(clijx, input, "original gaussianblur=1 gaussianblur=5 sobelofgaussian=1 sobelofgaussian=5");
+            clijx.release(featureStack);
+            durations.put("A feature stack generation CLIJ 1", System.currentTimeMillis() - time);
 
-        FastRandomForest classifier = cw.getClassifier();
-        int numberOfClasses = cw.getNumberOfClasses();
+            // -------------------------------------------------------------------------------------------------------------
+            // generate feature stack again
+            time = System.currentTimeMillis();
+            featureStack = GenerateFeatureStack.generateFeatureStack(clijx, input, "original gaussianblur=1 gaussianblur=5 sobelofgaussian=1 sobelofgaussian=5");
+            durations.put("A feature stack generation CLIJ 2", System.currentTimeMillis() - time);
 
-        // Predict (internally with Fijis Trainable Segmentation)
-        CLIJxWeka cw2 = new CLIJxWeka(clijx, featureStack, classifier, numberOfClasses);
+            // -------------------------------------------------------------------------------------------------------------
+            // show input data
+            //new ImageJ();
+            clijx.show(input, "input");
+            clijx.show(partialGroundTruth, "partial ground truth");
+            clijx.show(featureStack, "feature stack");
 
-        ClearCLBuffer buffer = cw2.getClassification();
-        clijx.show(buffer, "classification");
+            // -------------------------------------------------------------------------------------------------------------
+            // Train (internally with Fijis Trainable Segmentation)
+            time = System.currentTimeMillis();
+            CLIJxWeka cw = new CLIJxWeka(clijx, featureStack, partialGroundTruth);
 
-        // Predict (internally with OpenCL)
-        String openCLkernelcode = cw2.getOCL();
-        ApplyOCLWekaModel.applyOCL(clijx, featureStack, buffer, openCLkernelcode);
-        clijx.show(buffer, "classification_opencl");
+            FastRandomForest classifier = cw.getClassifier();
+            int numberOfClasses = cw.getNumberOfClasses();
+            durations.put("B Train FastRandomForest using Weka", System.currentTimeMillis() - time);
+
+            // -------------------------------------------------------------------------------------------------------------
+            // Predict (internally with Fijis Trainable Segmentation)
+            time = System.currentTimeMillis();
+            CLIJxWeka cw2 = new CLIJxWeka(clijx, featureStack, classifier, numberOfClasses);
+
+            ClearCLBuffer buffer = cw2.getClassification();
+            durations.put("C Predict FastRandomForest using Weka", System.currentTimeMillis() - time);
+
+            clijx.show(buffer, "classification");
+
+            // -------------------------------------------------------------------------------------------------------------
+            // Predict (internally with OpenCL)
+            time = System.currentTimeMillis();
+            String openCLkernelcode = cw2.getOCL();
+            ApplyOCLWekaModel.applyOCL(clijx, featureStack, buffer, openCLkernelcode);
+            durations.put("C Predict FastRandomForest using CLIJ 1", System.currentTimeMillis() - time);
+
+            clijx.show(buffer, "classification_opencl1");
+
+            // -------------------------------------------------------------------------------------------------------------
+            // Predict (internally with OpenCL) again
+            time = System.currentTimeMillis();
+            ApplyOCLWekaModel.applyOCL(clijx, featureStack, buffer, openCLkernelcode);
+            durations.put("C Predict FastRandomForest using CLIJ 2", System.currentTimeMillis() - time);
+
+            clijx.show(buffer, "classification_opencl2");
 
 
+        }
+        // -------------------------------------------------------------------------------------------------------------
+        //
+
+        // Benchmark imglib2-trainable-segmentation
+        {
+            // How can I determine these numbers?
+            int numberOfFeatures = 10;
+            int numberOfClasses = 2;
+
+            // There are errors when working with 2D images, thus we extend them to 3D
+            ClearCLBuffer input3D = clijx.create(new long[]{input.getWidth(), input.getHeight(), 1}, input.getNativeType());
+            clijx.copySlice(input, input3D, 0);
+            ClearCLBuffer partialGroundTruth3D = clijx.create(new long[]{partialGroundTruth.getWidth(), partialGroundTruth.getHeight(), 1}, partialGroundTruth.getNativeType());
+            clijx.copySlice(partialGroundTruth, partialGroundTruth3D, 0);
 
 
+            RandomAccessibleInterval inputRAI = clijx.pullRAI(input3D);
+            RandomAccessibleInterval featureStackRAI = clijx.pullRAI(featureStack); //unused; would be cool though
+            RandomAccessibleInterval partialGroundTruthRAI = clijx.pullRAI(partialGroundTruth3D);
+
+            // There are errors when working with 2D images, thus we extend them to 3D
+            inputRAI = Views.addDimension(inputRAI, 0, 0);
+            partialGroundTruthRAI = Views.addDimension(partialGroundTruthRAI, 0, 0);
 
 
+            AbstractClassifier initRandomForest = Trainer.initRandomForest();
+
+            OpEnvironment ops = ij.op();
+
+            RandomAccessibleInterval labelingRai = clijx.pullRAI(partialGroundTruthRAI);
+
+            LabelRegions labeling = raiToLabeling(ops, labelingRai);
+
+            /*
+            RandomAccessibleInterval labelingRaiInteger = ops.convert().uint16(Views.iterable(labelingRai));
+            LabelRegions labeling = new LabelRegions(new ImgLabeling(labelingRaiInteger));
+
+            // this lines crashes:
+            System.out.println(labeling.getExistingLabels());
+            */
 
 
+            List<String> classNames = new ArrayList<>();
+            classNames.add("1");
+            classNames.add("2");
+
+            // Is it possible to hand over a feature-stack-RAI? If yes, which dimensionality/shape?
+            final FeatureSettings featureSettings = new FeatureSettings(GlobalSettings.default3d().build(),
+                    // How can I enter the original image as feature? Or is it there by default? How could I remove it?
+                    GroupedFeatures.gauss(), // How can I enter custom radii?
+                    //GroupedFeatures.differenceOfGaussians(),
+                    //GroupedFeatures.hessian(),
+                    GroupedFeatures.gradient()); // I would like to use the gradient of different Gaussians as feature, how can I specify this?
+
+            // -------------------------------------------------------------------------------------------------------------
+            // train using imglib2-trainable-segmentsion
+            time = System.currentTimeMillis();
+            Segmenter segmenter = Trainer.train(ops, inputRAI, labeling, featureSettings);
+            durations.put("D Train FastRandomForest using imglib2-trainable-segmentation", System.currentTimeMillis() - time);
+            initRandomForest = (AbstractClassifier) segmenter.getClassifier();
+
+            // -------------------------------------------------------------------------------------------------------------
+            // predict using imglib2-trainable-segmentation
+            time = System.currentTimeMillis();
+            //Segmenter segmenter = new Segmenter(ops, classNames, featureSettings, initRandomForest);
+            RandomAccessibleInterval result = segmenter.segment(inputRAI);
+            durations.put("E Predict FastRandomForest using imglib2-trainable-segmentation", System.currentTimeMillis() - time);
+
+            // -------------------------------------------------------------------------------------------------------------
+            // generate features using imglib2-trainable-segmentation-CLIJ
+            time = System.currentTimeMillis();
+            CLIJMultiChannelImage featuresCl = calculateFeatures(clijx, input, numberOfFeatures);
+            durations.put("E generate features using imglib2-trainable-segmentation-CLIJ 1", System.currentTimeMillis() - time);
+
+            // -------------------------------------------------------------------------------------------------------------
+            // generate features using imglib2-trainable-segmentation-CLIJ again
+            time = System.currentTimeMillis();
+            featuresCl = calculateFeatures(clijx, input3D, numberOfFeatures);
+            durations.put("E generate features using imglib2-trainable-segmentation-CLIJ 2", System.currentTimeMillis() - time);
+
+            // -------------------------------------------------------------------------------------------------------------
+            // predict using imglib2-trainable-segmentation-CLIJ
+            time = System.currentTimeMillis();
+            CLIJMultiChannelImage distributionCl = calculateDistribution(clijx, initRandomForest, featuresCl, numberOfClasses, numberOfFeatures);
+            ClearCLBuffer segmentationCl = calculateSegmentation(clijx, distributionCl);
+            durations.put("F predict using imglib2-trainable-segmentation-CLIJ 1", System.currentTimeMillis() - time);
+
+            // -------------------------------------------------------------------------------------------------------------
+            // predict using imglib2-trainable-segmentation-CLIJ again
+            time = System.currentTimeMillis();
+            distributionCl = calculateDistribution(clijx, initRandomForest, featuresCl, numberOfClasses, numberOfFeatures);
+            segmentationCl = calculateSegmentation(clijx, distributionCl);
+            durations.put("F predict using imglib2-trainable-segmentation-CLIJ 2", System.currentTimeMillis() - time);
+
+            clijx.show(segmentationCl, "segmentation imglib2-t-s-clij");
 
 
+        }
 
-
+        // -------------------------------------------------------------------------------------------------------------
+        // output and clear memory
+        System.out.println(clijx.reportMemory());
         clijx.clear();
 
 
+        // -------------------------------------------------------------------------------------------------------------
+        // output durations
+
+        ArrayList<String> list = new ArrayList<>();
+        list.addAll(durations.keySet());
+        Collections.sort(list);
+        for (String key : list) {
+            System.out.println(key + ": " + durations.get(key));
+        }
+
+    }
+
+    // Is there an easier way for doing this?
+    // source: https://forum.image.sc/t/construct-labelregions-from-labelmap/20590/2
+    private static LabelRegions raiToLabeling(OpEnvironment ops, RandomAccessibleInterval labelingRai) {
+
+        RandomAccessibleInterval<IntType> img = ops.convert().int32(Views.iterable(labelingRai));
 
 
+        final Dimensions dims = img;
+        final IntType t = new IntType();
+        final RandomAccessibleInterval<IntType> labelImg = Util.getArrayOrCellImgFactory(dims, t).create(dims, t);
+        ImgLabeling<Integer, IntType> labelingImg = new ImgLabeling<Integer, IntType>(labelImg);
+
+        // create labeling image
+        final Cursor<LabelingType<Integer>> labelCursor = Views.flatIterable(labelingImg).cursor();
+
+        for (final IntType input : Views.flatIterable(img)) {
+            final LabelingType<Integer> element = labelCursor.next();
+            if (input.getRealFloat() != 0) {
+                element.add((int) input.getRealFloat());
+            }
+        }
+        return new LabelRegions(labelingImg);
+    }
 
 
+    private static ClearCLBuffer calculateSegmentation(CLIJ2 clij, CLIJMultiChannelImage distribution) {
+        ClearCLBuffer result = clij.create(distribution.getSpatialDimensions(), NativeTypeEnum.Float);
+        CLIJRandomForestKernel.findMax(clij, distribution, result);
+        return result;
+    }
 
+    private static CLIJMultiChannelImage calculateDistribution(CLIJ2 clij, Classifier classifier,
+                                                               CLIJMultiChannelImage featuresCl, int numberOfClasses, int numberOfFeatures)
+    {
+        RandomForestPrediction prediction = new RandomForestPrediction((hr.irb.fastRandomForest.FastRandomForest) classifier, numberOfClasses, numberOfFeatures);
+        CLIJMultiChannelImage output = new CLIJMultiChannelImage(clij, featuresCl.getSpatialDimensions(), numberOfClasses);
+        prediction.distribution(clij, featuresCl, output);
+        return output;
+    }
 
+    private static Img<UnsignedByteType> segment(Classifier classifier, Attribute[] attributes,
+                                                 ImagePlus output, int numberOfClasses, int numberOfFeatures)
+    {
+        RandomForestPrediction prediction = new RandomForestPrediction((hr.irb.fastRandomForest.FastRandomForest) classifier,
+                numberOfClasses, numberOfFeatures);
+        RandomAccessibleInterval<FloatType> featureStack =
+                Views.permute(ImageJFunctions.wrapFloat(output), 2, 3);
+        CompositeIntervalView<FloatType, RealComposite<FloatType>> collapsed =
+                Views.collapseReal(featureStack);
+        CompositeInstance compositeInstance =
+                new CompositeInstance(collapsed.randomAccess().get(), attributes);
+        Img<UnsignedByteType> segmentation =
+                ArrayImgs.unsignedBytes(Intervals.dimensionsAsLongArray(collapsed));
+        StopWatch stopWatch = StopWatch.createAndStart();
+        LoopBuilder.setImages(collapsed, segmentation).forEachPixel((c, o) -> {
+            compositeInstance.setSource(c);
+            o.set(prediction.classifyInstance(compositeInstance));
+        });
+        System.out.println(stopWatch);
+        return segmentation;
+    }
 
-
-
-
-
-
-
-
+    private static CLIJMultiChannelImage calculateFeatures(CLIJ2 clij, ClearCLBuffer inputCl, int numberOfFeatures) {
+        try (ClearCLBuffer tmpCl = clij.create(inputCl)) {
+            CLIJMultiChannelImage output = new CLIJMultiChannelImage(clij, inputCl.getDimensions(), numberOfFeatures);
+            List<CLIJView> slices = output.channels();
+            for (int i = 0; i < numberOfFeatures; i++) {
+                float sigma = i * 2;
+                clij.gaussianBlur(inputCl, tmpCl, sigma, sigma, sigma);
+                CLIJCopy.copy(clij, CLIJView.wrap(tmpCl), slices.get(i));
+            }
+            return output;
+        }
     }
 }
