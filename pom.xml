@@ -135,7 +135,7 @@
 		<license.copyrightOwners>Fiji developers.</license.copyrightOwners>
 		<license.projectName>Fiji distribution of ImageJ for the life sciences.</license.projectName>
 
-		<scijava.app.subdirectory>C:/programs/fiji-win64/Fiji.app/</scijava.app.subdirectory>
+		<imagej.app.directory>C:/programs/fiji-win64/Fiji.app/</imagej.app.directory>
 
 		<imagescience.version>3.0.0</imagescience.version>
 
