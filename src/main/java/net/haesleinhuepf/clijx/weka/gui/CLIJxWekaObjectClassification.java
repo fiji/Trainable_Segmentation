@@ -25,7 +25,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,9 +32,9 @@ import java.util.HashMap;
 
 public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implements PlugInFilter {
 
-    ImagePlus inputImp;
-    ImagePlus binaryImp;
-    Overlay overlay = new Overlay();
+    protected ImagePlus inputImp;
+    protected ImagePlus binaryImp;
+    protected Overlay overlay = new Overlay();
     float[] resultArray = null;
 
     @Override
@@ -56,10 +55,10 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
 
         buildGUI();
 
-        segmentImage(binaryImp);
+        generateROIs(binaryImp);
     }
 
-    private void segmentImage(ImagePlus imp) {
+    protected void generateROIs(ImagePlus imp) {
         CLIJx clijx = CLIJxWekaPropertyHolder.getCLIJx();
 
         ClearCLBuffer binary = clijx.pushCurrentSlice(imp);
@@ -353,7 +352,7 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
         }
     }
 
-    private boolean showInitialDialog() {
+    protected boolean showInitialDialog() {
         GenericDialogPlus gd = new GenericDialogPlus("CLIJx Weka Object Classification");
         ArrayList<String> deviceNameList = CLIJ.getAvailableDeviceNames();
         String[] deviceNameArray = new String[deviceNameList.size()];
