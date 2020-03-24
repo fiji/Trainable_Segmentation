@@ -39,8 +39,7 @@ public class CLIJxWekaBinaryPixelClassification extends InteractivePanelPlugin  
 
     ImagePlus inputImp = null;
 
-    Overlay overlay;
-    TextRoi status;
+    protected Overlay overlay;
 
     ClearCLBuffer clInput = null;
     ClearCLBuffer clResult = null;
@@ -48,8 +47,6 @@ public class CLIJxWekaBinaryPixelClassification extends InteractivePanelPlugin  
 
     public CLIJxWekaBinaryPixelClassification() {
         overlay = new Overlay();
-        status = new TextRoi("o", 0, 15, new Font("Arial", Font.PLAIN, 15));
-        overlay.add(status);
     }
 
 
@@ -335,7 +332,6 @@ public class CLIJxWekaBinaryPixelClassification extends InteractivePanelPlugin  
 
         if (mouseMode == MouseMode.FOREGROUND) {
             Roi.setColor(foregroundColor);
-            status.setStrokeColor(foregroundColor);
             foregroundButton.setBackground(foregroundColor);
             //foregroundButton.setSelected(true);
         }
