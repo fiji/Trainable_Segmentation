@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>net.haesleinhuepf</groupId>
 		<artifactId>clij-parent-pom</artifactId>
-		<version>1.5.4</version>
+		<version>1.5.6</version>
 		<relativePath />
 	</parent>
 
 	<groupId>sc.fiji</groupId>
 	<artifactId>Trainable_Segmentation_clijed</artifactId>
-	<version>3.2.37-clijed</version>
+	<version>3.2.38-clijed</version>
 
 	<name>Trainable Segmentation</name>
 	<description>Trainable Segmentation plugin for Fiji.</description>
