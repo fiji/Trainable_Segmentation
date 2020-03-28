@@ -255,25 +255,30 @@ public class CLIJxWeka2 {
     }
 
     private static ClearCLBuffer featureStackToInstance(CLIJx clijx, ClearCLBuffer featuresCl, FastRandomForest classifier, int numberOfClasses) {
-        long[] dims2d = new long[]{featuresCl.getWidth(), featuresCl.getHeight(), 1};
+        long[] dimensions2d = new long[]{featuresCl.getWidth(), featuresCl.getHeight(), 1};
         int numberOfFeatures = (int) featuresCl.getDepth();
 
+        clijx.stopWatch("");
+
+        // Convert classifier to labkit-clij-weka
         RandomForestPrediction prediction = new RandomForestPrediction(classifier, numberOfClasses, numberOfFeatures);
+        clijx.stopWatch("Convert classifier");
 
-        //RandomAccessibleInterval<?> featuresRAI = clijx.pullRAI(featuresCl);
-        CLIJMultiChannelImage featureMultiChannelImage = new CLIJMultiChannelImage(clijx, dims2d, numberOfFeatures);
+        // Convert feature stack
+        CLIJMultiChannelImage featureMultiChannelImage = new CLIJMultiChannelImage(clijx, dimensions2d, numberOfFeatures);
         clijx.copy(featuresCl, featureMultiChannelImage.asClearCLBuffer());
+        clijx.stopWatch("Convert feature stack");
 
-        long[] dims = new long[featuresCl.getDimensions().length];
-        dims[0] = featuresCl.getWidth();
-        dims[1] = featuresCl.getHeight();
-        dims[2] = 1;
-
-        CLIJMultiChannelImage distribution = new CLIJMultiChannelImage(clijx, dims, numberOfClasses);
+        // Generate probability distribution
+        CLIJMultiChannelImage distribution = new CLIJMultiChannelImage(clijx, dimensions2d, numberOfClasses);
         prediction.distribution(clijx, featureMultiChannelImage, distribution);
+        clijx.stopWatch("Generate probability maps");
 
-        ClearCLBuffer result = clijx.create(dims, NativeTypeEnum.Float);
+        // classification
+        ClearCLBuffer result = clijx.create(dimensions2d, NativeTypeEnum.Float);
         CLIJRandomForestKernel.findMax(clijx, distribution, result);
+        clijx.stopWatch("Classification");
+
         return result;
 
 
