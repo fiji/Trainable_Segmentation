@@ -97,7 +97,7 @@ public class WekaDemo {
 
             FastRandomForest classifier = cw.getClassifier();
             int numberOfClasses = cw.getNumberOfClasses();
-            durations.put("B Train FastRandomForest using Weka", System.currentTimeMillis() - time);
+            durations.put("B Train FastRandomForest using Weka 1", System.currentTimeMillis() - time);
 
             // -------------------------------------------------------------------------------------------------------------
             // Predict (internally with Fijis Trainable Segmentation)
@@ -105,7 +105,7 @@ public class WekaDemo {
             CLIJxWeka cw2 = new CLIJxWeka(clijx, featureStack, classifier, numberOfClasses);
 
             ClearCLBuffer buffer = cw2.getClassification();
-            durations.put("C Predict FastRandomForest using Weka", System.currentTimeMillis() - time);
+            durations.put("C Predict FastRandomForest using Weka 1", System.currentTimeMillis() - time);
 
             clijx.show(buffer, "classification");
 
@@ -126,10 +126,77 @@ public class WekaDemo {
 
             clijx.show(buffer, "classification_opencl2");
         }
+
+        // -------------------------------------------------------------------------------------------------------------
+        // Benchmark Weka + Labikit kernel
+        {
+            // Load Example data
+            ImagePlus inputImp = IJ.openImage("src/test/resources/NPC_T01_c2.tif");
+            IJ.run(inputImp, "32-bit", "");
+            ImagePlus partialGroundTruthImp = IJ.openImage("src/test/resources/NPC_T01_c2_ground_truth.tif");
+
+            String featureDefinition = "original gaussianblur=1 gaussianblur=5 sobelofgaussian=1 sobelofgaussian=5";
+
+            // push to GPU
+            input = clijx.push(inputImp);
+            partialGroundTruth = clijx.push(partialGroundTruthImp);
+
+            // -------------------------------------------------------------------------------------------------------------
+            // generate feature stack
+            time = System.currentTimeMillis();
+            featureStack = GenerateFeatureStack.generateFeatureStack(clijx, input, featureDefinition);
+            clijx.release(featureStack);
+            durations.put("A feature stack generation CLIJ 3", System.currentTimeMillis() - time);
+
+            // -------------------------------------------------------------------------------------------------------------
+            // generate feature stack again
+            time = System.currentTimeMillis();
+            featureStack = GenerateFeatureStack.generateFeatureStack(clijx, input, featureDefinition);
+            durations.put("A feature stack generation CLIJ 4", System.currentTimeMillis() - time);
+
+            // -------------------------------------------------------------------------------------------------------------
+            // show input data
+            //new ImageJ();
+            clijx.show(input, "input");
+            clijx.show(partialGroundTruth, "partial ground truth");
+            clijx.show(featureStack, "feature stack");
+
+            // -------------------------------------------------------------------------------------------------------------
+            // Train (internally with Fijis Trainable Segmentation)
+            time = System.currentTimeMillis();
+            CLIJxWeka2 cw = new CLIJxWeka2(clijx, featureStack, partialGroundTruth);
+
+            hr.irb.fastRandomForest.FastRandomForest classifier = cw.getClassifier();
+            int numberOfClasses = cw.getNumberOfClasses();
+            durations.put("B Train FastRandomForest using Weka 2", System.currentTimeMillis() - time);
+
+            // -------------------------------------------------------------------------------------------------------------
+            // Predict (internally with Labkit Kernel)
+            time = System.currentTimeMillis();
+            CLIJxWeka2 cw2 = new CLIJxWeka2(clijx, featureStack, classifier, numberOfClasses);
+
+            ClearCLBuffer buffer = cw2.getClassification();
+            durations.put("C Predict FastRandomForest using Weka + Labkit Kernel 1", System.currentTimeMillis() - time);
+
+            clijx.show(buffer, "classification LK1");
+
+            // -------------------------------------------------------------------------------------------------------------
+            // Predict (internally with Labkit Kernel)
+            time = System.currentTimeMillis();
+            CLIJxWeka2 cw3 = new CLIJxWeka2(clijx, featureStack, classifier, numberOfClasses);
+
+            buffer = cw3.getClassification();
+            durations.put("C Predict FastRandomForest using Weka + Labkit Kernel 2", System.currentTimeMillis() - time);
+
+            clijx.show(buffer, "classification LK2");
+
+        }
+
         // -------------------------------------------------------------------------------------------------------------
         //
 
         // Benchmark imglib2-trainable-segmentation
+        if (false)
         {
             // How can I determine these numbers?
             int numberOfFeatures = 10;
