@@ -13,10 +13,7 @@ import ij.process.ImageProcessor;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
 import net.haesleinhuepf.clij.coremem.enums.NativeTypeEnum;
 import net.haesleinhuepf.clijx.CLIJx;
-import net.haesleinhuepf.clijx.weka.ApplyOCLWekaModel;
-import net.haesleinhuepf.clijx.weka.CLIJxWeka;
-import net.haesleinhuepf.clijx.weka.GenerateFeatureStack;
-import net.haesleinhuepf.clijx.weka.TrainWekaModel;
+import net.haesleinhuepf.clijx.weka.*;
 import net.haesleinhuepf.clijx.weka.gui.kernels.MakeRGB;
 
 import javax.swing.*;
@@ -43,7 +40,7 @@ public class CLIJxWekaBinaryPixelClassification extends InteractivePanelPlugin  
 
     ClearCLBuffer clInput = null;
     ClearCLBuffer clResult = null;
-    CLIJxWeka clijxweka = null;
+    CLIJxWeka2 clijxweka = null;
 
     public CLIJxWekaBinaryPixelClassification() {
         overlay = new Overlay();
@@ -425,9 +422,10 @@ public class CLIJxWekaBinaryPixelClassification extends InteractivePanelPlugin  
 
         clijxweka = TrainWekaModel.trainWekaModel(clijx, clFeatureStack, clGroundTruth, CLIJxWekaPropertyHolder.pixelClassificationModelFile);
 
-        String ocl = clijxweka.getOCL();
+        //String ocl = clijxweka.getOCL();
 
-        ApplyOCLWekaModel.applyOCL(clijx, clFeatureStack, clResult, ocl);
+        //ApplyOCLWekaModel.applyOCL(clijx, clFeatureStack, clResult, ocl);
+        ApplyWekaModel.applyWekaModel(clijx, clFeatureStack, clResult, clijxweka);
 
         updateVisualisation();
 

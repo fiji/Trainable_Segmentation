@@ -9,6 +9,7 @@ import net.haesleinhuepf.clij2.utilities.HasAuthor;
 import net.haesleinhuepf.clij2.utilities.HasLicense;
 import net.haesleinhuepf.clijx.CLIJx;
 import net.haesleinhuepf.clijx.utilities.AbstractCLIJxPlugin;
+import org.jocl.CL;
 import org.scijava.plugin.Plugin;
 
 import java.io.File;
@@ -28,7 +29,7 @@ public class GenerateWekaProbabilityMaps extends AbstractCLIJxPlugin implements 
     }
 
     public static boolean generateWekaProbabilityMaps(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer dstProbabilityMaps, String loadModelFilename) {
-        if (new File(loadModelFilename + ".cl").exists()) {
+        /*if (new File(loadModelFilename + ".cl").exists()) {
             HashMap<String, Object> parameters = new HashMap<>();
             parameters.put("src_featureStack", srcFeatureStack3D);
             parameters.put("dst", dstProbabilityMaps);
@@ -37,14 +38,19 @@ public class GenerateWekaProbabilityMaps extends AbstractCLIJxPlugin implements 
             clijx.execute(Object.class,loadModelFilename + ".cl", "classify_feature_stack", dims, dims, parameters);
         } else {
             new IllegalArgumentException("This model hasn't been saved as CLIJ OpenCL Model. Try retraining.");
-        }
+        }*/
+        CLIJxWeka2 clijxweka = new CLIJxWeka2(clijx, srcFeatureStack3D, loadModelFilename);
+        ClearCLBuffer buffer = clijxweka.getDistribution();
+        clijx.copy(buffer,dstProbabilityMaps);
+        clijx.release(buffer);
+
         return true;
     }
 
     @Override
     public ClearCLBuffer createOutputBufferFromSource(ClearCLBuffer input) {
         String filename = (String) args[2];
-        int numClasses = new CLIJxWeka(null, null, filename).getNumberOfClasses();
+        int numClasses = new CLIJxWeka2(null, null, filename).getNumberOfClasses();
         return getCLIJx().create(new long[]{input.getWidth(), input.getHeight(), numClasses}, NativeTypeEnum.Float);
     }
 

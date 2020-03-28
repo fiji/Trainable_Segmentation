@@ -33,14 +33,15 @@ public class ApplyOCLWekaModel extends AbstractCLIJxPlugin implements CLIJMacroP
         return true;
     }
 
-    public static CLIJxWeka applyOCLWekaModel(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer dstClassificationResult, String loadModelFilename) {
+    public static CLIJxWeka2 applyOCLWekaModel(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer dstClassificationResult, String loadModelFilename) {
         //clijx.stopWatch("");
-        CLIJxWeka clijxweka = new CLIJxWeka(clijx, srcFeatureStack3D, loadModelFilename);
+        CLIJxWeka2 clijxweka = new CLIJxWeka2(clijx, srcFeatureStack3D, loadModelFilename);
         //clijx.stopWatch("init");
-        String ocl = clijxweka.getOCL();
-
-        applyOCL(clijx, srcFeatureStack3D, dstClassificationResult, ocl);
-
+        //String ocl = clijxweka.getOCL();
+        //applyOCL(clijx, srcFeatureStack3D, dstClassificationResult, ocl);
+        ClearCLBuffer classification = clijxweka.getClassification();
+        clijx.copy(classification, dstClassificationResult);
+        clijx.release(classification);
         return clijxweka;
     }
 

@@ -24,8 +24,8 @@ public class TrainWekaModelWithOptions extends AbstractCLIJxPlugin implements CL
         return true;
     }
 
-    public static CLIJxWeka trainWekaModelWithOptions(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer srcGroundTruth2D, String saveModelFilename, Integer numberOfTrees, Integer numberOfFeatures, Integer maxDepth) {
-        CLIJxWeka weka = new CLIJxWeka(clijx, srcFeatureStack3D, srcGroundTruth2D);
+    public static CLIJxWeka2 trainWekaModelWithOptions(CLIJx clijx, ClearCLBuffer srcFeatureStack3D, ClearCLBuffer srcGroundTruth2D, String saveModelFilename, Integer numberOfTrees, Integer numberOfFeatures, Integer maxDepth) {
+        CLIJxWeka2 weka = new CLIJxWeka2(clijx, srcFeatureStack3D, srcGroundTruth2D);
         weka.setNumberOfTrees(numberOfTrees);
         weka.setNumberOfFeatures(numberOfFeatures);
         weka.setMaxDepth(maxDepth);

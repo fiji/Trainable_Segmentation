@@ -18,7 +18,8 @@ import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
 import net.haesleinhuepf.clij.coremem.enums.NativeTypeEnum;
 import net.haesleinhuepf.clijx.CLIJx;
 import net.haesleinhuepf.clijx.weka.ApplyOCLWekaModel;
-import net.haesleinhuepf.clijx.weka.CLIJxWeka;
+import net.haesleinhuepf.clijx.weka.ApplyWekaModel;
+import net.haesleinhuepf.clijx.weka.CLIJxWeka2;
 
 import javax.swing.*;
 import java.awt.*;
@@ -219,13 +220,13 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
         System.out.println("Ground truth:");
         clijx.print(ground_truth);
 
-        CLIJxWeka clijxweka = new CLIJxWeka(clijx, featureStack, ground_truth);
+        CLIJxWeka2 clijxweka = new CLIJxWeka2(clijx, featureStack, ground_truth);
         clijxweka.getClassifier();
         //clijxweka.saveClassifier("temp.model");
 
         ClearCLBuffer result = clijx.create(ground_truth);
 
-        ApplyOCLWekaModel.applyOCL(clijx, featureStack, result, clijxweka.getOCL());
+        ApplyWekaModel.applyWekaModel(clijx, featureStack, result, clijxweka);
 
         resultArray = new float[(int) result.getWidth()];
         FloatBuffer buffer = FloatBuffer.wrap(resultArray);

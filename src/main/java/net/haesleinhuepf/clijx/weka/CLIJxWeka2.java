@@ -67,6 +67,7 @@ public class CLIJxWeka2 {
     private CLIJx clijx;
     private ClearCLBuffer featureStack;
     private ClearCLBuffer classification;
+    private CLIJMultiChannelImage distribution;
 
 
     private int frf_numberOfTrees = 200;
@@ -254,7 +255,7 @@ public class CLIJxWeka2 {
         clijx.release(transposed);
     }
 
-    private static ClearCLBuffer featureStackToInstance(CLIJx clijx, ClearCLBuffer featuresCl, FastRandomForest classifier, int numberOfClasses) {
+    private static CLIJMultiChannelImage featureStackToDistribution(CLIJx clijx, ClearCLBuffer featuresCl, FastRandomForest classifier, int numberOfClasses) {
         long[] dimensions2d = new long[]{featuresCl.getWidth(), featuresCl.getHeight(), 1};
         int numberOfFeatures = (int) featuresCl.getDepth();
 
@@ -274,7 +275,14 @@ public class CLIJxWeka2 {
         prediction.distribution(clijx, featureMultiChannelImage, distribution);
         clijx.stopWatch("Generate probability maps");
 
-        // classification
+        return distribution;
+    }
+
+    //private static ClearCLBuffer featureStackToInstance(CLIJx clijx, ClearCLBuffer featuresCl, FastRandomForest classifier, int numberOfClasses) {
+    private static ClearCLBuffer distributionToInstance(CLIJx clijx, CLIJMultiChannelImage distribution) {
+        long[] dimensions2d = new long[]{distribution.asClearCLBuffer().getWidth(), distribution.asClearCLBuffer().getHeight(), 1};
+
+                // classification
         ClearCLBuffer result = clijx.create(dimensions2d, NativeTypeEnum.Float);
         CLIJRandomForestKernel.findMax(clijx, distribution, result);
         clijx.stopWatch("Classification");
@@ -344,7 +352,8 @@ public class CLIJxWeka2 {
             return;
         }
 
-        classification = featureStackToInstance(clijx, featureStack, classifier, numberOfClasses);
+        distribution = featureStackToDistribution(clijx, featureStack, classifier, numberOfClasses);
+        classification = distributionToInstance(clijx, distribution);
     }
 
     public FastRandomForest getClassifier() {
@@ -355,6 +364,11 @@ public class CLIJxWeka2 {
     public ClearCLBuffer getClassification() {
         applyClassifier();
         return classification;
+    }
+
+    public ClearCLBuffer getDistribution() {
+        applyClassifier();
+        return distribution.asClearCLBuffer();
     }
 
     public void saveClassifier(String filename) {
