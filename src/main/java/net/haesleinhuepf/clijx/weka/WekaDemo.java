@@ -2,15 +2,12 @@ package net.haesleinhuepf.clijx.weka;
 
 import hr.irb.fastRandomForest_clij.FastRandomForest;
 import ij.IJ;
-import ij.ImageJ;
 import ij.ImagePlus;
-import ij.gui.NewImage;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
 import net.haesleinhuepf.clij.coremem.enums.NativeTypeEnum;
 import net.haesleinhuepf.clij2.CLIJ2;
 import net.haesleinhuepf.clijx.CLIJx;
 import net.imagej.ops.OpEnvironment;
-import net.imagej.ops.OpService;
 import net.imglib2.Cursor;
 import net.imglib2.Dimensions;
 import net.imglib2.RandomAccessibleInterval;
@@ -18,7 +15,6 @@ import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.roi.labeling.LabelRegions;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.trainable_segmention.classification.CompositeInstance;
@@ -26,7 +22,8 @@ import net.imglib2.trainable_segmention.classification.Segmenter;
 import net.imglib2.trainable_segmention.classification.Trainer;
 import net.imglib2.trainable_segmention.clij_random_forest.*;
 import net.imglib2.trainable_segmention.pixel_feature.filter.GroupedFeatures;
-import net.imglib2.trainable_segmention.pixel_feature.settings.FeatureSetting;
+import net.imglib2.trainable_segmention.pixel_feature.filter.SingleFeatures;
+import net.imglib2.trainable_segmention.pixel_feature.settings.ChannelSetting;
 import net.imglib2.trainable_segmention.pixel_feature.settings.FeatureSettings;
 import net.imglib2.trainable_segmention.pixel_feature.settings.GlobalSettings;
 import net.imglib2.type.numeric.integer.IntType;
@@ -140,6 +137,7 @@ public class WekaDemo {
 
             // There are errors when working with 2D images, thus we extend them to 3D
             // Question: Is Labkit supposed to work with 2D data?
+			// Answer: No 2D is supposed to work as well, the clij branch is still WIP. I need to fix this.
             ClearCLBuffer input3D = clijx.create(new long[]{input.getWidth(), input.getHeight(), 1}, input.getNativeType());
             clijx.copySlice(input, input3D, 0);
             ClearCLBuffer partialGroundTruth3D = clijx.create(new long[]{partialGroundTruth.getWidth(), partialGroundTruth.getHeight(), 1}, partialGroundTruth.getNativeType());
@@ -164,16 +162,26 @@ public class WekaDemo {
             classNames.add("2");
 
             // Question: Is it possible to hand over a feature-stack-RAI? If yes, with which dimensionality/shape?
-            final FeatureSettings featureSettings = new FeatureSettings(GlobalSettings.default3d().build(),
+			// Yes, see below
+			final FeatureSettings featureSettings = new FeatureSettings(GlobalSettings.default3d().build(),
                     // Question: How can I enter the original image as feature? Or is it there by default? How could I remove it?
-                    GroupedFeatures.gauss(), // Question: How can I enter custom radii?
+					// Answer: use SingleFeatures.identity()
+                    GroupedFeatures.gauss(),
+					// Question: How can I enter custom radii?
+					// There are two ways to do so:
+					// Answer 1, specify custom radii in the global settings: GlobalSettings.default2d().sigmas(1, 3, 9).build()
+					// Answer 2, use SingleFeautres: SingleFeatures.gauss(2.5), SingleFeatures.gauss(7.7)
                     //GroupedFeatures.differenceOfGaussians(),
                     //GroupedFeatures.hessian(),
                     GroupedFeatures.gradient()); // Question: I would like to use the gradient of different Gaussians as feature, how can I specify this?
+					// Answer all the GroupedFeatures are applied to all the sigmas specified with GlobalSettings
+
 
             // Question: In CLIJxWeka, I struggle saving feature-definition and classifier together in a file.
             //           However, that's kind of a must. How would you do this? What format shall we use for this?
-            
+			// I write it all together in one json file, that's what {@link Segmenter#toJson()} is for.
+			// We should definitely talk about this.
+
             // -------------------------------------------------------------------------------------------------------------
             // train using imglib2-trainable-segmentsion
             time = System.currentTimeMillis();
@@ -185,6 +193,8 @@ public class WekaDemo {
             // predict using imglib2-trainable-segmentation
             time = System.currentTimeMillis();
             // Question: Is there a way to create a Segmenter from a classifier?
+			// No, It would be very hard to train it with the correct set of features.
+			// Why would you want to do that?
             //Segmenter segmenter = new Segmenter(ops, classNames, featureSettings, initRandomForest);
             RandomAccessibleInterval result = segmenter.segment(inputRAI);
             durations.put("E Predict FastRandomForest using imglib2-trainable-segmentation", System.currentTimeMillis() - time);
@@ -237,8 +247,20 @@ public class WekaDemo {
 
     }
 
+	// Question: Is it possible to hand over a feature-stack-RAI? If yes, with which dimensionality/shape?
+	// Yes, it's possible, channel order should be XYC or XYZC
+	private RandomAccessibleInterval< UnsignedByteType > Answer(RandomAccessibleInterval< FloatType > featureStack,
+			LabelRegions< ? > labeling, OpEnvironment ops) {
+    	int numberOfChannels = (int) featureStack.dimension(2);
+		GlobalSettings globalSettings = GlobalSettings.default2d().channels(ChannelSetting.multiple(numberOfChannels)).build();
+		FeatureSettings featureSettings = new FeatureSettings(globalSettings, SingleFeatures.identity());
+		Segmenter segmenter = Trainer.train(ops, featureStack, labeling, featureSettings);
+		return segmenter.segment(featureStack);
+	}
+
     // Question: Is there an easier way for doing this?
     // source: https://forum.image.sc/t/construct-labelregions-from-labelmap/20590/2
+	// Answer: There is a new method ImgLabling.fromImageAndLabels(...) which should make think's a little bit simpler.
     private static LabelRegions raiToLabeling(OpEnvironment ops, RandomAccessibleInterval labelingRai) {
 
         RandomAccessibleInterval<IntType> img = ops.convert().int32(Views.iterable(labelingRai));
