@@ -203,6 +203,7 @@ public class CLIJxWeka2 {
         return attributes;
     }
 
+
     private static void featureStackToInstance(CLIJx clijx, ClearCLBuffer stack, ClearCLBuffer classification, Instances instances) {
         // transpose stack for faster access in feature (Z) direction
         // and convert to float
@@ -381,6 +382,26 @@ public class CLIJxWeka2 {
         }
         if (new File(filename).getParentFile() != null) {
             new File(filename).getParentFile().mkdirs();
+        }
+
+
+        try {
+            File sFile = new File(filename);
+            OutputStream os = new FileOutputStream(sFile);
+            if (sFile.getName().endsWith(".gz"))
+            {
+                os = new GZIPOutputStream(os);
+            }
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            oos.writeObject(classifier);
+            oos.writeObject(numberOfClasses);
+            oos.writeObject(numberOfFeatures);
+            oos.flush();
+            oos.close();
+        }
+        catch (Exception e)
+        {
+            IJ.error("Save Failed", "Error when saving classifier into a file");
         }
     }
 
