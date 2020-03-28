@@ -44,7 +44,7 @@ public class ApplyAutoContextWekaModel extends AbstractCLIJxPlugin implements CL
         // -------------------------------------------------------------------
         // train classifier, save it as .0.model and as .0.model.cl file
         String model_filename = saveModelFilename + ".0.model";
-        CLIJxWeka clijxweka = ApplyOCLWekaModel.applyOCLWekaModel(clijx, feature_stack, prediction, model_filename);
+        CLIJxWeka2 clijxweka = ApplyOCLWekaModel.applyOCLWekaModel(clijx, feature_stack, prediction, model_filename);
         //CLIJxWeka clijxweka = TrainWekaModelWithOptions.trainWekaModelWithOptions(clijx, feature_stack, prediction, model_filename, numberOfTrees, numberOfFeatures, maxDepth);
 
         // get probabilities from the first round

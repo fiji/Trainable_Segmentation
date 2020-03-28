@@ -47,7 +47,7 @@ public class TrainAutoContextWekaModel extends AbstractCLIJxPlugin implements CL
         // -------------------------------------------------------------------
         // train classifier, save it as .0.model and as .0.model.cl file
         String model_filename = saveModelFilename + ".0.model";
-        CLIJxWeka clijxweka = TrainWekaModelWithOptions.trainWekaModelWithOptions(clijx, feature_stack, srcGroundTruth2D, model_filename, numberOfTrees, numberOfFeatures, maxDepth);
+        CLIJxWeka2 clijxweka = TrainWekaModelWithOptions.trainWekaModelWithOptions(clijx, feature_stack, srcGroundTruth2D, model_filename, numberOfTrees, numberOfFeatures, maxDepth);
 
         // get probabilities from the first round
         int numberOfClasses = clijxweka.getNumberOfClasses();
