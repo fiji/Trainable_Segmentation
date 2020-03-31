@@ -51,6 +51,7 @@ import java.util.zip.GZIPOutputStream;
  *           Albert Cardona (acardona@ini.phys.ethz.ch)
  *
  */
+@Deprecated
 public class CLIJxWeka {
 
 
