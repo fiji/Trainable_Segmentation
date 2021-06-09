@@ -15,7 +15,7 @@ The main goal of this library is to work as a **bridge between the Machine Learn
 
 For further details, please visit the [documentation site](https://imagej.net/Trainable_Weka_Segmentation).
 
-![Trainable Weka Segmentation pipeline overview](https://imagej.net/_images/d/db/TWS-pipeline.png)
+![Trainable Weka Segmentation pipeline overview](https://imagej.net/media/plugins/tws/tws-pipeline.png)
 
 Citation
 --------
