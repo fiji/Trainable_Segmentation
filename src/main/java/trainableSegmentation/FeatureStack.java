@@ -221,8 +221,10 @@ public class FeatureStack
 	private final boolean colorFeatures;
 	
 	/** flag to specify the use of the old color format (using directly the RGB values as float) */
-	private boolean oldColorFormat = false; 
-	
+	private boolean oldColorFormat = false;
+	/** flag to specify the use of the old (wrong) Hessian format (fixed in
+	 * version 3.2.25 of TWS) */
+	private boolean oldHessianFormat = false;
 	/** executor service to produce concurrent threads */
 	private ExecutorService exe = null;
 	
@@ -1006,10 +1008,21 @@ public class FeatureStack
 
 				// Ratio
 				//ipRatio.setf(x,y, (float)(trace*trace) / determinant);
-				// First eigenvalue: (a + d) / 2 + sqrt( ( 4*b^2 + (a - d)^2) / 2 )
-				ipEig1.setf(x,y, (float) ( trace/2.0 + Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) / 2.0 ) ) );
-				// Second eigenvalue: (a + d) / 2 - sqrt( ( 4*b^2 + (a - d)^2) / 2 )
-				ipEig2.setf(x,y, (float) ( trace/2.0 - Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) / 2.0 ) ) );
+				// First and second eigenvalues
+				if( this.isOldHessianFormat() )
+				{
+					// First eigenvalue: (a + d) / 2 + sqrt( ( 4*b^2 + (a - d)^2) / 2 )
+					ipEig1.setf(x,y, (float) ( trace/2.0 + Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) / 2.0 ) ) );
+					// Second eigenvalue: (a + d) / 2 - sqrt( ( 4*b^2 + (a - d)^2) / 2 )
+					ipEig2.setf(x,y, (float) ( trace/2.0 - Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) / 2.0 ) ) );
+				}
+				else
+				{
+					// First eigenvalue: (a + d + sqrt( ( 4*b^2 + (a - d)^2 ) ) / 2
+					ipEig1.setf(x,y, (float) ( trace + Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) ) ) / 2 );
+					// Second eigenvalue: (a + d - sqrt( ( 4*b^2 + (a - d)^2) ) / 2
+					ipEig2.setf(x,y, (float) ( trace - Math.sqrt((4*s_xy*s_xy + (s_xx - s_yy)*(s_xx - s_yy)) ) ) / 2 );
+				}
 				// Orientation
 				if (s_xy < 0.0) // -0.5 * acos( (a-d) / sqrt( 4*b^2 + (a - d)^2)) )
 				{
@@ -3514,14 +3527,32 @@ public class FeatureStack
 	}
 	
 	/**
-	 * Check if the feature stack is using the old color format.
+	 * Check if the feature stack is using the old Hessian format (previous to
+	 * TWS 3.2.25).
 	 * @return true if the feature stack is using the old color format
 	 */
 	public boolean isOldColorFormat()
 	{
 		return this.oldColorFormat;
 	}
+	/**
+	 * Set the use of old Hessian format.
+	 * @param b flag to set the use of old color format
+	 */
+	public void setOldHessianFormat( boolean b )
+	{
+		this.oldHessianFormat = b;
+	}
 
+	/**
+	 * Check if the feature stack is using the old Hessian format (previous to
+	 * TWS version 3.2.25).
+	 * @return true if the feature stack is using the old Hessian format
+	 */
+	public boolean isOldHessianFormat()
+	{
+		return this.oldHessianFormat;
+	}
 	// -- Helper methods --
 
 	private ImagePlus computeStructure(final ImagePlus imp, final double sigma,
