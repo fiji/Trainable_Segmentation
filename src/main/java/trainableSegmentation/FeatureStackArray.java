@@ -24,6 +24,7 @@ package trainableSegmentation;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
+import weka.core.Instances;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -566,6 +567,24 @@ public class FeatureStackArray
 	public boolean isOldoldHessianFormatFormat()
 	{
 		return this.oldHessianFormat;
+	}
+	/**
+	 * Reorder the features of each stack based on the order of attributes given
+	 * by a set of instances.
+	 * @param data set of instances to get the order from
+	 * @return true if reordering was possible
+	 */
+	public boolean reorderFeatures( Instances data )
+	{
+		if( null == data )
+			return false;
+		for(int i=0; i<featureStackArray.length; i++)
+			if(null != featureStackArray[i])
+			{
+				if( ! featureStackArray[i].reorderFeatures(data) );
+					return false;
+			}
+		return true;
 	}
 }
 

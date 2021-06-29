@@ -69,6 +69,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -3577,5 +3578,40 @@ public class FeatureStack
 
 		return mergeResultChannels(results);
 	}
+	/**
+	 * Reorder the feature stack to match the order given by a set of instances.
+	 * @param data set of instances to get the right order of attributes from
+	 * @return true if reordering was possibles
+	 */
+	public boolean reorderFeatures( Instances data )
+	{
+		if ( null == data )
+			return false;
+		Enumeration<Attribute> attributes = data.enumerateAttributes();
 
+		int i = 0;
+		while(attributes.hasMoreElements())
+		{
+			if ( i == wholeStack.getSize() )
+				break;
+			final String featureName = attributes.nextElement().name();
+			if( !wholeStack.getSliceLabel(i+1).equals( featureName ))
+			{
+				// reorder
+				for( int j = i+1; j < wholeStack.getSize(); j++ )
+				{
+					if( wholeStack.getSliceLabel(j+1).equals( featureName ))
+					{
+						// put slice there
+						wholeStack.addSlice( wholeStack.getSliceLabel(j+1),
+								wholeStack.getProcessor(j+1), i);
+						wholeStack.deleteSlice( j+2 );
+						break;
+					}
+				}
+			}
+			i++;
+		}
+		return true;
+	}
 }

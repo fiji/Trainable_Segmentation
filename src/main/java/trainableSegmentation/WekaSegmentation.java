@@ -976,6 +976,8 @@ public class WekaSegmentation {
 				featureStackArray = fs3d.getFeatureStackArray();
 			}
 			Arrays.fill(featureStackToUpdateTrain, false);
+			if( null != trainHeader)
+				featureStackArray.reorderFeatures(trainHeader);
 			filterFeatureStackByList();
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -1041,6 +1043,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -1130,6 +1134,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -1246,6 +1252,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			updateFeatures = false;
 			IJ.log( "Feature stack is now updated." );
@@ -1329,6 +1337,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList( this.featureNames, featureStack );
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -1433,6 +1443,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList( this.featureNames, featureStack );
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -1542,6 +1554,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -1672,6 +1686,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -1787,6 +1803,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -1888,6 +1906,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -1990,6 +2010,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -2455,6 +2477,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -2600,6 +2624,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -2754,6 +2780,8 @@ public class WekaSegmentation {
 			if (!featureStackArray.updateFeaturesMT(featureStackToUpdateTrain))
 				return false;
 			Arrays.fill(featureStackToUpdateTrain, false);
+			if( null != trainHeader)
+				featureStackArray.reorderFeatures(trainHeader);
 			filterFeatureStackByList();
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -2854,6 +2882,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStackArray.get(n).updateFeaturesMT();
+			if( null != trainHeader)
+				featureStackArray.get(n).reorderFeatures(trainHeader);
 			filterFeatureStackByList();
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -2966,6 +2996,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStackArray.get(n).updateFeaturesMT();
+			if( null != trainHeader)
+				featureStackArray.get(n).reorderFeatures(trainHeader);
 			filterFeatureStackByList();
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -3041,6 +3073,8 @@ public class WekaSegmentation {
 			featureStack.setMaximumSigma(this.maximumSigma);
 			featureStack.setMinimumSigma(this.minimumSigma);
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 
 			featureStack.setUseNeighbors(useNeighbors);
@@ -3092,6 +3126,8 @@ public class WekaSegmentation {
 			featureStack.setMaximumSigma( this.maximumSigma );
 			featureStack.setMinimumSigma( this.minimumSigma );
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList( this.featureNames, featureStack );
 
 			featureStack.setUseNeighbors( useNeighbors );
@@ -3153,6 +3189,8 @@ public class WekaSegmentation {
 				return false;
 			}
 			featureStackArray = fs3d.getFeatureStackArray();
+			if( null != trainHeader)
+				featureStackArray.reorderFeatures(trainHeader);
 		}
 
 		for(int i=1; i <= inputSlices.getSize(); i++)
@@ -3183,6 +3221,8 @@ public class WekaSegmentation {
 				featureStack.setUseNeighbors( useNeighbors );
 				IJ.log( "Creating feature stack for slice " + i + "..." );
 				featureStack.updateFeaturesMT();
+				if( null != trainHeader)
+					featureStack.reorderFeatures(trainHeader);
 				filterFeatureStackByList( featureNames, featureStack );
 				IJ.log( "Feature stack is now updated." );
 			}
@@ -3240,6 +3280,8 @@ public class WekaSegmentation {
 			featureStack.setMinimumSigma(this.minimumSigma);
 			IJ.log("Creating feature stack for slice "+i+"...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
@@ -3303,6 +3345,8 @@ public class WekaSegmentation {
 			featureStack.setMinimumSigma(this.minimumSigma);
 			IJ.log("Creating feature stack for slice "+i+"...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
@@ -3362,6 +3406,8 @@ public class WekaSegmentation {
 			featureStack.setMinimumSigma(this.minimumSigma);
 			IJ.log("Creating feature stack for slice "+i+"...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
@@ -3426,6 +3472,8 @@ public class WekaSegmentation {
 			featureStack.setMinimumSigma(this.minimumSigma);
 			IJ.log("Creating feature stack for slice "+i+"...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
@@ -3486,6 +3534,8 @@ public class WekaSegmentation {
 			featureStack.setMinimumSigma(this.minimumSigma);
 			IJ.log("Creating feature stack for slice "+i+"...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
@@ -3555,6 +3605,8 @@ public class WekaSegmentation {
 			featureStack.setMinimumSigma(this.minimumSigma);
 			IJ.log("Creating feature stack for slice "+i+"...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
@@ -3625,6 +3677,8 @@ public class WekaSegmentation {
 			featureStack.setMinimumSigma(this.minimumSigma);
 			IJ.log("Creating feature stack for slice "+i+"...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
@@ -3691,6 +3745,8 @@ public class WekaSegmentation {
 			featureStack.setMinimumSigma(this.minimumSigma);
 			IJ.log("Creating feature stack for slice "+i+"...");
 			featureStack.updateFeaturesMT();
+			if( null != trainHeader)
+				featureStack.reorderFeatures(trainHeader);
 			filterFeatureStackByList(this.featureNames, featureStack);
 			IJ.log("Feature stack is now updated.");
 
@@ -3842,6 +3898,8 @@ public class WekaSegmentation {
 		{
 			IJ.log("Creating feature stack...");
 			featureStackArray.get(n).updateFeaturesMT();
+			if( null != trainHeader)
+				featureStackArray.get(n).reorderFeatures(trainHeader);
 			filterFeatureStackByList();
 			updateFeatures = false;
 			IJ.log("Feature stack is now updated.");
@@ -4112,6 +4170,8 @@ public class WekaSegmentation {
 			testImageFeatures.setMembranePatchSize(membranePatchSize);
 			testImageFeatures.setMembraneSize(membraneThickness);
 			testImageFeatures.updateFeaturesMT();
+			if( null != trainHeader)
+				testImageFeatures.reorderFeatures(trainHeader);
 			testImageFeatures.setUseNeighbors(featureStackArray.useNeighborhood());
 			filterFeatureStackByList(this.featureNames, testImageFeatures);
 
@@ -5315,6 +5375,8 @@ public class WekaSegmentation {
 			}
 			
 			Arrays.fill(featureStackToUpdateTrain, false);
+			if( null != trainHeader)
+				featureStackArray.reorderFeatures(trainHeader);
 			filterFeatureStackByList();
 			updateFeatures = false;
 
@@ -5449,6 +5511,8 @@ public class WekaSegmentation {
 			fs3d.setEnableFeatures( enabled3Dfeatures );
 			fs3d.updateFeaturesMT();
 			FeatureStackArray fsa = fs3d.getFeatureStackArray();
+			if( null != trainHeader)
+				fsa.reorderFeatures(trainHeader);
 			long end = System.currentTimeMillis();
 			IJ.log( "Feature stack array is now updated ("
 					+ imp.getImageStackSize()
@@ -5529,6 +5593,8 @@ public class WekaSegmentation {
                     sliceFeatures.setMembranePatchSize(membranePatchSize);
                     sliceFeatures.setMembraneSize(membraneThickness);
                     sliceFeatures.updateFeaturesMT( numFurtherThreads );
+                    if( null != trainHeader)
+                    	sliceFeatures.reorderFeatures(trainHeader);
                     filterFeatureStackByList(featureNames, sliceFeatures);
                     Instances sliceData = sliceFeatures.createInstances(classNames);
                     sliceData.setClassIndex(sliceData.numAttributes() - 1);
@@ -5931,6 +5997,8 @@ public class WekaSegmentation {
 					IJ.log("Classifier execution was interrupted.");
 					return null;
 				}
+				if( null != trainHeader)
+					sliceFeatures.reorderFeatures(trainHeader);
 				filterFeatureStackByList(featureNames, sliceFeatures);
 
 				final int width = slice.getWidth();
@@ -6049,6 +6117,8 @@ public class WekaSegmentation {
 						IJ.log("Classifier execution was interrupted.");
 						return null;
 					}
+					if( null != trainHeader)
+						sliceFeatures.reorderFeatures(trainHeader);
 					filterFeatureStackByList(featureNames, sliceFeatures);
 
 					final int width = image.getWidth();
@@ -6378,6 +6448,8 @@ public class WekaSegmentation {
 			}
 
 			Arrays.fill(featureStackToUpdateTest, false);
+			if( null != trainHeader)
+				featureStackArray.reorderFeatures(trainHeader);
 			filterFeatureStackByList();
 			updateFeatures = false;
 
@@ -7472,6 +7544,10 @@ public class WekaSegmentation {
 				fs3d.updateFeaturesMT();
 				featureStackArray = fs3d.getFeatureStackArray();
 			}
+			if( null != trainHeader)
+				featureStackArray.reorderFeatures(trainHeader);
+			else
+				IJ.log("Train header is null");
 		}
 
 		if(null == dir || null == fileWithExt)
