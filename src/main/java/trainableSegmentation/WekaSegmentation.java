@@ -804,7 +804,8 @@ public class WekaSegmentation {
 		this.classifier = newClassifier;
 		this.trainHeader = newHeader;
 		// check model version to assign Hessian format
-		this.getFeatureStackArray().setOldHessianFormat(
+		if( null != this.featureStackArray )
+			this.getFeatureStackArray().setOldHessianFormat(
 				getModelVersion().startsWith("segment") );
 		return true;
 	}
