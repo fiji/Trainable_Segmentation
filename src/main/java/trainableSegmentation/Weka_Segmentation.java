@@ -49,6 +49,8 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
@@ -71,6 +73,7 @@ import java.util.zip.GZIPOutputStream;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -257,10 +260,7 @@ public class Weka_Segmentation implements PlugIn
 	public Weka_Segmentation()
 	{
 		// Create overlay LUT
-		final byte[] red = new byte[ 256 ];
-		final byte[] green = new byte[ 256 ];
-		final byte[] blue = new byte[ 256 ];
-		
+
 		// assign colors to classes				
 		colors = new Color[ WekaSegmentation.MAX_NUM_CLASSES ];
 		
@@ -283,15 +283,8 @@ public class Weka_Segmentation implements PlugIn
 				saturation -= 1;
 			saturation = 0.5f * saturation + 0.5f;							
 		}
-							
-		for(int i = 0 ; i < WekaSegmentation.MAX_NUM_CLASSES; i++)
-		{
-			//IJ.log("i = " + i + " color index = " + colorIndex);
-			red[i] = (byte) colors[ i ].getRed();
-			green[i] = (byte) colors[ i ].getGreen();
-			blue[i] = (byte) colors[ i ].getBlue();
-		}
-		overlayLUT = new LUT(red, green, blue);
+
+		overlayLUT = trainableSegmentation.utils.Utils.createLUT( colors );
 
 		exampleList = new java.awt.List[WekaSegmentation.MAX_NUM_CLASSES];
 		addExampleButton = new JButton[WekaSegmentation.MAX_NUM_CLASSES];
@@ -470,6 +463,42 @@ public class Weka_Segmentation implements PlugIn
 		}
 	};
 
+	private MouseListener mouseListener = new MouseListener() {
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+		@Override
+		public void mousePressed(MouseEvent e) {}
+		@Override
+		public void mouseExited(MouseEvent e) {}
+		@Override
+		public void mouseEntered(MouseEvent e) {}
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if( e.getButton() == MouseEvent.BUTTON3 )
+			{
+				for(int i = 0; i < wekaSegmentation.getNumOfClasses(); i++)
+				{
+					if(e.getSource() == addExampleButton[i])
+					{
+						Color newColor = JColorChooser.showDialog( addExampleButton[i],
+								"Choose Color", colors[i] );
+						if( null != newColor )
+						{
+							colors[i] = newColor;
+							exampleList[i].setForeground(colors[i]);
+							exampleList[i].repaint();
+							overlayLUT = trainableSegmentation.utils.Utils.createLUT( colors );
+							displayImage.killRoi();
+							win.drawExamples();
+							updateResultOverlay();
+						}
+						break;
+					}
+				}
+				win.updateButtonsEnabling();
+			}
+		}
+	};
 	/**
 	 * Custom canvas to deal with zooming an panning
 	 */
@@ -677,7 +706,10 @@ public class Weka_Segmentation implements PlugIn
 
 			// Add listeners
 			for(int i = 0; i < wekaSegmentation.getNumOfClasses(); i++)
+			{
 				addExampleButton[i].addActionListener(listener);
+				addExampleButton[i].addMouseListener(mouseListener);
+			}
 			trainButton.addActionListener(listener);
 			overlayButton.addActionListener(listener);
 			resultButton.addActionListener(listener);
@@ -1359,7 +1391,6 @@ public class Weka_Segmentation implements PlugIn
 			Integer.toString(n)	};
 		record(ADD_TRACE, arg);
 	}
-
 
 	/**
 	 * Update the result image
