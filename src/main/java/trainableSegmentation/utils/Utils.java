@@ -41,6 +41,7 @@ import java.util.HashMap;
 
 import org.scijava.vecmath.Point3f;
 
+import trainableSegmentation.WekaSegmentation;
 import trainableSegmentation.metrics.ClassificationStatistics;
 import util.FindConnectedRegions;
 import util.FindConnectedRegions.Results;
@@ -863,6 +864,25 @@ public final class Utils {
 			saturation = 0.5f * saturation + 0.5f;
 		}
 		return new LUT( red, green, blue );
+	}
+	/**
+	 * Create look-up table (LUT) from array of colors
+	 * @param colors array of colors defining the LUT
+	 * @return generated LUT
+	 */
+	public static LUT createLUT( Color[] colors )
+	{
+		final byte[] red = new byte[ 256 ];
+		final byte[] green = new byte[ 256 ];
+		final byte[] blue = new byte[ 256 ];
+
+		for(int i = 0 ; i < colors.length; i++)
+		{
+			red[i] = (byte) colors[ i ].getRed();
+			green[i] = (byte) colors[ i ].getGreen();
+			blue[i] = (byte) colors[ i ].getBlue();
+		}
+		return new LUT(red, green, blue);
 	}
 	/**
 	 * Insert an image into another one (2D or 3D).
