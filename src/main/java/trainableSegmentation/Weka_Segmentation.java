@@ -234,6 +234,8 @@ public class Weka_Segmentation implements PlugIn
 	public static final String SET_MINIMUM_SIGMA = "setMinimumSigma";
 	/** name of the macro method to set the maximum kernel radius */
 	public static final String SET_MAXIMUM_SIGMA = "setMaximumSigma";
+	/** name of the macro method to change the color associated to a class */
+	public static final String CHANGE_CLASS_COLOR = "changeClassColor";
 	/**
 	 * name of the macro method to enable/disable the class homogenization
 	 * @deprecated use SET_BALANCE instead
@@ -1025,7 +1027,30 @@ public class Weka_Segmentation implements PlugIn
 		{
 			return overlayLUT;
 		}
-		
+		/**
+		 * Set the label lookup table (used to color the results)
+		 * @param lut current overlay LUT
+		 */
+		public void setOverlayLUT(LUT lut)
+		{
+			overlayLUT = lut;
+		}
+		/**
+		 * Get current label colors
+		 * @return current array of colors
+		 */
+		public Color[] getOverlayColors()
+		{
+			return colors;
+		}
+		/*
+		 * Set the label color array
+		 * @param newColors new array of colors
+		 */
+		public void setOverlayColors( Color[] newColors )
+		{
+			colors = newColors;
+		}
 		/**
 		 * Draw the painted traces on the display image
 		 */
@@ -1459,6 +1484,12 @@ public class Weka_Segmentation implements PlugIn
 			displayImage.killRoi();
 			win.drawExamples();
 			updateResultOverlay();
+
+			// Record
+			String[] arg = new String[] {
+					Integer.toString( i ),
+					newColor.toString() };
+			record(CHANGE_CLASS_COLOR, arg);
 		}
 	}
 
@@ -3249,7 +3280,31 @@ public class Weka_Segmentation implements PlugIn
 			win.resultOverlay.setComposite(alpha);
 		}
 	}	
-	
+	/**
+	 * Change the color associated to a class.
+	 *
+	 * @param classNum string representing the class index (starts at 0)
+	 * @param color string representing the new class color (in hex format)
+	 */
+	public static void changeClassColor(
+			String classNum,
+			String color)
+	{
+		final ImageWindow iw = WindowManager.getCurrentImage().getWindow();
+		if( iw instanceof CustomWindow )
+		{
+			final CustomWindow win = (CustomWindow) iw;
+			final int i = Integer.parseInt( classNum );
+
+			Color[] colors = win.getOverlayColors();
+			colors[i] = Color.decode( color );
+			LUT overlayLUT = trainableSegmentation.utils.Utils.createLUT( colors );
+			win.setOverlayLUT( overlayLUT );
+			win.getDisplayImage().killRoi();
+			win.drawExamples();
+			win.updateExampleLists();
+		}
+	}
 	/**
 	 * Disables features which rely on missing third party libraries.
 	 * @param gd settings dialog
