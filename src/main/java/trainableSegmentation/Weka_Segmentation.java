@@ -1425,14 +1425,16 @@ public class Weka_Segmentation implements PlugIn
 	 */
 	public void updateResultOverlay()
 	{
-		ImageProcessor overlay = classifiedImage.getImageStack().getProcessor(displayImage.getCurrentSlice()).duplicate();
+		if( null != classifiedImage )
+		{
+			ImageProcessor overlay = classifiedImage.getImageStack().getProcessor(
+					displayImage.getCurrentSlice()).duplicate();
 
-		//IJ.log("updating overlay with result from slice " + displayImage.getCurrentSlice());
-				
-		overlay = overlay.convertToByte(false);
-		overlay.setColorModel(overlayLUT);
+			overlay = overlay.convertToByte(false);
+			overlay.setColorModel(overlayLUT);
 
-		win.resultOverlay.setImage(overlay);
+			win.resultOverlay.setImage(overlay);
+		}
 	}
 	
 	/**
