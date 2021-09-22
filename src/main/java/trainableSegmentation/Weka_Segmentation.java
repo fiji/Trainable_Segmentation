@@ -1488,9 +1488,11 @@ public class Weka_Segmentation implements PlugIn
 			updateResultOverlay();
 
 			// Record
+			String hex = String.format("#%02x%02x%02x", newColor.getRed(),
+						newColor.getGreen(), newColor.getBlue());
 			String[] arg = new String[] {
 					Integer.toString( i ),
-					newColor.toString() };
+					hex };
 			record(CHANGE_CLASS_COLOR, arg);
 		}
 	}
