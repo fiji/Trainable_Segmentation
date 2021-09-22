@@ -462,7 +462,9 @@ public class Weka_Segmentation implements PlugIn
 			});
 		}
 	};
-
+	/**
+	 * Mouse listener to add right-click functionality.
+	 */
 	private MouseListener mouseListener = new MouseListener() {
 		@Override
 		public void mouseReleased(MouseEvent e) {}
@@ -476,22 +478,13 @@ public class Weka_Segmentation implements PlugIn
 		public void mouseClicked(MouseEvent e) {
 			if( e.getButton() == MouseEvent.BUTTON3 )
 			{
+				// Check if right-click was done on top of one
+				// of the "add to class" buttons.
 				for(int i = 0; i < wekaSegmentation.getNumOfClasses(); i++)
 				{
 					if(e.getSource() == addExampleButton[i])
 					{
-						Color newColor = JColorChooser.showDialog( addExampleButton[i],
-								"Choose Color", colors[i] );
-						if( null != newColor )
-						{
-							colors[i] = newColor;
-							exampleList[i].setForeground(colors[i]);
-							exampleList[i].repaint();
-							overlayLUT = trainableSegmentation.utils.Utils.createLUT( colors );
-							displayImage.killRoi();
-							win.drawExamples();
-							updateResultOverlay();
-						}
+						updateClassColor( i );
 						break;
 					}
 				}
@@ -1446,6 +1439,27 @@ public class Weka_Segmentation implements PlugIn
 		}
 
 		displayImage.updateAndDraw();
+	}
+	/**
+	 * Show a color chooser dialog to update the color associated to
+	 * one class (when right-clicking on its corresponding "add to class"
+	 * button
+	 * @param i index of the example button (and class) to change
+	 */
+	void updateClassColor( final int i )
+	{
+		Color newColor = JColorChooser.showDialog( addExampleButton[i],
+				"Choose Color", colors[i] );
+		if( null != newColor )
+		{
+			colors[i] = newColor;
+			exampleList[i].setForeground(colors[i]);
+			exampleList[i].repaint();
+			overlayLUT = trainableSegmentation.utils.Utils.createLUT( colors );
+			displayImage.killRoi();
+			win.drawExamples();
+			updateResultOverlay();
+		}
 	}
 
 	/**
