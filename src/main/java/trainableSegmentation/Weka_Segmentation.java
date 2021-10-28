@@ -2364,7 +2364,7 @@ public class Weka_Segmentation implements PlugIn
 		gd.addButton("Save feature stack", new SaveFeatureStackButtonListener(
 				"Select location to save feature stack", wekaSegmentation ) );
 		gd.addSlider("Result overlay opacity", 0, 100, win.overlayOpacity);
-		gd.addHelp("http://fiji.sc/Trainable_Weka_Segmentation");
+		gd.addHelp("https://imagej.net/plugins/tws/");
 
 		gd.showDialog();
 
