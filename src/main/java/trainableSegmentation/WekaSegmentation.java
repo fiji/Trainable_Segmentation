@@ -2774,7 +2774,7 @@ public class WekaSegmentation {
      */
     public boolean setTrainHeader(final Instances newHeader)
     {
-        if (adjustSegmentationStateToData(newHeader))
+        if (null == newHeader || adjustSegmentationStateToData(newHeader))
         {
             this.trainHeader = newHeader;
             return true;
@@ -7441,6 +7441,9 @@ public class WekaSegmentation {
 
 		// Reset the reference index in the feature stack array
 		featureStackArray.resetReference();
+		// Reset the train header and the feature name list
+		trainHeader = null;
+		featureNames = null;
 	}
 
 	/**
