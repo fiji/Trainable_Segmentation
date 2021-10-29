@@ -827,8 +827,16 @@ public class WekaSegmentation {
 		this.trainHeader = newHeader;
 		// check model version to assign Hessian format
 		if( null != this.featureStackArray )
+		{
 			this.getFeatureStackArray().setOldHessianFormat(
 				getModelVersion().startsWith("segment") );
+			// Check if the feature stacks of the slices with
+			// traces have been updated yet, otherwise set them
+			// to be updated in test
+			for(int i = 0; i < featureStackArray.getSize(); i++)
+				if( featureStackToUpdateTrain[i] && featureStackArray.get(i).isEmpty() )
+					featureStackToUpdateTest[i] = true;
+		}
 		return true;
 	}
 	/**
@@ -2774,7 +2782,7 @@ public class WekaSegmentation {
      */
     public boolean setTrainHeader(final Instances newHeader)
     {
-        if (adjustSegmentationStateToData(newHeader))
+        if (null == newHeader || adjustSegmentationStateToData(newHeader))
         {
             this.trainHeader = newHeader;
             return true;
@@ -7430,7 +7438,8 @@ public class WekaSegmentation {
 		for(int indexSlice=0; indexSlice<trainingImage.getImageStackSize(); indexSlice++)
 		{
 			for(int indexClass = 0; indexClass < numOfClasses; indexClass++)
-				if(!examples[indexSlice].get(indexClass).isEmpty())
+				if(!examples[indexSlice].get(indexClass).isEmpty()
+						&& !featureStackArray.get(indexSlice).isEmpty())
 				{
 					//IJ.log("feature stack for slice " + (indexSlice+1) + " needs to be updated for training");
 					featureStackToUpdateTrain[indexSlice] = true;
@@ -7441,6 +7450,9 @@ public class WekaSegmentation {
 
 		// Reset the reference index in the feature stack array
 		featureStackArray.resetReference();
+		// Reset the train header and the feature name list
+		trainHeader = null;
+		featureNames = null;
 	}
 
 	/**
