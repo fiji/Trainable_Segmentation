@@ -53,6 +53,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -871,7 +872,7 @@ public class Color_Clustering implements PlugIn{
             // display data
             // taken from: ClustererPanel.visualizeClusterAssignments(VisualizePanel)
             JFrame jf = new JFrame("Weka Clusterer Visualize: " + vp.getName());
-            jf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            jf.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             jf.setSize(500, 400);
             jf.getContentPane().setLayout(new BorderLayout());
             jf.getContentPane().add(vp, BorderLayout.CENTER);
