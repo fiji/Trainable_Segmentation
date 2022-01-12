@@ -101,6 +101,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
@@ -1809,6 +1810,7 @@ public class Weka_Segmentation implements PlugIn
 		}
 		String plotName = vmc.getName();
 		JFrame jf = new JFrame("Weka Classifier Visualize: "+plotName);
+		jf.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		jf.setSize(500,400);
 		jf.getContentPane().setLayout(new BorderLayout());
 		jf.getContentPane().add(vmc, BorderLayout.CENTER);
@@ -1866,6 +1868,7 @@ public class Weka_Segmentation implements PlugIn
 			// get selected files or abort if no file has been selected
 			fd.setVisible( true );
 			imageFiles = fd.getFiles();
+			fd.dispose();
 			if( null == imageFiles || imageFiles.length == 0 )
 				return;
 			else
