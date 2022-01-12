@@ -7538,7 +7538,7 @@ public class WekaSegmentation {
 	{
 		this.featureStackArray = fsa;
 		// set feature stacks to be updated during train and test to false
-		// (since the feautures are set externally and expected to be up to date)
+		// (since the features are set externally and expected to be up to date)
 		featureStackToUpdateTrain = new boolean[featureStackArray.getSize()];
 		featureStackToUpdateTest = new boolean[featureStackArray.getSize()];
 		Arrays.fill(featureStackToUpdateTest, false);
