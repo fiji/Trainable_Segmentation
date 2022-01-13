@@ -403,7 +403,7 @@ public class FeatureStackArray
 	public boolean isEmpty() 
 	{
 		for(int i=0; i<getSize(); i++)
-			if(featureStackArray[i].getSize()>1)
+			if( null != featureStackArray[i] && featureStackArray[i].getSize()>1 )
 				return false;
 		return true;
 	}
