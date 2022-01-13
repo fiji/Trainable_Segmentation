@@ -338,7 +338,10 @@ public class FeatureStack
 	 * @return number of slices in the stack
 	 */
 	public int getSize(){
-		return wholeStack.getSize();
+		if( null != wholeStack )
+			return wholeStack.getSize();
+		else
+			return 0;
 	}
 	/**
 	 * Get slice label
