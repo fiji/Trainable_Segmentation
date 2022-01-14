@@ -4980,7 +4980,7 @@ public class WekaSegmentation {
 			//this.setButtonsEnabled(false);
 			this.setEnabledFeatures( usedFeatures );
 			// Force features to be updated
-			updateFeatures = true;
+			this.setFeaturesDirty();
 		}
 
 		return true;
@@ -7438,14 +7438,15 @@ public class WekaSegmentation {
 		for(int indexSlice=0; indexSlice<trainingImage.getImageStackSize(); indexSlice++)
 		{
 			for(int indexClass = 0; indexClass < numOfClasses; indexClass++)
-				if(!examples[indexSlice].get(indexClass).isEmpty()
-						&& !featureStackArray.get(indexSlice).isEmpty())
+				if(!examples[indexSlice].get(indexClass).isEmpty())
 				{
 					//IJ.log("feature stack for slice " + (indexSlice+1) + " needs to be updated for training");
 					featureStackToUpdateTrain[indexSlice] = true;
 					featureStackToUpdateTest[indexSlice] = false;
 					break;
 				}
+			// empty feature stack of that slice
+			featureStackArray.get(indexSlice).setStack( null );
 		}
 
 		// Reset the reference index in the feature stack array
