@@ -83,15 +83,15 @@ public class BasicTest
 
 	@Test
 	public void testDefaultFeatureGenerationST() {
-		testDefaultFeaturesOnBridge(FeatureStack::updateFeaturesST);
+		testDefaultFeaturesOnNuclei(FeatureStack::updateFeaturesST);
 	}
 
 	@Test
 	public void testDefaultFeatureGenerationMT() {
-		testDefaultFeaturesOnBridge(FeatureStack::updateFeaturesMT);
+		testDefaultFeaturesOnNuclei(FeatureStack::updateFeaturesMT);
 	}
 
-	private void testDefaultFeaturesOnBridge(Consumer<FeatureStack> updateFeaturesMethod) {
+	private void testDefaultFeaturesOnNuclei(Consumer<FeatureStack> updateFeaturesMethod) {
 		// setup
 		final ImagePlus bridge = loadFromResource("/nuclei.tif");
 
