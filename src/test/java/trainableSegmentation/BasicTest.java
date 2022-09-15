@@ -128,8 +128,8 @@ public class BasicTest
 		return segmentator.getClassifiedImage();
 	}
 
-	private ImagePlus loadFromResource(final String path) {
-		final URL url = getClass().getResource(path);
+	private static ImagePlus loadFromResource(final String path) {
+		final URL url = BasicTest.class.getResource(path);
 		if (url == null) return null;
 		if ("file".equals(url.getProtocol())) return new ImagePlus(url.getPath());
 		return new ImagePlus(url.toString());
@@ -161,6 +161,7 @@ public class BasicTest
 	}
 
 	public static void main(String...strings) {
+		// Run this method to update the sample images
 		final String pathOfClass = "/" + BasicTest.class.getName().replace('.', '/') + ".class";
 		final URL url = BasicTest.class.getResource(pathOfClass);
 		if ( !"file".equals( url.getProtocol() ) ) throw new RuntimeException( "Need to run from test-classes/" );
@@ -168,10 +169,20 @@ public class BasicTest
 		final String path = url.getPath();
 		if ( !path.endsWith( suffix ) ) throw new RuntimeException( "Unexpected class location: " + path );
 		final String resources = path.substring( 0, path.length() - suffix.length() ) + "/src/test/resources/";
+
+		// Update bridge
 		final ImagePlus bridge = new ImagePlus( "http://imagej.nih.gov/ij/images/bridge.gif" );
 		IJ.save( bridge, resources + "bridge.png" );
 		final ImagePlus bridgeExpected = segmentBridge( bridge );
 		IJ.save( bridgeExpected, resources + "bridge-expected.png" );
+
+		// Update nuclei-features
+		final ImagePlus nuclei = loadFromResource("/nuclei.tif");
+		final FeatureStack featureStack = new FeatureStack(nuclei);
+		featureStack.setOldHessianFormat(true);
+		featureStack.updateFeaturesST();
+		final ImagePlus nucleiFeatures = new ImagePlus("features", featureStack.getStack());
+		IJ.save( nucleiFeatures, resources + "nuclei-features.tif" );
 	}
 
 }
