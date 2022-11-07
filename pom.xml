@@ -136,6 +136,7 @@
 		<license.projectName>Fiji distribution of ImageJ for the life sciences.</license.projectName>
 
 		<imagescience.version>3.0.0</imagescience.version>
+		<ij.version>1.53u</ij.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
