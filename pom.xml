@@ -11,7 +11,7 @@
 
 	<groupId>sc.fiji</groupId>
 	<artifactId>Trainable_Segmentation</artifactId>
-	<version>3.3.4-SNAPSHOT</version>
+	<version>3.3.4</version>
 
 	<name>Trainable Segmentation</name>
 	<description>Trainable Segmentation plugin for Fiji.</description>
@@ -117,7 +117,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/fiji/Trainable_Segmentation</connection>
 		<developerConnection>scm:git:git@github.com:fiji/Trainable_Segmentation</developerConnection>
-		<tag>HEAD</tag>
+		<tag>Trainable_Segmentation-3.3.4</tag>
 		<url>https://github.com/fiji/Trainable_Segmentation</url>
 	</scm>
 	<issueManagement>
