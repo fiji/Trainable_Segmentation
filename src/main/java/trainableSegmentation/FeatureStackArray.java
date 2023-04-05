@@ -48,10 +48,7 @@ import ij.Prefs;
 import weka.core.Instances;
 
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * This class stores the feature stacks of a set of input slices.
@@ -271,79 +268,92 @@ public class FeatureStackArray
 	 * Update all feature stacks in the list (multi-thread fashion) 
 	 * @return false if error, true otherwise
 	 */
-	public boolean updateFeaturesMT()
-	{
+	public boolean updateFeaturesMT() {
 		final int numProcessors = Prefs.getThreads();
-		final ExecutorService exe = Executors.newFixedThreadPool( numProcessors );
-		final ArrayList< Future<Boolean> > futures = new ArrayList< Future<Boolean> >();
-		
-		IJ.showStatus("Updating features...");
-		
-		try{
-			for(int i=0; i<featureStackArray.length; i++)
-			{
-				if(null != featureStackArray[i])
-				{
-					IJ.log("Updating features of slice number " + (i+1) + "...");
-					//System.out.println("Updating features of slice number " + (i+1));
-					featureStackArray[i].setEnabledFeatures(enabledFeatures);
-					featureStackArray[i].setMembranePatchSize(membranePatchSize);
-					featureStackArray[i].setMembraneSize(membraneThickness);
-					featureStackArray[i].setMaximumSigma(maximumSigma);
-					featureStackArray[i].setMinimumSigma(minimumSigma);
-					featureStackArray[i].setUseNeighbors(useNeighbors);
-					featureStackArray[i].setOldColorFormat(oldColorFormat);
-					featureStackArray[i].setOldHessianFormat(oldHessianFormat);
-					if ( featureStackArray.length == 1 )
-					{
-						if(!featureStackArray[i].updateFeaturesMT())
-							return false;						
-					}
-					else
-						futures.add(exe.submit( updateFeatures( featureStackArray[i] ) ));
+		final ExecutorService exe = Executors.newFixedThreadPool(numProcessors);
+		final ArrayList<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
 
-					if(referenceStackIndex == -1)
+		IJ.showStatus("Updating features...");
+
+		try {
+			for (int i = 0; i < featureStackArray.length; i++) {
+				if (null != featureStackArray[i]) {
+					IJ.log("Updating features of slice number " + (i + 1) + "...");
+					setupFeatureStack(featureStackArray[i]);
+
+					if (featureStackArray.length == 1) {
+						if (!updateFeatureStack(featureStackArray[i]))
+							return false;
+					} else {
+						int finalI = i;
+						futures.add(exe.submit(() -> updateFeatureStack(featureStackArray[finalI])));
+					}
+
+					if (referenceStackIndex == -1)
 						this.referenceStackIndex = i;
 				}
 			}
-			
+
 			// Wait for the jobs to be done
-			int currentIndex = 0;
-			final int finalIndex = featureStackArray.length;
-			for(Future<Boolean> f : futures)
-			{
-				final boolean result = f.get();
-				currentIndex++;
-				IJ.showStatus("Updating features...");
-				IJ.showProgress(currentIndex, finalIndex);
-				if(!result)
-					return false;
-			}			
-		
-		} 
-		catch (InterruptedException e) 
-		{
-			IJ.log("The feature update was interrupted by the user.");
-			IJ.showStatus("The feature update was interrupted by the user.");
-			IJ.showProgress(1.0);
+			waitForFeaturesToComplete(futures);
+
+		} catch (InterruptedException e) {
+			handleInterruptedException(e);
 			exe.shutdownNow();
 			return false;
-		}
-		catch(Exception ex)
-		{
-			IJ.log("Error when updating feature stack array.");
-			ex.printStackTrace();
+		} catch (Exception ex) {
+			handleFeatureStackUpdateError(ex);
 			exe.shutdownNow();
 			return false;
-		}
-		finally{
+		} finally {
 			exe.shutdown();
-		}	
-		
-		
+		}
+
 		return true;
 	}
-	
+
+	private void setupFeatureStack(FeatureStack featureStack) {
+		featureStack.setEnabledFeatures(enabledFeatures);
+		featureStack.setMembranePatchSize(membranePatchSize);
+		featureStack.setMembraneSize(membraneThickness);
+		featureStack.setMaximumSigma(maximumSigma);
+		featureStack.setMinimumSigma(minimumSigma);
+		featureStack.setUseNeighbors(useNeighbors);
+		featureStack.setOldColorFormat(oldColorFormat);
+		featureStack.setOldHessianFormat(oldHessianFormat);
+	}
+
+	private boolean updateFeatureStack(FeatureStack featureStack) {
+		return featureStack.updateFeaturesMT();
+	}
+
+	private void waitForFeaturesToComplete(ArrayList<Future<Boolean>> futures) throws InterruptedException, ExecutionException {
+		int currentIndex = 0;
+		final int finalIndex = featureStackArray.length;
+
+		for (Future<Boolean> f : futures) {
+			final boolean result = f.get();
+			currentIndex++;
+			IJ.showStatus("Updating features...");
+			IJ.showProgress(currentIndex, finalIndex);
+			if (!result)
+				throw new ExecutionException("One of the feature stack update jobs failed", null);
+		}
+	}
+
+	private void handleInterruptedException(InterruptedException e) {
+		IJ.log("The feature update was interrupted by the user.");
+		IJ.showStatus("The feature update was interrupted by the user.");
+		IJ.showProgress(1.0);
+	}
+
+	private void handleFeatureStackUpdateError(Exception ex) {
+		IJ.log("Error when updating feature stack array.");
+		ex.printStackTrace();
+	}
+
+
+
 	/**
 	 * Update features of a feature stack (to be submitted to an Executor Service)
 	 * 

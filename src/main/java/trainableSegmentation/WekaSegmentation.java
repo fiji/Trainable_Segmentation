@@ -846,21 +846,27 @@ public class WekaSegmentation {
 	 * @param data set of Weka instances
 	 * @return true if the set contains color attributes, false otherwise
 	 */
-	public boolean containsColorFeatures( Instances data )
-	{
-		if( data.relationName().contains("RGB") )
-			return true;
+	public boolean containsColorFeatures(Instances data) {
+		boolean containsRGB = data.relationName().contains("RGB");
+		boolean containsHue = false;
+		boolean containsSaturation = false;
+		boolean containsBrightness = false;
 		Enumeration<Attribute> attributes = data.enumerateAttributes();
-		while(attributes.hasMoreElements())
-		{
+		while (attributes.hasMoreElements()) {
 			final Attribute a = attributes.nextElement();
-			if( a.name().equals( "Hue" ) ||
-				a.name().equals( "Saturation" ) ||
-				a.name().equals( "Brightness" ) )
-					return true;
+			if (a.name().equals("Hue")) {
+				containsHue = true;
+			}
+			if (a.name().equals("Saturation")) {
+				containsSaturation = true;
+			}
+			if (a.name().equals("Brightness")) {
+				containsBrightness = true;
+			}
 		}
-		return false;
+		return containsRGB || containsHue || containsSaturation || containsBrightness;
 	}
+
 	/**
 	 * Check if a set of Weka instances has 2D image attributes
 	 * (given by the presence of the attribute names from FeatureStack
