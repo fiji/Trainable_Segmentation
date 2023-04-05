@@ -35,7 +35,7 @@ public class InformationGainFunction extends SplitFunction
 	/** generated serial version id */
 	private static final long serialVersionUID = 1L;
 	/** number of random features to use */
-	private int numOfFeatures;
+	private int numRandomFeatures;
 	/** random number generator */
 	private final Random random;
 	
@@ -68,7 +68,7 @@ public class InformationGainFunction extends SplitFunction
 			int numOfFeatures, 
 			final Random random)
 	{
-		this.numOfFeatures = numOfFeatures;
+		this.numRandomFeatures = numOfFeatures;
 		this.random = random;
 	}
 	
@@ -102,7 +102,7 @@ public class InformationGainFunction extends SplitFunction
 		
 		double bestGain = Double.MIN_VALUE;
 		
-		for(int i=0; i < numOfFeatures; i++)
+		for(int i = 0; i < numRandomFeatures; i++)
 		{
 			// Select the random feature
 			final int featureToUse = allIndices.get(i); //random.nextInt(allIndices.size());
@@ -207,7 +207,7 @@ public class InformationGainFunction extends SplitFunction
 	@Override
 	public SplitFunction newInstance() 
 	{		
-		return new InformationGainFunction(this.numOfFeatures, this.random);
+		return new InformationGainFunction(this.numRandomFeatures, this.random);
 	}
 	
 	

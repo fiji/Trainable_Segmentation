@@ -57,15 +57,14 @@ public class Entropy_Filter implements PlugInFilter
 	 * @param arg filter arguments
 	 * @param imp input image
 	 */
-	public int setup(String arg, ImagePlus imp) 
+	public int setup(String arg, ImagePlus imp)
 	{
 		if (arg.equals("about"))
 		{
-			showAbout(); 
+			showAbout();
 			return DONE;
 		}
 
-		this.origImg = imp; // Get a reference to the image.
 		if (imp == null)
 			return DONE;
 
@@ -85,8 +84,9 @@ public class Entropy_Filter implements PlugInFilter
 		return DOES_ALL+DOES_STACKS+PARALLELIZE_STACKS;
 	}
 
-	
-	
+
+
+
 	/**
 	 * Get the entropy filter version of an image
 	 * @param ip input image
