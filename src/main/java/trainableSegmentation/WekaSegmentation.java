@@ -696,33 +696,8 @@ public class WekaSegmentation {
 	public boolean loadClassifier(InputStream classifierInputStream) {
 		assert classifierInputStream != null;
 		try {
-
 			LoadedClassifier loadresult = internalLoadClassifier(classifierInputStream);
-
-			try {
-				// Check if the loaded information corresponds to current state
-				// of
-				// the segmentator
-				// (the attributes can be adjusted, but the classes must match)
-				if (!adjustSegmentationStateToData(loadresult.newHeader)) {
-					IJ.log("Error: current segmentator state could not be updated to loaded data requirements (attributes and classes)");
-					return false;
-				}
-			} catch (Exception e) {
-				IJ.log("Error while adjusting data!");
-				e.printStackTrace();
-				return false;
-			}
-
-			this.classifier = loadresult.newClassifier;
-			this.trainHeader = loadresult.newHeader;
-			// check model version to assign Hessian format
-			if( null != this.featureStackArray )
-				this.getFeatureStackArray().setOldHessianFormat(
-					getModelVersion().startsWith("segment") );
-
-			return true;
-
+			return checkUpdateClassifier(loadresult.newClassifier, loadresult.newHeader);
 		} catch (Exception e) {
 			IJ.error("Load Failed", "Error while loading classifier");
 			e.printStackTrace();
@@ -774,6 +749,15 @@ public class WekaSegmentation {
 			return false;
 		}
 
+		return checkUpdateClassifier(newClassifier, newHeader);
+	}
+
+	/**
+	 * Check new classifier for compatibility and assign if compatible
+	 * @param newClassifier
+	 * @param newHeader
+	 */
+	private boolean checkUpdateClassifier(AbstractClassifier newClassifier, Instances newHeader) {
 		try{
 			// Check if classifier was trained on the same image type
 			// (grayscale or color) as the training image
