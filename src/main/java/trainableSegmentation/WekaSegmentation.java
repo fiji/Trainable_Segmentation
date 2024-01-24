@@ -952,13 +952,7 @@ public class WekaSegmentation {
 			{
 				os = new GZIPOutputStream(os);
 			}
-			ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
-			objectOutputStream.writeObject(classifier);
-			trainHeader = trainHeader.stringFreeStructure();
-			if (trainHeader != null)
-				objectOutputStream.writeObject(trainHeader);
-			objectOutputStream.flush();
-			objectOutputStream.close();
+			saveOK = saveClassifier(os);
 		}
 		catch (Exception e)
 		{
@@ -967,6 +961,29 @@ public class WekaSegmentation {
 		}
 		if (saveOK)
 			IJ.log("Saved model into " + filename );
+
+		return saveOK;
+	}
+
+	/**
+	 * Save classifier into OutputStream
+	 * @param os OutputStream to save to
+	 */
+	public boolean saveClassifier(OutputStream os) {
+		boolean saveOK = false;
+		ObjectOutputStream objectOutputStream;
+		try {
+			objectOutputStream = new ObjectOutputStream(os);
+			objectOutputStream.writeObject(classifier);
+			trainHeader = trainHeader.stringFreeStructure();
+			if (trainHeader != null)
+				objectOutputStream.writeObject(trainHeader);
+			objectOutputStream.flush();
+			objectOutputStream.close();
+			saveOK = true;
+		} catch (IOException e) {
+			IJ.error("Save Failed", "Error when saving classifier into an OutputStream");
+		}
 
 		return saveOK;
 	}
