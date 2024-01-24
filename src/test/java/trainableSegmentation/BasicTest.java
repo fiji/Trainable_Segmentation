@@ -22,7 +22,9 @@
 package trainableSegmentation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 import hr.irb.fastRandomForest.FastRandomForest;
 import ij.IJ;
@@ -33,7 +35,13 @@ import ij.process.ByteProcessor;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import org.junit.Ignore;
@@ -68,6 +76,37 @@ public class BasicTest
 		{
 			assertTrue("Misclassified training sample", pix[i] == pixTrue[i]);
 		}
+
+		// Test whether enabled features reset upon loading the classifier
+		boolean[] enabledFeatures = segmentator.getEnabledFeatures();
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		segmentator.saveClassifier(os);
+		enabledFeatures[0] = false;
+		segmentator.setEnabledFeatures(enabledFeatures);
+		ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+		segmentator.loadClassifier(is);
+		result = segmentator.applyClassifier(image);
+		assertNotNull("Failed to apply trained classifier", result);
+
+		// Now let's test without training image loaded
+		result = null;
+		Path p = null;
+		try {
+			p = Files.createTempFile("tws-", ".classifier");
+			System.out.print(p.toAbsolutePath());
+			segmentator.saveClassifier(p.toString());
+			segmentator = new WekaSegmentation();
+			segmentator.setEnabledFeatures(enabledFeatures);
+			segmentator.loadClassifier(p.toString());
+			Files.delete(p);
+			result = segmentator.applyClassifier(image);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			fail("Caught null pointer");
+		}
+		assertNotNull("Failed to apply trained classifier", result);
 	}
 
 	@Test
