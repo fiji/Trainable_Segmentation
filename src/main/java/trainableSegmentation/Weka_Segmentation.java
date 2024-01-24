@@ -1476,9 +1476,9 @@ public class Weka_Segmentation implements PlugIn
 		{
 			if (j == i)
 			{
-				final Roi newRoi = 
+				final Roi newRoi = (Roi)
 					wekaSegmentation.getExamples(i, displayImage.getCurrentSlice())
-							.get(exampleList[i].getSelectedIndex());
+							.get(exampleList[i].getSelectedIndex()).clone();
 				// Set selected trace as current ROI
 				newRoi.setImage(displayImage);
 				displayImage.setRoi(newRoi);
@@ -1532,11 +1532,6 @@ public class Weka_Segmentation implements PlugIn
 			{
 				//delete item from ROI
 				int index = exampleList[i].getSelectedIndex();
-
-				// kill Roi from displayed image
-				if(displayImage.getRoi().equals( 
-						wekaSegmentation.getExamples(i, displayImage.getCurrentSlice()).get(index) ))
-					displayImage.killRoi();
 
 				// delete item from the list of ROIs of that class and slice
 				wekaSegmentation.deleteExample(i, displayImage.getCurrentSlice(), index);
