@@ -7460,7 +7460,7 @@ public class WekaSegmentation {
 	public void setFeaturesDirty()
 	{
 		updateFeatures = true;
-		if( isProcessing3D )
+		if( isProcessing3D || null == this.featureStackArray)
 			return;
 		// Set feature stacks belonging to slices with traces
 		// to be updated during training and not test
