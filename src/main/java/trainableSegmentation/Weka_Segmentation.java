@@ -567,7 +567,6 @@ public class Weka_Segmentation implements PlugIn
 								// use best guess so it looks nice
 								addExampleMenu.show(c, Math.min(-105, c.getWidth() - addExampleMenu.getWidth()),
 										c.getHeight());
-								addExampleMenu.grabFocus();
 							}
 						}
 						win.updateButtonsEnabling();
@@ -801,6 +800,7 @@ public class Weka_Segmentation implements PlugIn
 
 			// remove space for a menu item icon in default look and feel
 			// https://stackoverflow.com/a/64590818/673826
+			// https://github.com/JFormDesigner/FlatLaf/issues/328
 			final Insets insets = new Insets(2, -8, 2, 2);
 			exampleColor.setMargin(insets);
 			exampleRename.setMargin(insets);
