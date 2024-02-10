@@ -221,7 +221,7 @@ public class Weka_Segmentation implements PlugIn
 	private JButton [] addExampleButton = null;
 	private JButton[] addExampleExtras = null; // consider JideSplitButton?
 	private final JPopupMenu addExampleMenu = new JPopupMenu();
-	private final JMenuItem exampleColor = new JMenuItem(new AbstractAction("🎨 Change color…") {
+	private final JMenuItem exampleColor = new JMenuItem(new AbstractAction("Change color…", new SymbolIcon("🎨")) {
 		private static final long serialVersionUID = 1L;
 		{
 			putValue(Action.SHORT_DESCRIPTION, "Change class and traces color");
@@ -239,7 +239,7 @@ public class Weka_Segmentation implements PlugIn
 			IJ.showMessage("Failed to look up class " + label + " for color change");
 		}
 	});
-	private final JMenuItem exampleRename = new JMenuItem(new AbstractAction("✎ Rename class…") {
+	private final JMenuItem exampleRename = new JMenuItem(new AbstractAction("Rename class…", new SymbolIcon("✎")) {
 		private static final long serialVersionUID = 1L;
 		{
 			putValue(Action.SHORT_DESCRIPTION, "Change class label");
@@ -259,7 +259,7 @@ public class Weka_Segmentation implements PlugIn
 			IJ.showMessage("Failed to look up class " + label + " for label change");
 		}
 	});
-	private final JMenuItem exampleRemove = new JMenuItem(new AbstractAction("✘ Remove class") {
+	private final JMenuItem exampleRemove = new JMenuItem(new AbstractAction("Remove class", new SymbolIcon("✘")) {
 		private static final long serialVersionUID = 1L;
 		{
 			putValue(Action.SHORT_DESCRIPTION, "Remove class and all associated traces");
@@ -285,7 +285,7 @@ public class Weka_Segmentation implements PlugIn
 	});
 	/** Tag for class label name in addExampleExtras' client property bag */
 	private final Object labelTag = new Object();
-	private final JButton saveExamplesButton = new JButton(new AbstractAction("💾 Save…") {
+	private final JButton saveExamplesButton = new JButton(new AbstractAction("Save…", new SymbolIcon("💾")) {
 		private static final long serialVersionUID = 1L;
 		{
 			putValue(Action.SHORT_DESCRIPTION, "Save example ROI traces");
@@ -298,7 +298,7 @@ public class Weka_Segmentation implements PlugIn
 		}
 
 	});
-	private final JButton loadExamplesButton = new JButton(new AbstractAction("📂 Load…") {
+	private final JButton loadExamplesButton = new JButton(new AbstractAction("Load…", new SymbolIcon("📂")) {
 		private static final long serialVersionUID = 1L;
 		{
 			putValue(Action.SHORT_DESCRIPTION, "Load example ROI traces");
@@ -798,13 +798,6 @@ public class Weka_Segmentation implements PlugIn
 
 			setTitle( Weka_Segmentation.PLUGIN_NAME + " " + Weka_Segmentation.PLUGIN_VERSION );
 
-			// remove space for a menu item icon in default look and feel
-			// https://stackoverflow.com/a/64590818/673826
-			// https://github.com/JFormDesigner/FlatLaf/issues/328
-			final Insets insets = new Insets(2, -8, 2, 2);
-			exampleColor.setMargin(insets);
-			exampleRename.setMargin(insets);
-			exampleRemove.setMargin(insets);
 			addExampleMenu.add(exampleColor);
 			addExampleMenu.add(exampleRename);
 			addExampleMenu.addSeparator();
