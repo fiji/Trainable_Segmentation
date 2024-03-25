@@ -696,33 +696,8 @@ public class WekaSegmentation {
 	public boolean loadClassifier(InputStream classifierInputStream) {
 		assert classifierInputStream != null;
 		try {
-
 			LoadedClassifier loadresult = internalLoadClassifier(classifierInputStream);
-
-			try {
-				// Check if the loaded information corresponds to current state
-				// of
-				// the segmentator
-				// (the attributes can be adjusted, but the classes must match)
-				if (!adjustSegmentationStateToData(loadresult.newHeader)) {
-					IJ.log("Error: current segmentator state could not be updated to loaded data requirements (attributes and classes)");
-					return false;
-				}
-			} catch (Exception e) {
-				IJ.log("Error while adjusting data!");
-				e.printStackTrace();
-				return false;
-			}
-
-			this.classifier = loadresult.newClassifier;
-			this.trainHeader = loadresult.newHeader;
-			// check model version to assign Hessian format
-			if( null != this.featureStackArray )
-				this.getFeatureStackArray().setOldHessianFormat(
-					getModelVersion().startsWith("segment") );
-
-			return true;
-
+			return checkUpdateClassifier(loadresult.newClassifier, loadresult.newHeader);
 		} catch (Exception e) {
 			IJ.error("Load Failed", "Error while loading classifier");
 			e.printStackTrace();
@@ -774,6 +749,15 @@ public class WekaSegmentation {
 			return false;
 		}
 
+		return checkUpdateClassifier(newClassifier, newHeader);
+	}
+
+	/**
+	 * Check new classifier for compatibility and assign if compatible
+	 * @param newClassifier
+	 * @param newHeader
+	 */
+	private boolean checkUpdateClassifier(AbstractClassifier newClassifier, Instances newHeader) {
 		try{
 			// Check if classifier was trained on the same image type
 			// (grayscale or color) as the training image
@@ -952,13 +936,7 @@ public class WekaSegmentation {
 			{
 				os = new GZIPOutputStream(os);
 			}
-			ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
-			objectOutputStream.writeObject(classifier);
-			trainHeader = trainHeader.stringFreeStructure();
-			if (trainHeader != null)
-				objectOutputStream.writeObject(trainHeader);
-			objectOutputStream.flush();
-			objectOutputStream.close();
+			saveOK = saveClassifier(os);
 		}
 		catch (Exception e)
 		{
@@ -967,6 +945,29 @@ public class WekaSegmentation {
 		}
 		if (saveOK)
 			IJ.log("Saved model into " + filename );
+
+		return saveOK;
+	}
+
+	/**
+	 * Save classifier into OutputStream
+	 * @param os OutputStream to save to
+	 */
+	public boolean saveClassifier(OutputStream os) {
+		boolean saveOK = false;
+		ObjectOutputStream objectOutputStream;
+		try {
+			objectOutputStream = new ObjectOutputStream(os);
+			objectOutputStream.writeObject(classifier);
+			trainHeader = trainHeader.stringFreeStructure();
+			if (trainHeader != null)
+				objectOutputStream.writeObject(trainHeader);
+			objectOutputStream.flush();
+			objectOutputStream.close();
+			saveOK = true;
+		} catch (IOException e) {
+			IJ.error("Save Failed", "Error when saving classifier into an OutputStream");
+		}
 
 		return saveOK;
 	}
@@ -7443,7 +7444,7 @@ public class WekaSegmentation {
 	public void setFeaturesDirty()
 	{
 		updateFeatures = true;
-		if( isProcessing3D )
+		if( isProcessing3D || null == this.featureStackArray)
 			return;
 		// Set feature stacks belonging to slices with traces
 		// to be updated during training and not test
