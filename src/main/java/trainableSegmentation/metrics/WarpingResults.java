@@ -45,7 +45,7 @@ import ij.ImagePlus;
 
 import java.util.ArrayList;
 
-import org.scijava.vecmath.Point3f;
+import org.jogamp.vecmath.Point3f;
 
 /**
  * Results from simple point warping (2D)

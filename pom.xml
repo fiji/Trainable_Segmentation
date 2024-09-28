@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>34.0.0</version>
+		<version>38.0.1</version>
 		<relativePath />
 	</parent>
 
 	<groupId>sc.fiji</groupId>
 	<artifactId>Trainable_Segmentation</artifactId>
-	<version>3.3.5-SNAPSHOT</version>
+	<version>4.0.0-SNAPSHOT</version>
 
 	<name>Trainable Segmentation</name>
 	<description>Trainable Segmentation plugin for Fiji.</description>
@@ -185,7 +185,7 @@
 
 		<!-- Java3D dependencies -->
 		<dependency>
-			<groupId>org.scijava</groupId>
+			<groupId>org.jogamp.java3d</groupId>
 			<artifactId>vecmath</artifactId>
 		</dependency>
 

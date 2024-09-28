@@ -60,7 +60,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.scijava.vecmath.Point3f;
+import org.jogamp.vecmath.Point3f;
 
 import trainableSegmentation.WekaSegmentation;
 import trainableSegmentation.metrics.ClassificationStatistics;

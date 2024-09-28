@@ -57,7 +57,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.scijava.vecmath.Point3f;
+import org.jogamp.vecmath.Point3f;
 
 import hr.irb.fastRandomForest.FastRandomForest;
 import ij.IJ;
