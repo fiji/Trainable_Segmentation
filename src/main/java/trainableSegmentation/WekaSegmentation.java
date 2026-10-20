@@ -7735,13 +7735,17 @@ public class WekaSegmentation {
 				is = new GZIPInputStream(is);
 
 			ObjectInputStream objectInputStream = new ObjectInputStream(is);
-			numOfClasses = (int) objectInputStream.readObject();
-			classLabels = (String[]) objectInputStream.readObject();
-			examples = (Vector<ArrayList<Roi>>[]) objectInputStream.readObject();
-			if (examples.length != trainingImage.getNSlices()) {
-				IJ.log("Number of loaded slices is different!");
-			}
+			final int loadedNumOfClasses = (int) objectInputStream.readObject();
+ 			final String[] loadedClassLabels = (String[]) objectInputStream.readObject();
+ 			final Vector<ArrayList<Roi>>[] loadedExamples = (Vector<ArrayList<Roi>>[]) objectInputStream.readObject();
 			objectInputStream.close();
+			if (loadedExamples.length != trainingImage.getImageStackSize()) {
+ 				IJ.error("Load Failed", "The saved ROI stack size does not match the training image.");
+ 				return false;
+ 			}
+ 			numOfClasses = loadedNumOfClasses;
+ 			classLabels = loadedClassLabels;
+ 			examples = loadedExamples;
 			IJ.log("Loaded example ROI traces from " + filename);
 		}
 		catch (Exception e) {
