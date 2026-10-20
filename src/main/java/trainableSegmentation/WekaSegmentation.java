@@ -7746,6 +7746,20 @@ public class WekaSegmentation {
  			numOfClasses = loadedNumOfClasses;
  			classLabels = loadedClassLabels;
  			examples = loadedExamples;
+ 			if (!isProcessing3D) {
+ 				for (int n = 0; n < examples.length && n < featureStackToUpdateTest.length; n++) {
+ 					if (!featureStackToUpdateTest[n])
+ 						continue;
+ 					for (final ArrayList<Roi> rois : examples[n]) {
+ 						if (!rois.isEmpty()) {
+ 							featureStackToUpdateTrain[n] = true;
+ 							featureStackToUpdateTest[n] = false;
+ 							updateFeatures = true;
+ 							break;
+ 						}
+ 					}
+ 				}
+ 			}
 			IJ.log("Loaded example ROI traces from " + filename);
 		}
 		catch (Exception e) {
