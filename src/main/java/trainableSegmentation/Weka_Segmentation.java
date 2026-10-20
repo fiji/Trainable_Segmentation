@@ -1333,6 +1333,7 @@ public class Weka_Segmentation implements PlugIn
 			}
 			numOfClasses--;
 			colors[numOfClasses] = color;
+			overlayLUT = trainableSegmentation.utils.Utils.createLUT( colors );
 			exampleList[numOfClasses] = null;
 			addExampleButton[numOfClasses] = null;
 			addExampleExtras[numOfClasses] = null;
