@@ -7739,10 +7739,18 @@ public class WekaSegmentation {
  			final String[] loadedClassLabels = (String[]) objectInputStream.readObject();
  			final Vector<ArrayList<Roi>>[] loadedExamples = (Vector<ArrayList<Roi>>[]) objectInputStream.readObject();
 			objectInputStream.close();
-			if (loadedExamples.length != trainingImage.getImageStackSize()) {
+ 			if (loadedExamples.length != trainingImage.getImageStackSize()) {
  				IJ.error("Load Failed", "The saved ROI stack size does not match the training image.");
  				return false;
  			}
+			boolean valid = loadedNumOfClasses >= 2 && loadedNumOfClasses <= MAX_NUM_CLASSES
+					&& loadedClassLabels.length >= loadedNumOfClasses;
+			for (int n = 0; valid && n < loadedExamples.length; n++)
+				valid = loadedExamples[n].size() >= loadedNumOfClasses;
+			if (!valid) {
+				IJ.error("Load Failed", "The example ROI file is invalid.");
+				return false;
+			}
  			numOfClasses = loadedNumOfClasses;
  			classLabels = loadedClassLabels;
  			examples = loadedExamples;

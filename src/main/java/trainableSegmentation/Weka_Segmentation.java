@@ -1317,6 +1317,15 @@ public class Weka_Segmentation implements PlugIn
  				return;
  			}
 			wekaSegmentation.removeClass(i);
+			removeClassControls(i);
+		}
+
+		/**
+		 * Remove the UI controls of a class (the segmentation backend is not touched)
+		 * @param i GUI list index
+		 */
+		private void removeClassControls(int i)
+		{
 			annotationsPanel.remove(addExampleButton[i]);
 			annotationsPanel.remove(addExampleExtras[i]);
 			annotationsPanel.remove(exampleList[i]);
@@ -1546,6 +1555,9 @@ public class Weka_Segmentation implements PlugIn
 				return false;
 			}
 
+			// the loaded file may hold fewer classes than the GUI shows
+			while (numOfClasses > wekaSegmentation.getNumOfClasses())
+				removeClassControls(numOfClasses - 1);
 			updateAddClassButtons();
 			displayImage.killRoi();
 			drawExamples();
