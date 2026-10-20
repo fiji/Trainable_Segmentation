@@ -433,7 +433,7 @@ public class WekaSegmentation {
 		}
 
 		// shift class label names that are in use
-		for(int i=classNum; i<numOfClasses; i++)
+		for(int i=classNum; i<numOfClasses-1; i++)
 			classLabels[i] = classLabels[i+1];
 
 		numOfClasses--;
