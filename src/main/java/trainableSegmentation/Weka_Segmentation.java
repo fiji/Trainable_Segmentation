@@ -1323,7 +1323,7 @@ public class Weka_Segmentation implements PlugIn
 			((OverlayedImageCanvas)ic).removeOverlay(roiOverlay[i]);
 			// recycle color removed otherwise new class will duplicate last
 			final Color color = colors[i];
-			for(int j=i; j<numOfClasses; j++) {
+			for(int j=i; j<numOfClasses-1; j++) {
 				exampleList[j] = exampleList[j+1];
 				addExampleButton[j] = addExampleButton[j+1];
 				addExampleExtras[j] = addExampleExtras[j+1];
