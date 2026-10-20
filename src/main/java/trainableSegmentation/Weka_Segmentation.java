@@ -1312,6 +1312,10 @@ public class Weka_Segmentation implements PlugIn
 		 */
 		private void removeClass(int i)
 		{
+			if (numOfClasses <= 2 || i < 0 || i >= numOfClasses) {
+ 				IJ.error("Cannot remove class: at least two classes must remain and the index must be valid.");
+ 				return;
+ 			}
 			wekaSegmentation.removeClass(i);
 			annotationsPanel.remove(addExampleButton[i]);
 			annotationsPanel.remove(addExampleExtras[i]);
