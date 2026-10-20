@@ -165,7 +165,6 @@
 		<dependency>
 		    <groupId>com.formdev</groupId>
 		    <artifactId>flatlaf</artifactId>
-		    <scope>provided</scope>
 		</dependency>
 
 		<!-- ImgLib2 dependencies -->
