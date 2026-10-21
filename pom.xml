@@ -162,10 +162,6 @@
 			<groupId>sc.fiji</groupId>
 			<artifactId>fiji-lib</artifactId>
 		</dependency>
-		<dependency>
-		    <groupId>com.formdev</groupId>
-		    <artifactId>flatlaf</artifactId>
-		</dependency>
 
 		<!-- ImgLib2 dependencies -->
 		<dependency>

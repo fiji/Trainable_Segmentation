@@ -219,9 +219,8 @@ public class Weka_Segmentation implements PlugIn
 	private java.awt.List[] exampleList = null;
 	/** array of buttons for adding each trace class */
 	private JButton [] addExampleButton = null;
-	private JButton[] addExampleExtras = null; // consider JideSplitButton?
 	private final JPopupMenu addExampleMenu = new JPopupMenu();
-	private final JMenuItem exampleColor = new JMenuItem(new AbstractAction("Change color…", new SymbolIcon("🎨")) {
+	private final JMenuItem exampleColor = new JMenuItem(new AbstractAction("Change color…", new ToolIcon(ToolIcon.Kind.PALETTE)) {
 		private static final long serialVersionUID = 1L;
 		{
 			putValue(Action.SHORT_DESCRIPTION, "Change class and traces color");
@@ -239,7 +238,7 @@ public class Weka_Segmentation implements PlugIn
 			IJ.showMessage("Failed to look up class " + label + " for color change");
 		}
 	});
-	private final JMenuItem exampleRename = new JMenuItem(new AbstractAction("Rename class…", new SymbolIcon("✎")) {
+	private final JMenuItem exampleRename = new JMenuItem(new AbstractAction("Rename class…", new ToolIcon(ToolIcon.Kind.PEN)) {
 		private static final long serialVersionUID = 1L;
 		{
 			putValue(Action.SHORT_DESCRIPTION, "Change class label");
@@ -259,7 +258,7 @@ public class Weka_Segmentation implements PlugIn
 			IJ.showMessage("Failed to look up class " + label + " for label change");
 		}
 	});
-	private final JMenuItem exampleRemove = new JMenuItem(new AbstractAction("Remove class", new SymbolIcon("✘")) {
+	private final JMenuItem exampleRemove = new JMenuItem(new AbstractAction("Remove class", new ToolIcon(ToolIcon.Kind.TRASH)) {
 		private static final long serialVersionUID = 1L;
 		{
 			putValue(Action.SHORT_DESCRIPTION, "Remove class and all associated traces");
@@ -283,9 +282,9 @@ public class Weka_Segmentation implements PlugIn
 			}
 		}
 	});
-	/** Tag for class label name in addExampleExtras' client property bag */
+	/** Tag for class label name in addExampleButton's client property bag */
 	private final Object labelTag = new Object();
-	private final JButton saveExamplesButton = new JButton(new AbstractAction("Save…", new SymbolIcon("💾")) {
+	private final JButton saveExamplesButton = new JButton(new AbstractAction("Save…", new ToolIcon(ToolIcon.Kind.SAVE)) {
 		private static final long serialVersionUID = 1L;
 		{
 			putValue(Action.SHORT_DESCRIPTION, "Save example ROI traces");
@@ -298,7 +297,7 @@ public class Weka_Segmentation implements PlugIn
 		}
 
 	});
-	private final JButton loadExamplesButton = new JButton(new AbstractAction("Load…", new SymbolIcon("📂")) {
+	private final JButton loadExamplesButton = new JButton(new AbstractAction("Load…", new ToolIcon(ToolIcon.Kind.LOAD)) {
 		private static final long serialVersionUID = 1L;
 		{
 			putValue(Action.SHORT_DESCRIPTION, "Load example ROI traces");
@@ -412,7 +411,6 @@ public class Weka_Segmentation implements PlugIn
 
 		exampleList = new java.awt.List[WekaSegmentation.MAX_NUM_CLASSES];
 		addExampleButton = new JButton[WekaSegmentation.MAX_NUM_CLASSES];
-		addExampleExtras = new JButton[WekaSegmentation.MAX_NUM_CLASSES];
 
 		roiOverlay = new RoiListOverlay[WekaSegmentation.MAX_NUM_CLASSES];
 		
@@ -559,14 +557,6 @@ public class Weka_Segmentation implements PlugIn
 							{
 								addExamples(i);
 								break;
-							}
-							else if(e.getSource() == addExampleExtras[i])
-							{
-								final Component c = addExampleExtras[i];
-								// we don't have menu width to account for yet while showing first time
-								// use best guess so it looks nice
-								addExampleMenu.show(c, Math.min(-105, c.getWidth() - addExampleMenu.getWidth()),
-										c.getHeight());
 							}
 						}
 						win.updateButtonsEnabling();
@@ -801,6 +791,8 @@ public class Weka_Segmentation implements PlugIn
 			addExampleMenu.add(exampleColor);
 			addExampleMenu.add(exampleRename);
 			addExampleMenu.addSeparator();
+			// the look and feel can't derive a disabled icon from a custom Icon (it came out invisible)
+			exampleRemove.setDisabledIcon(new ToolIcon(ToolIcon.Kind.TRASH, true));
 			addExampleMenu.add(exampleRemove);
 
 			// Annotations panel
@@ -814,20 +806,21 @@ public class Weka_Segmentation implements PlugIn
 			annotationsPanel.setBorder(BorderFactory.createTitledBorder("Labels"));
 			annotationsPanel.setLayout(boxAnnotation);
 
-			annotationsConstraints.fill = GridBagConstraints.NONE;
-			annotationsPanel.add(loadExamplesButton, annotationsConstraints);
-			annotationsConstraints.gridx = 1;
+			// both buttons share the full panel width
+			final JPanel examplesIOPanel = new JPanel(new java.awt.GridLayout(1, 2, 5, 0));
+			examplesIOPanel.add(loadExamplesButton);
 			saveExamplesButton.addActionListener(listener);
-			annotationsPanel.add(saveExamplesButton, annotationsConstraints);
-			annotationsConstraints.fill = GridBagConstraints.HORIZONTAL;
-			annotationsConstraints.gridx = 0;
+			examplesIOPanel.add(saveExamplesButton);
+			annotationsConstraints.insets = new Insets(5, 5, 6, 6);
+			annotationsConstraints.gridwidth = GridBagConstraints.REMAINDER;
+			annotationsPanel.add(examplesIOPanel, annotationsConstraints);
+			annotationsConstraints.gridwidth = 1;
 			annotationsConstraints.gridy++;
 
 			for(int i = 0; i < wekaSegmentation.getNumOfClasses(); i++)
 				addClassControls(i);
 
-			// Select first class
-			addExampleButton[0].setSelected(true);
+			// (the first button used to be setSelected(true), which painted it shaded)
 
 			// Add listeners
 			trainButton.addActionListener(listener);
@@ -1104,7 +1097,6 @@ public class Weka_Segmentation implements PlugIn
 					
 					for(int i = 0; i < wekaSegmentation.getNumOfClasses(); i++) {
 						addExampleButton[i].removeActionListener(listener);
-						addExampleExtras[i].removeActionListener(listener);
 					}
 					trainButton.removeActionListener(listener);
 					overlayButton.removeActionListener(listener);
@@ -1264,32 +1256,26 @@ public class Weka_Segmentation implements PlugIn
 			exampleList[i].addActionListener(listener);
 			exampleList[i].addItemListener(itemListener);
 			final String name = wekaSegmentation.getClassLabel(i);
+
 			addExampleButton[i] = new JButton("Add to " + name);
-			addExampleButton[i].setToolTipText("Add markings of label '" + name + "'");
+			addExampleButton[i].setToolTipText("Add markings of label '" + name + "' (right-click for more options)");
 			addExampleButton[i].putClientProperty(labelTag, name);
-			addExampleExtras[i] = new JButton("▼");
-			addExampleExtras[i].putClientProperty(labelTag, name);
+			addExampleButton[i].setMargin(new Insets(2, 6, 2, 6));
 
-			annotationsConstraints.insets = new Insets(5, 5, 6, 0);
-
-			annotationsConstraints.gridwidth = GridBagConstraints.RELATIVE;
-			annotationsPanel.add( addExampleButton[i], annotationsConstraints );
-			annotationsConstraints.insets = new Insets(5, 0, 6, 6);
-			annotationsConstraints.gridx = 2;
+			annotationsConstraints.insets = new Insets(5, 5, 6, 6);
 			annotationsConstraints.gridwidth = GridBagConstraints.REMAINDER;
-			annotationsPanel.add( addExampleExtras[i], annotationsConstraints );
+			annotationsPanel.add(addExampleButton[i], annotationsConstraints);
 			annotationsConstraints.gridx = 0;
 			annotationsConstraints.gridy++;
 
-			annotationsConstraints.insets = new Insets(0,0,0,0);
+			annotationsConstraints.insets = new Insets(0, 0, 0, 0);
 
-			annotationsPanel.add( exampleList[i], annotationsConstraints );
+			annotationsPanel.add(exampleList[i], annotationsConstraints);
 			annotationsConstraints.gridy++;
 
 			// Add listener to the new button
 			addExampleButton[i].addActionListener(listener);
 			addExampleButton[i].addMouseListener(mouseListener);
-			addExampleExtras[i].addActionListener(listener);
 		}
 
 		/**
@@ -1327,7 +1313,6 @@ public class Weka_Segmentation implements PlugIn
 		private void removeClassControls(int i)
 		{
 			annotationsPanel.remove(addExampleButton[i]);
-			annotationsPanel.remove(addExampleExtras[i]);
 			annotationsPanel.remove(exampleList[i]);
 			((OverlayedImageCanvas)ic).removeOverlay(roiOverlay[i]);
 			// recycle color removed otherwise new class will duplicate last
@@ -1335,7 +1320,6 @@ public class Weka_Segmentation implements PlugIn
 			for(int j=i; j<numOfClasses-1; j++) {
 				exampleList[j] = exampleList[j+1];
 				addExampleButton[j] = addExampleButton[j+1];
-				addExampleExtras[j] = addExampleExtras[j+1];
 				traceCounter[j] = traceCounter[j+1];
 				roiOverlay[j] = roiOverlay[j+1];
 				colors[j] = colors[j+1];
@@ -1345,7 +1329,6 @@ public class Weka_Segmentation implements PlugIn
 			overlayLUT = trainableSegmentation.utils.Utils.createLUT( colors );
 			exampleList[numOfClasses] = null;
 			addExampleButton[numOfClasses] = null;
-			addExampleExtras[numOfClasses] = null;
 			traceCounter[numOfClasses] = 0;
 			roiOverlay[numOfClasses] = new RoiListOverlay();
 			roiOverlay[numOfClasses].setComposite( transparency050 );
@@ -1493,9 +1476,8 @@ public class Weka_Segmentation implements PlugIn
 			for (int i = 0; i < numOfClasses; i++) {
 				final String label = wekaSegmentation.getClassLabel(i);
 				addExampleButton[i].setText("Add to " + label);
-				addExampleButton[i].setToolTipText("Add markings of label '" + label + "'");
+				addExampleButton[i].setToolTipText("Add markings of label '" + label + "' (right-click for more options)");
 				addExampleButton[i].putClientProperty(labelTag, label);
-				addExampleExtras[i].putClientProperty(labelTag, label);
 			}
 
 			win.updateButtonsEnabling();
@@ -2708,7 +2690,6 @@ public class Weka_Segmentation implements PlugIn
 
 				wekaSegmentation.setClassLabel(i, s);
 				addExampleButton[i].putClientProperty(labelTag, s);
-				addExampleExtras[i].putClientProperty(labelTag, s);
 				classNameChanged = true;
 				addExampleButton[i].setText("Add to " + s);
 				// Macro recording
