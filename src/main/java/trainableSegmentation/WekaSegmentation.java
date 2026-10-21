@@ -419,6 +419,28 @@ public class WekaSegmentation {
 	}
 
 	/**
+	 * Remove an example class from all slices.
+	 *
+	 * @param classNum the number of the examples' class
+	 */
+	public void removeClass(int classNum)
+	{
+		// remove class ROIs from all slices
+		for (final Vector<ArrayList<Roi>> e: examples) {
+			e.remove(classNum);
+			// keep length at MAX_NUM_CLASSES for each slice
+			e.add(new ArrayList<Roi>());
+		}
+
+		// shift class label names that are in use
+		for(int i=classNum; i<numOfClasses-1; i++)
+			classLabels[i] = classLabels[i+1];
+
+		numOfClasses--;
+		classLabels[numOfClasses] = "class " + (numOfClasses+1);
+	}
+
+	/**
 	 * Return the list of examples for a certain class.
 	 *
 	 * @param classNum the number of the examples' class
@@ -7671,5 +7693,88 @@ public class WekaSegmentation {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Write example ROI traces to file.
+	 * 
+	 * @param filename to write to
+	 * @return success status
+	 */
+	public boolean saveExamples(String filename) {
+		File sFile = null;
+		boolean saveOK = true;
+
+		try {
+			sFile = new File(filename);
+			OutputStream os = new FileOutputStream(sFile);
+			if (sFile.getName().endsWith(".gz"))
+				os = new GZIPOutputStream(os);
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
+			objectOutputStream.writeObject(numOfClasses);
+			objectOutputStream.writeObject(classLabels);
+			objectOutputStream.writeObject(examples);
+			objectOutputStream.close();
+		}
+		catch (Exception e)
+		{
+			IJ.error("Save Failed", "Error when saving example ROI traces into a file");
+			saveOK = false;
+		}
+		if (saveOK)
+			IJ.log("Saved example ROI traces into " + filename );
+
+		return saveOK;
+	}
+
+	@SuppressWarnings("unchecked")
+	public boolean loadExamples(String filename) {
+		File selected = new File(filename);
+		try {
+			InputStream is = new FileInputStream( selected );
+			if (selected.getName().endsWith(".gz"))
+				is = new GZIPInputStream(is);
+
+			ObjectInputStream objectInputStream = new ObjectInputStream(is);
+			final int loadedNumOfClasses = (int) objectInputStream.readObject();
+ 			final String[] loadedClassLabels = (String[]) objectInputStream.readObject();
+ 			final Vector<ArrayList<Roi>>[] loadedExamples = (Vector<ArrayList<Roi>>[]) objectInputStream.readObject();
+			objectInputStream.close();
+ 			if (loadedExamples.length != trainingImage.getImageStackSize()) {
+ 				IJ.error("Load Failed", "The saved ROI stack size does not match the training image.");
+ 				return false;
+ 			}
+			boolean valid = loadedNumOfClasses >= 2 && loadedNumOfClasses <= MAX_NUM_CLASSES
+					&& loadedClassLabels.length >= loadedNumOfClasses;
+			for (int n = 0; valid && n < loadedExamples.length; n++)
+				valid = loadedExamples[n].size() >= loadedNumOfClasses;
+			if (!valid) {
+				IJ.error("Load Failed", "The example ROI file is invalid.");
+				return false;
+			}
+ 			numOfClasses = loadedNumOfClasses;
+ 			classLabels = loadedClassLabels;
+ 			examples = loadedExamples;
+ 			if (!isProcessing3D) {
+ 				for (int n = 0; n < examples.length && n < featureStackToUpdateTest.length; n++) {
+ 					if (!featureStackToUpdateTest[n])
+ 						continue;
+ 					for (final ArrayList<Roi> rois : examples[n]) {
+ 						if (!rois.isEmpty()) {
+ 							featureStackToUpdateTrain[n] = true;
+ 							featureStackToUpdateTest[n] = false;
+ 							updateFeatures = true;
+ 							break;
+ 						}
+ 					}
+ 				}
+ 			}
+			IJ.log("Loaded example ROI traces from " + filename);
+		}
+		catch (Exception e) {
+			IJ.error("Load Failed", "Error when loading example ROI traces from " + filename);
+			return false;
+		}
+		return true;
 	}
 }
