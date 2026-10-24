@@ -1,7 +1,11 @@
 # Eclipse #
 /.classpath
+/.factorypath
 /.project
 /.settings/
 /doc
 # Maven #
 /target/
+
+# IntelliJ #
+/.idea/
