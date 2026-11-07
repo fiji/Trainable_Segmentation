@@ -1,4 +1,4 @@
-[![](https://github.com/fiji/Trainable_Segmentation/actions/workflows/build-main.yml/badge.svg)](https://github.com/fiji/Trainable_Segmentation/actions/workflows/build-main.yml)
+[![Build Status](https://github.com/fiji/Trainable_Segmentation/actions/workflows/build.yml/badge.svg)](https://github.com/fiji/Trainable_Segmentation/actions/workflows/build.yml)
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.59290.svg)](http://dx.doi.org/10.5281/zenodo.59290)
 
 Trainable Weka Segmentation
